@@ -1,0 +1,49 @@
+import { h, render } from './utils.js';
+import { Header } from './components/Header.js';
+import { HomeSection } from './components/HomeSection.js';
+import { QuiropracticaSection } from './components/QuiropracticaSection.js';
+import { ResosenseSection } from './components/ResosenseSection.js';
+import { SalasSection } from './components/SalasSection.js';
+import { ContactoSection } from './components/ContactoSection.js';
+import { ChatWidget } from './components/ChatWidget.js';
+import { Footer } from './components/Footer.js';
+
+function App() {
+  // Manejador de navegación global para toda la app
+  document.addEventListener('tab-change', (e) => {
+    const tabId = e.detail;
+    
+    // Cambiar visibilidad de secciones
+    document.querySelectorAll('.tab-section').forEach(sec => {
+      sec.classList.remove('active');
+      if (sec.id === tabId) sec.classList.add('active');
+    });
+
+    // Cambiar estado activo en nav
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      if (a.dataset.tab === tabId) {
+        a.classList.add('active');
+      } else {
+        a.classList.remove('active');
+      }
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  return h('div', { id: 'wrapper' },
+    Header(),
+    HomeSection(),
+    QuiropracticaSection(),
+    ResosenseSection(),
+    SalasSection(),
+    ContactoSection(),
+    Footer(),
+    ChatWidget()
+  );
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  render(App(), document.getElementById('app'));
+});
+
