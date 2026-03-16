@@ -31,7 +31,7 @@ onda-vital/
 
 ## Variables de entorno (.env)
 ```env
-ANTHROPIC_API_KEY=tu_clave_aqui
+grock=tu_clave_aqui
 PORT=3000
 ```
 
@@ -39,12 +39,12 @@ PORT=3000
 1. Abre tu terminal en la carpeta `onda-vital`.
 2. Ejecuta `npm install` para instalar las dependencias.
 3. Copia el archivo `.env.example` y renómbralo a `.env`. (En Windows: `copy .env.example .env`).
-4. Añade tu `ANTHROPIC_API_KEY` real en tu archivo `.env`.
+4. Añade tu `grok` real en tu archivo `.env`.
 5. Ejecuta `node server.js` (o `npm start`).
 6. Abre http://localhost:3000 en tu navegador.
 
 ## Prompt exitoso
-Construye la aplicación web completa de "Onda Vital", un centro de bienestar con chatbot IA (Claude-in-Claude), sistema de reservas, frontend premium y backend Node.js en arquitectura MVC.
+Construye la aplicación web completa de "Onda Vital", un centro de bienestar con chatbot IA (grok), sistema de reservas, frontend premium y backend Node.js en arquitectura MVC.
 
 ## Diccionario de términos técnicos
 - **Payload:** Datos reales que se envían en el cuerpo de una petición HTTP (ej: `{ mensaje: "Hola", historial: [] }`).
@@ -59,7 +59,7 @@ Construye la aplicación web completa de "Onda Vital", un centro de bienestar co
 3. El usuario escribe un mensaje → `app.js` llama a `POST /api/chat`.
 4. `chatRoutes.js` recibe la petición → extrae `{ mensaje, historial }` → llama `ChatController.responder()`.
 5. `ChatController` construye el array de mensajes (historial + nuevo mensaje).
-6. Se llama a la API de Anthropic con el system prompt de Onda Vital y el modelo `claude-3-5-sonnet-20241022`.
+6. Se llama a la API de grok con el system prompt de Onda Vital y el modelo `grok-4.1-fast`.
 7. La respuesta se analiza mediante expresión regular: ¿contiene `[RESERVA_LISTA:nombre|sala|fecha|horario]`?
 8. Si la contiene → `ReservaModel.guardar()` registra la pre-reserva automáticamente + se envía el flag `reservaDetectada` al frontend. Se elimina el texto del tag oculto para que el usuario reciba un texto limpio.
 9. El frontend muestra la burbuja de respuesta y, al comprobar el flag de reserva, abre el modal elegante de Onda Vital.

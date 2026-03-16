@@ -6,7 +6,7 @@ export function HomeSection() {
       h('div', { className: 'parallax-header' },
         h('div', { className: 'parallax-bg' }),
         h('div', { className: 'parallax-title' },
-          h('h2', { style: { fontWeight: '300', letterSpacing: '2px' } }, 'Onda Vital Holistic'),
+          h('h2', { style: { fontWeight: '300', letterSpacing: '2px' } }, ''),
           h('h1', {}, 'Nuestro Enfoque Eres Tú'),
           h('p', {}, 'Vuelve a empezar cada día con ilusión')
         )
