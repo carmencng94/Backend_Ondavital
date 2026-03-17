@@ -16,7 +16,7 @@ export function AboutSection() {
         ),
         h('div', {},
           h('h3', {}, 'Contacto Salas'),
-          h('p', {}, 'WhatsApp: 601 39 21 61'),
+          h('p', {}, 'WhatsApp: ', h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
           h('p', {}, 'David - Coordinador de Espacios')
         )
       )

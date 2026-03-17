@@ -28,7 +28,7 @@ export function ChatWidget() {
   };
 
   const saludar = () => {
-    const msg = "¡Hola! Bienvenido a Onda Vital Holistic. Soy tu asistente virtual. ¿En qué puedo ayudarte hoy?";
+    const msg = "¡Hola! Bienvenido a Onda Vital Holistic. Soy Vitalis, tu asistente virtual. ¿En qué puedo ayudarte hoy?";
     chatHistory.push({ role: 'assistant', content: msg });
     appendBubble('bot', msg);
   };
@@ -109,13 +109,18 @@ export function ChatWidget() {
 
   return h('div', { id: 'chat-root' },
     h('button', { className: 'chat-widget-btn', onclick: toggleChat },
-      h('svg', { width: '28', height: '28', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: '2' },
-        h('path', { d: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' })
-      )
+      h('img', { 
+        src: 'assets/images/ai_avatar.png', 
+        alt: 'AI Assistant',
+        className: 'chat-avatar-btn'
+      })
     ),
     h('div', { id: 'chat-window', className: 'chat-window hidden' },
       h('div', { className: 'chat-header' },
-        h('div', { className: 'chat-header-title' }, 'Asistente de Reservas'),
+        h('div', { className: 'chat-header-user' },
+          h('img', { src: 'assets/images/ai_avatar.png', className: 'chat-header-avatar' }),
+          h('div', { className: 'chat-header-title' }, 'Vitalis')
+        ),
         h('button', { className: 'chat-close-btn', onclick: toggleChat }, '✕')
       ),
       chatMessages,

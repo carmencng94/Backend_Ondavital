@@ -8,7 +8,7 @@ export function ContactoSection() {
         h('div', { className: 'contacto-info' },
           h('div', { className: 'contact-method' },
             h('h3', {}, 'Quiropráctica'),
-            h('p', { className: 'phone' }, h('strong', {}, '601 39 21 61')),
+            h('p', { className: 'phone' }, h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
             h('div', { className: 'schedule' },
               h('p', {}, 'Lunes y Miércoles: 17:30 - 20h'),
               h('p', {}, 'Martes y Jueves: 10:30 - 13h')
@@ -16,7 +16,7 @@ export function ContactoSection() {
           ),
           h('div', { className: 'contact-method', style: { marginTop: 'var(--space-lg)' } },
             h('h3', {}, 'Alquiler de Salas'),
-            h('p', {}, h('strong', {}, 'WhatsApp: '), '601 39 21 61'),
+            h('p', {}, h('strong', {}, 'WhatsApp: '), h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
             h('p', { className: 'contact-name' }, 'Atención: David')
           ),
           h('div', { className: 'contact-location', style: { marginTop: 'var(--space-lg)' } },

@@ -19,7 +19,13 @@ export function h(tag, props = {}, ...children) {
         const styleStr = Object.entries(value).map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}:${v}`).join(';');
         el.setAttribute('style', styleStr);
       } else {
-        Object.assign(el.style, value);
+        for (const [sKey, sValue] of Object.entries(value)) {
+          if (sKey.startsWith('--')) {
+            el.style.setProperty(sKey, sValue);
+          } else {
+            el.style[sKey] = sValue;
+          }
+        }
       }
     } else if (key === 'dataset' && typeof value === 'object') {
       Object.assign(el.dataset, value);

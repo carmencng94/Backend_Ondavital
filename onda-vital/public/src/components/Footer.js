@@ -5,7 +5,9 @@ export function Footer() {
     h('div', { className: 'footer-top-bar' },
       h('a', { href: '#' }, 'Contrato de Formación'),
       h('span', {}, ' | '),
-      h('a', { href: '#' }, 'Política de Privacidad')
+      h('a', { href: '#' }, 'Política de Privacidad'),
+      h('span', {}, ' | '),
+      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, 'Web Oficial de DEAwakening ↗')
     ),
     h('div', { className: 'container footer-main-grid' },
       // Columna 1: Info General
@@ -50,8 +52,8 @@ export function Footer() {
       h('div', { className: 'footer-col' },
         h('h4', { className: 'mini-title' }, 'Contacto'),
         h('p', { className: 'footer-email' }, 'info@ondavitalholistic.com'),
-        h('p', { className: 'footer-phone' }, 'Teléfono: 601 39 21 61'),
-        h('p', { className: 'footer-whatsapp' }, 'WhatsApp: 601 39 21 61 (David)')
+        h('p', { className: 'footer-phone' }, 'Teléfono: ', h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
+        h('p', { className: 'footer-whatsapp' }, 'WhatsApp: ', h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } }), ' (David)')
       ),
       // Columna 4: Formulario
       h('div', { className: 'footer-col' },
