@@ -2,31 +2,42 @@ import { h } from '../utils.js';
 
 export function Header() {
   const navItems = [
-    { id: 'home', label: 'Home' },
+    { id: 'home',          label: 'Home' },
     { id: 'quiropractica', label: 'Quiropráctica' },
-    { id: 'resosense', label: 'Resosense' },
-    { id: 'salas', label: 'Salas' },
-    { id: 'contacto', label: 'Contacto' }
+    { id: 'resosense',     label: 'Resosense' },
+    { id: 'salas',         label: 'Salas' },
+    { id: 'contacto',      label: 'Contacto' }
   ];
 
   const handleLinkClick = (e, id) => {
     e.preventDefault();
+    if (id === 'asistente') {
+      document.dispatchEvent(new CustomEvent('abrir-chat-asistente'));
+      return;
+    }
     document.dispatchEvent(new CustomEvent('tab-change', { detail: id }));
   };
 
   return h('header', { className: 'navbar' },
-    h('div', { className: 'brand', onclick: (e) => handleLinkClick(e, 'home') },
-      h('img', { 
-        src: 'assets/images/logo_onda_vital.png', 
+    // Lado izquierdo: Logo + botón Asistente Vitalis
+    h('div', { className: 'brand' },
+      h('img', {
+        src: 'assets/images/logo_onda_vital.png',
         alt: 'Onda Vital Logo',
-        className: 'nav-logo'
-      })
+        className: 'nav-logo',
+        onclick: (e) => handleLinkClick(e, 'home')
+      }),
+      h('button', {
+        className: 'btn-vitalis-nav',
+        onclick: (e) => { e.preventDefault(); handleLinkClick(e, 'asistente'); }
+      }, '✦ Asistente Vitalis')
     ),
+    // Lado derecho: Menú de navegación
     h('ul', { className: 'nav-links' },
-      navItems.map(item => 
-        h('li', {}, 
-          h('a', { 
-            dataset: { tab: item.id }, 
+      navItems.map(item =>
+        h('li', {},
+          h('a', {
+            dataset: { tab: item.id },
             className: item.id === 'home' ? 'active' : '',
             href: '#',
             onclick: (e) => handleLinkClick(e, item.id)

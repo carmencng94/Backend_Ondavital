@@ -92,6 +92,7 @@ body {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: var(--space-xl);
   list-style: none;
 }
@@ -109,10 +110,37 @@ body {
   color: hsl(var(--color-primary));
 }
 
+/* Botón Asistente Vitalis en el nav (junto al logo) */
+.btn-vitalis-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: hsl(var(--color-primary));
+  color: white;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: 0 4px 14px hsl(var(--color-primary) / 0.35);
+  transition: all var(--transition-fast);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.btn-vitalis-nav:hover {
+  background: hsl(var(--color-primary-hover));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px hsl(var(--color-primary) / 0.45);
+}
+
 .brand {
   display: flex;
   align-items: center;
-  cursor: pointer;
+  gap: var(--space-md);
+  cursor: default;
 }
 
 .nav-logo {
@@ -827,6 +855,72 @@ body {
   direction: ltr;
 }
 
+/* =========================================
+   ASISTENTE VITALIS (Chat Widget)
+   ========================================= */
+#chat-root {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10001;
+}
+
+.chat-help-bubble {
+  position: absolute;
+  bottom: 80px;
+  right: 10px;
+  background: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-bubble);
+  box-shadow: var(--shadow-widget);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: hsl(var(--color-text));
+  border: 1px solid hsl(var(--color-border));
+  white-space: nowrap;
+  cursor: pointer;
+  animation: floatBubble 3s ease-in-out infinite, fadeIn 0.5s ease-out;
+  z-index: 10000;
+  transition: opacity var(--transition-short), visibility var(--transition-short);
+}
+
+.chat-help-bubble.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.chat-help-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  right: 15px; /* Aligned with avatar center */
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid white;
+}
+
+.chat-help-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  right: 14px; /* Aligned with avatar center */
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid hsl(var(--color-border));
+  z-index: -1;
+}
+
+@keyframes floatBubble {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+
 .reso-row.reverse .reso-text-col {
   order: 2;
 }
@@ -961,8 +1055,15 @@ body {
     grid-template-columns: 1fr;
   }
   .chat-window {
-    width: 90vw;
-    right: 5vw;
+    width: calc(100vw - 2rem);
+    right: 1rem;
+    bottom: 5.5rem;
+  }
+  .chat-widget-btn {
+    right: 1rem;
+    bottom: 1rem;
+    width: 58px;
+    height: 58px;
   }
 }
 
@@ -970,22 +1071,22 @@ body {
    COMPONENTE: WIDGET DE CHAT (Tokens)
    ========================================= */
 
+/* ============================================
+   WIDGET DE CHAT — posicionamiento definitivo
+   ============================================ */
 .chat-widget-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 75px; /* Aumentado */
-  height: 75px; /* Aumentado */
+  position: relative;
+  width: 68px;
+  height: 68px;
   border-radius: var(--radius-full);
-  background: white; /* Fondo blanco para que el avatar resalte */
+  background: white;
   box-shadow: var(--shadow-widget);
   cursor: pointer;
-  border: 2px solid hsl(var(--color-primary) / 0.1);
+  border: 2px solid hsl(var(--color-primary) / 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
-  z-index: 1000;
   overflow: hidden;
 }
 
@@ -1002,18 +1103,18 @@ body {
 }
 
 .chat-window {
-  position: fixed;
-  bottom: 7.5rem; /* Ajustado por el nuevo tamaño del bot */
-  right: 2rem;
-  width: 420px; /* Aumentado */
-  height: 600px; /* Aumentado */
+  position: absolute;
+  bottom: 5rem;
+  right: 0;
+  width: min(400px, calc(100vw - 4rem));
+  height: min(580px, 75vh);
   background: hsl(var(--color-surface-chat));
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-widget);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 999;
+  z-index: 10002;
   transform-origin: bottom right;
   animation: chatOpen var(--transition-base) ease-out;
 }

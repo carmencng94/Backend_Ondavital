@@ -21,14 +21,17 @@ export function ChatWidget() {
   // --- Lógica ---
   const toggleChat = () => {
     const win = document.getElementById('chat-window');
+    const helpBubble = document.getElementById('chat-help-bubble');
     win.classList.toggle('hidden');
+    if (helpBubble) helpBubble.classList.add('hidden'); // Hide the help bubble when opened
+    
     if (!win.classList.contains('hidden') && chatHistory.length === 0) {
       saludar();
     }
   };
 
   const saludar = () => {
-    const msg = "¡Hola! Bienvenido a Onda Vital Holistic. Soy Vitalis, tu asistente virtual. ¿En qué puedo ayudarte hoy?";
+    const msg = "¡Hola! Bienvenido a Onda Vital Holistic. Soy Asistente Vitalis. ¿En qué puedo ayudarte hoy?";
     chatHistory.push({ role: 'assistant', content: msg });
     appendBubble('bot', msg);
   };
@@ -103,15 +106,26 @@ export function ChatWidget() {
   // Event Listeners Globales
   document.addEventListener('consultar-sala', (e) => {
     const win = document.getElementById('chat-window');
-    if (win.classList.contains('hidden')) toggleChat();
+    if (win && win.classList.contains('hidden')) toggleChat();
     enviarMensaje(`Quiero consultar disponibilidad para la ${e.detail}`);
   });
 
+  document.addEventListener('abrir-chat-asistente', () => {
+    const win = document.getElementById('chat-window');
+    const bubble = document.getElementById('chat-help-bubble');
+    if (win && win.classList.contains('hidden')) {
+      toggleChat();
+    }
+  });
+
   return h('div', { id: 'chat-root' },
+    h('div', { id: 'chat-help-bubble', className: 'chat-help-bubble', onclick: toggleChat },
+      '¿Necesitas ayuda?', h('br'), 'Estoy aquí para ti.'
+    ),
     h('button', { className: 'chat-widget-btn', onclick: toggleChat },
       h('img', { 
         src: 'assets/images/ai_avatar.png', 
-        alt: 'AI Assistant',
+        alt: 'Asistente Vitalis',
         className: 'chat-avatar-btn'
       })
     ),
@@ -119,7 +133,7 @@ export function ChatWidget() {
       h('div', { className: 'chat-header' },
         h('div', { className: 'chat-header-user' },
           h('img', { src: 'assets/images/ai_avatar.png', className: 'chat-header-avatar' }),
-          h('div', { className: 'chat-header-title' }, 'Vitalis')
+          h('div', { className: 'chat-header-title' }, 'Asistente Vitalis')
         ),
         h('button', { className: 'chat-close-btn', onclick: toggleChat }, '✕')
       ),
