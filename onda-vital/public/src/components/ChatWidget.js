@@ -13,7 +13,12 @@ export function ChatWidget() {
     type: 'text', 
     className: 'chat-input', 
     placeholder: 'Pregunta disponibilidad...',
-    autocomplete: 'off'
+    autocomplete: 'off',
+    onkeydown: (e) => {
+      if (e.key === 'Enter') {
+        enviarMensaje();
+      }
+    }
   });
 
   const modalOverlay = h('div', { className: 'modal-overlay hidden' });
