@@ -1,20 +1,22 @@
 function renderLogin(wrapper, errorMsg = '') {
-  wrapper.className = 'admin-wrapper';
+  document.body.classList.add('admin-body');
+  wrapper.className = 'admin-app-container';
   
   wrapper.innerHTML = `
     <div class="login-card">
-      <h1>Panel Admin</h1>
+      <img src="../assets/images/logo_onda_vital.png" alt="Onda Vital" style="width: 140px; margin-bottom: 20px;">
+      <h1>Panel Administrador</h1>
       ${errorMsg ? `<div class="error-message">${errorMsg}</div>` : ''}
       <form id="login-form">
         <div class="input-group">
           <label for="username">Usuario</label>
-          <input type="text" id="username" required autocomplete="username">
+          <input type="text" id="username" required autocomplete="username" placeholder="Tu usuario">
         </div>
         <div class="input-group">
           <label for="password">Contraseña</label>
-          <input type="password" id="password" required autocomplete="current-password">
+          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
         </div>
-        <button type="submit" class="btn-primary-admin">Entrar</button>
+        <button type="submit" class="btn-primary-admin">Aceder al Sistema</button>
       </form>
     </div>
   `;
@@ -47,44 +49,53 @@ function renderLogin(wrapper, errorMsg = '') {
 }
 
 function renderDashboard(wrapper) {
+  document.body.classList.remove('admin-body');
   wrapper.className = '';
   
   wrapper.innerHTML = `
-    <div class="dashboard-card" style="max-width: 1000px; padding: 30px;">
-      <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-        <h2 style="margin: 0; color: hsl(158 25% 30%);">Panel de Control - Onda Vital</h2>
-        <button id="btn-logout" class="btn-logout">Cerrar Sesión</button>
+    <div class="dashboard-card">
+      <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2 style="margin: 0;">Gestión de Contenidos</h2>
+          <p style="color: #64748b; margin: 4px 0 0 0; font-size: 0.9rem;">Actualiza los textos e imágenes de tu web en tiempo real.</p>
+        </div>
+        <button id="btn-logout" class="btn-logout">Cerrar Sesión Segura</button>
       </div>
       
-      <p style="color: #666; margin-bottom: 20px;">Navega por las pestañas para editar los textos de tu web al instante.</p>
-
-      <!-- BARRA DE PESTAÑAS -->
-      <div id="tabs-container" style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #ddd; overflow-x: auto; padding-bottom: 5px;">
-        <!-- Se rellenará con JS -->
+      <!-- NAVEGACIÓN POR SECCIONES -->
+      <div id="tabs-container" style="display: flex; gap: 8px; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; overflow-x: auto; padding-bottom: 10px;">
+        <!-- Inyectado por JS -->
       </div>
 
-      <!-- CONTENEDOR DEL EDITOR SEGÚN PESTAÑA -->
-      <div id="editor-container" style="min-height: 300px;">
-        <div style="text-align: center; padding: 40px; color: #888;">Cargando contenidos...</div>
+      <!-- EDITOR PRINCIPAL -->
+      <div id="editor-container" class="editor-grid">
+        <div style="text-align: center; padding: 60px; color: #94a3b8; grid-column: 1/-1;">
+          Preparando el editor...
+        </div>
       </div>
 
-      <hr style="margin: 50px 0 30px 0; border: none; border-top: 1px dashed #ccc;">
-      
-      <h3 style="color: hsl(158 25% 30%); margin-bottom: 20px;">🖼️ Galería y Multimedia</h3>
-      <div style="background: #f4f6f8; padding: 25px; border-radius: 8px; border: 1px solid #dcdcdc;">
-        <form id="upload-form">
-          <p style="font-size: 14px; margin-bottom: 15px; color: #555;">Si un campo es de tipo imagen, ingresa aquí su clave y sube tu archivo.</p>
-          <div class="input-group">
-            <label for="image-key">Clave asociada a la imagen</label>
-            <input type="text" id="image-key" required placeholder="Ej: home_hero_bg">
-          </div>
-          <div class="input-group">
-            <label for="image-file">Seleccionar archivo</label>
-            <input type="file" id="image-file" accept="image/*" required>
-          </div>
-          <button type="submit" class="btn-primary-admin" style="width: auto; padding: 10px 20px;">1. Optimizar  2. Guardar</button>
-          <div id="upload-status" style="margin-top: 15px; font-weight: bold; font-size: 14px;"></div>
-        </form>
+      <div style="margin: 60px 0 40px 0; padding-top: 40px; border-top: 1px dashed #e2e8f0;">
+        <h3 style="color: hsl(158 25% 30%); margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+          <span style="background: hsl(158 25% 95%); padding: 8px; border-radius: 8px;">🖼️</span> 
+          Multimedia y Galería
+        </h3>
+        <div style="background: #f8fafc; padding: 35px; border-radius: var(--radius-lg); border: 1px solid #e2e8f0;">
+          <form id="upload-form" style="max-width: 500px;">
+            <p style="font-size: 14px; margin-bottom: 25px; color: #64748b; line-height: 1.5;">
+              Para cambiar una imagen, escribe su <strong>clave</strong> (ej: <code>home_hero_bg</code>) y selecciona el nuevo archivo. Se optimizará automáticamente.
+            </p>
+            <div class="input-group">
+              <label for="image-key" style="color: #475569;">Clave de la imagen</label>
+              <input type="text" id="image-key" required placeholder="Ej: home_hero_bg" style="background: white; border: 1px solid #cbd5e1; color: #333;">
+            </div>
+            <div class="input-group">
+              <label for="image-file" style="color: #475569;">Nuevo archivo</label>
+              <input type="file" id="image-file" accept="image/*" required style="background: white; border: 1px solid #cbd5e1; color: #333; padding: 10px;">
+            </div>
+            <button type="submit" class="btn-primary-admin" style="width: auto; padding: 12px 30px;">Optimizar y Guardar Imagen</button>
+            <div id="upload-status" style="margin-top: 15px; font-weight: bold; font-size: 14px;"></div>
+          </form>
+        </div>
       </div>
     </div>
   `;
@@ -176,22 +187,24 @@ async function loadContentEditor() {
       const tabBtn = document.createElement('button');
       tabBtn.textContent = categoryNames[prefix] || prefix.toUpperCase();
       tabBtn.className = 'tab-btn';
-      tabBtn.style.padding = '10px 20px';
+      tabBtn.style.padding = '12px 24px';
       tabBtn.style.border = 'none';
       tabBtn.style.borderBottom = isFirst ? '3px solid hsl(158 25% 30%)' : '3px solid transparent';
       tabBtn.style.background = 'transparent';
       tabBtn.style.cursor = 'pointer';
-      tabBtn.style.fontWeight = isFirst ? 'bold' : 'normal';
-      tabBtn.style.color = isFirst ? 'hsl(158 25% 30%)' : '#666';
-      tabBtn.style.fontSize = '15px';
+      tabBtn.style.fontWeight = isFirst ? '700' : '500';
+      tabBtn.style.color = isFirst ? 'hsl(158 25% 30%)' : '#94a3b8';
+      tabBtn.style.fontSize = '14px';
       tabBtn.style.whiteSpace = 'nowrap';
+      tabBtn.style.borderRadius = '4px 4px 0 0';
       
       // 2. Crear Grupo Contenedor
       const groupDiv = document.createElement('div');
       groupDiv.id = 'group-' + prefix;
-      groupDiv.className = 'group-content';
-      groupDiv.style.display = isFirst ? 'block' : 'none';
-      groupDiv.style.animation = 'fadeIn 0.3s ease';
+      groupDiv.className = 'group-content editor-grid';
+      groupDiv.style.display = isFirst ? 'grid' : 'none';
+      groupDiv.style.animation = 'fadeIn 0.5s ease';
+      groupDiv.style.gridColumn = '1 / -1';
 
       // 3. Rellenar Grupo
       for (const key of groups[prefix]) {
@@ -229,22 +242,17 @@ async function loadContentEditor() {
 // Función auxiliar para pintar un campo individual
 function doItemDiv(key, val, isUrl) {
   const itemDiv = document.createElement('div');
-  itemDiv.style.marginBottom = '20px';
-  itemDiv.style.padding = '15px 20px';
-  itemDiv.style.background = '#fff';
-  itemDiv.style.border = '1px solid #eaeaea';
-  itemDiv.style.borderRadius = '8px';
-  itemDiv.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+  itemDiv.className = 'item-editor-card';
   
   const label = document.createElement('label');
-  label.textContent = key;
+  label.textContent = key.replace(/_/g, ' ');
   label.style.display = 'block';
-  label.style.fontWeight = 'bold';
-  label.style.color = '#334155';
-  label.style.marginBottom = '8px';
-  label.style.fontSize = '12px';
+  label.style.fontWeight = '700';
+  label.style.color = '#1e293b';
+  label.style.marginBottom = '12px';
+  label.style.fontSize = '11px';
   label.style.textTransform = 'uppercase';
-  label.style.letterSpacing = '0.5px';
+  label.style.letterSpacing = '1px';
   itemDiv.appendChild(label);
 
   if (isUrl) {
@@ -280,25 +288,40 @@ function doItemDiv(key, val, isUrl) {
     }
     
     field.style.width = '100%';
-    field.style.padding = '12px';
-    field.style.border = '1px solid #ccc';
-    field.style.borderRadius = '6px';
+    field.style.padding = '12px 14px';
+    field.style.border = '1px solid #e2e8f0';
+    field.style.borderRadius = '8px';
     field.style.fontFamily = 'inherit';
-    field.style.fontSize = '15px';
+    field.style.fontSize = '14px';
     field.style.boxSizing = 'border-box';
+    field.style.background = '#fcfdfe';
+    field.style.color = '#334155';
+    field.style.transition = 'all 0.2s ease';
+
+    field.onfocus = () => {
+      field.style.borderColor = 'hsl(158 25% 50%)';
+      field.style.background = '#fff';
+      field.style.boxShadow = '0 0 0 3px rgba(67, 160, 129, 0.1)';
+    };
+    field.onblur = () => {
+      field.style.borderColor = '#e2e8f0';
+      field.style.background = '#fcfdfe';
+      field.style.boxShadow = 'none';
+    };
     
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Guardar';
+    saveBtn.textContent = 'Guardar Cambio';
     saveBtn.className = 'btn-primary-admin';
     saveBtn.style.width = 'auto';
-    saveBtn.style.padding = '6px 16px';
-    saveBtn.style.marginTop = '10px';
-    saveBtn.style.fontSize = '13px';
+    saveBtn.style.padding = '8px 20px';
+    saveBtn.style.marginTop = '15px';
+    saveBtn.style.fontSize = '12px';
+    saveBtn.style.letterSpacing = '0.5px';
     
     const statusSpan = document.createElement('span');
-    statusSpan.style.marginLeft = '10px';
-    statusSpan.style.fontSize = '13px';
-    statusSpan.style.fontWeight = 'bold';
+    statusSpan.style.marginLeft = '12px';
+    statusSpan.style.fontSize = '12px';
+    statusSpan.style.fontWeight = '600';
 
     saveBtn.addEventListener('click', async () => {
       statusSpan.textContent = '...';
