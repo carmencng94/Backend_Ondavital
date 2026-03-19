@@ -1,6 +1,8 @@
 import { h } from '../utils.js';
 
 export function ResosenseSection() {
+  const c = window.siteContent || {};
+
   return h('section', { id: 'resosense', className: 'tab-section' },
     h('div', { className: 'container reso-container' },
       
@@ -14,8 +16,8 @@ export function ResosenseSection() {
               className: 'reso-main-logo'
             })
           ),
-          h('h2', { className: 'reso-title' }, 'Resosense'),
-          h('p', { className: 'reso-tagline' }, 'Una suave práctica de movimiento personal para un cambio profundo.')
+          h('h2', { className: 'reso-title' }, c.reso_title || 'Resosense'),
+          h('p', { className: 'reso-tagline' }, c.reso_subtitle || 'Una suave práctica de movimiento personal para un cambio profundo.')
         )
       ),
 
@@ -23,8 +25,8 @@ export function ResosenseSection() {
       h('div', { className: 'reso-row' },
         h('div', { className: 'reso-text-col' },
           h('div', { className: 'reso-info-card shadow-premium' },
-            h('h3', {}, '¿Qué es Resosense?'),
-            h('p', {}, 'Resosense es una práctica personal en la que utilizas tus propios músculos para generar ondas de resonancia en tu cuerpo.'),
+            h('h3', {}, c.reso_question || '¿Qué es Resosense?'),
+            h('p', {}, c.reso_answer_1 || 'Resosense es una práctica personal en la que utilizas tus propios músculos para generar ondas de resonancia en tu cuerpo.'),
             h('p', { className: 'highlight-text' }, 
               'El movimiento suave en frecuencias específicas es simple y sus efectos se pueden ver en todos los sistemas del cuerpo, tanto físicos como energéticos.'
             )
@@ -42,8 +44,8 @@ export function ResosenseSection() {
         ),
         h('div', { className: 'reso-text-col' },
           h('div', { className: 'reso-info-card shadow-premium' },
-            h('h3', {}, 'Nuestros Orígenes'),
-            h('p', {}, 'A partir de 2006, David reconoció por primera vez la existencia de frecuencias específicas de movimiento ondulatorio u oscilación en el cuerpo.'),
+            h('h3', {}, c.reso_origen_title || 'Nuestros Orígenes'),
+            h('p', {}, c.reso_origen_desc || 'A partir de 2006, David reconoció por primera vez la existencia de frecuencias específicas de movimiento ondulatorio u oscilación en el cuerpo.'),
             h('p', {}, 
               'Tras un momento de epifanía, se dio cuenta de que lo que había encontrado era en realidad la frecuencia fundamental del cuerpo humano. Utilizando ese conocimiento, desarrolló el sistema que hoy es Resosense.'
             )

@@ -1,6 +1,8 @@
 import { h } from '../utils.js';
 
 export function ContactoSection() {
+  const c = window.siteContent || {};
+
   return h('section', { id: 'contacto', className: 'tab-section' },
     h('div', { className: 'container' },
       h('h2', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)' } }, 'Contáctanos'),
@@ -8,21 +10,20 @@ export function ContactoSection() {
         h('div', { className: 'contacto-info' },
           h('div', { className: 'contact-method' },
             h('h3', {}, 'Quiropráctica'),
-            h('p', { className: 'phone' }, h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
+            h('p', { className: 'phone' }, h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
             h('div', { className: 'schedule' },
-              h('p', {}, 'Lunes y Miércoles: 17:30 - 20h'),
-              h('p', {}, 'Martes y Jueves: 10:30 - 13h')
+              h('p', {}, c.contacto_horarios_q1 || 'Lunes y Miércoles: 17:30 - 20h'),
+              h('p', {}, c.contacto_horarios_q2 || 'Martes y Jueves: 10:30 - 13h')
             )
           ),
           h('div', { className: 'contact-method', style: { marginTop: 'var(--space-lg)' } },
             h('h3', {}, 'Alquiler de Salas'),
-            h('p', {}, h('strong', {}, 'WhatsApp: '), h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
+            h('p', {}, h('strong', {}, 'WhatsApp: '), h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
             h('p', { className: 'contact-name' }, 'Atención: David')
           ),
           h('div', { className: 'contact-location', style: { marginTop: 'var(--space-lg)' } },
             h('h3', {}, 'Dirección'),
-            h('p', {}, 'c/ Martí Boneo, 31 bajos'),
-            h('p', {}, '07013 Palma de Mallorca (Son Dameto)')
+            h('p', {}, c.contacto_direccion || 'c/ Martí Boneo, 31 bajos, 07013 Palma de Mallorca (Son Dameto)')
           )
         ),
         h('div', { className: 'contacto-form-container' },

@@ -43,7 +43,19 @@ function App() {
   );
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch('/api/content');
+    if (response.ok) {
+      window.siteContent = await response.json();
+    } else {
+      window.siteContent = {};
+    }
+  } catch (err) {
+    console.error('Error al obtener el contenido de la web:', err);
+    window.siteContent = {};
+  }
+  
   render(App(), document.getElementById('app'));
 });
 

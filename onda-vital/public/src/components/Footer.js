@@ -1,6 +1,8 @@
 import { h } from '../utils.js';
 
 export function Footer() {
+  const c = window.siteContent || {};
+
   const container = h('footer', { id: 'main-footer', className: 'site-footer' },
     h('div', { className: 'footer-top-bar' },
       h('a', { href: '#' }, 'Contrato de Formación'),
@@ -13,12 +15,12 @@ export function Footer() {
       // Columna 1: Info General
       h('div', { className: 'footer-col' },
         h('h3', { className: 'footer-title' }, 'Quiropráctica'),
-        h('p', { className: 'footer-desc' }, 'Centro de bienestar y técnicas manuales para tu salud integral.'),
-        h('p', { className: 'footer-addr' }, 'c/ Martí Boneo, 31 bajos, 07013 Palma'),
+        h('p', { className: 'footer-desc' }, c.footer_desc || 'Centro de bienestar y técnicas manuales para tu salud integral.'),
+        h('p', { className: 'footer-addr' }, c.contacto_direccion || 'c/ Martí Boneo, 31 bajos, 07013 Palma'),
         h('div', { className: 'footer-schedule' },
           h('h4', {}, 'Horario de información:'),
-          h('p', {}, h('strong', {}, 'Lunes y Miércoles: '), '17:30 a 20:00 h'),
-          h('p', {}, h('strong', {}, 'Martes y Jueves: '), '10:30 a 13:00 h')
+          h('p', {}, h('strong', {}, 'L1: '), c.contacto_horarios_q1 || 'Lunes y Miércoles: 17:30 a 20:00 h'),
+          h('p', {}, h('strong', {}, 'L2: '), c.contacto_horarios_q2 || 'Martes y Jueves: 10:30 a 13:00 h')
         ),
         h('div', { className: 'footer-socials' },
           h('a', { href: '#', className: 'social-icon' }, 
@@ -51,9 +53,9 @@ export function Footer() {
       // Columna 3: Contacto
       h('div', { className: 'footer-col' },
         h('h4', { className: 'mini-title' }, 'Contacto'),
-        h('p', { className: 'footer-email' }, 'info@ondavitalholistic.com'),
-        h('p', { className: 'footer-phone' }, 'Teléfono: ', h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })),
-        h('p', { className: 'footer-whatsapp' }, 'WhatsApp: ', h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } }), ' (David)')
+        h('p', { className: 'footer-email' }, c.contacto_email || 'info@ondavitalholistic.com'),
+        h('p', { className: 'footer-phone' }, 'Teléfono: ', h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
+        h('p', { className: 'footer-whatsapp' }, 'WhatsApp: ', h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } }), ' (David)')
       ),
       // Columna 4: Formulario
       h('div', { className: 'footer-col' },
@@ -76,7 +78,7 @@ export function Footer() {
       )
     ),
     h('div', { className: 'footer-bottom-bar' },
-      h('p', {}, '© 1996- 2025 Onda Vital Holistic. All Rights Reserved.')
+      h('p', {}, c.footer_copyright || '© 1996- 2025 Onda Vital Holistic. All Rights Reserved.')
     )
   );
 

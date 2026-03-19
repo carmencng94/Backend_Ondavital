@@ -112,9 +112,30 @@ const salas = [
   }
 ];
 
+const ContentModel = require('./ContentModel');
+
 class SalaModel {
   static obtenerTodas() {
-    return salas;
+    try {
+      const dbTextos = ContentModel.obtenerTodos();
+      
+      return salas.map(sala => {
+        let keyEnBD = '';
+        if (sala.id === 'jardin') keyEnBD = 'sala_jardin_desc';
+        if (sala.id === 'azul') keyEnBD = 'sala_azul_desc';
+        if (sala.id === 'despacho-plus') keyEnBD = 'despacho_desc';
+        
+        // Si el admin ha editado esta clave, usamos la versión de la Base de Datos
+        if (keyEnBD && dbTextos[keyEnBD]) {
+          return { ...sala, descripcionLarga: dbTextos[keyEnBD] };
+        }
+        
+        return sala;
+      });
+    } catch (e) {
+      console.error("Error al inyectar contenido dinámico en salas:", e);
+      return salas;
+    }
   }
 }
 

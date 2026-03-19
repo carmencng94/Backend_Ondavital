@@ -1,19 +1,21 @@
 import { h } from '../utils.js';
 
 export function QuiropracticaSection() {
+  const c = window.siteContent || {};
+
   return h('section', { id: 'quiropractica', className: 'tab-section' },
     h('div', { className: 'container' },
       // Hero / Introducción
       h('div', { className: 'quiro-hero' },
-        h('h2', {}, 'Quiropráctica'),
-        h('p', { className: 'subtitle' }, '¡No hay que estar mal para estar mejor!')
+        h('h2', {}, c.quiro_title || 'Quiropráctica'),
+        h('p', { className: 'subtitle' }, c.quiro_subtitle || '¡No hay que estar mal para estar mejor!')
       ),
 
       // Grid Principal: Texto + Imágenes
       h('div', { className: 'quiro-grid' },
         h('div', { className: 'quiro-text-block' },
-          h('p', {}, 'La Quiropráctica es una profesión sanitaria reconocida en la mayoría de países desarrollados del mundo. Se trata de mejorar la capacidad del cuerpo de curarse y mantenerse sano.'),
-          h('p', {}, 'La gente acude al quiropráctico por muchas razones, entre ellas, para:'),
+          h('p', {}, c.quiro_intro_1 || 'La Quiropráctica es una profesión sanitaria reconocida en la mayoría de países desarrollados del mundo. Se trata de mejorar la capacidad del cuerpo de curarse y mantenerse sano.'),
+          h('p', {}, c.quiro_intro_2 || 'La gente acude al quiropráctico por muchas razones, entre ellas, para:'),
           h('ul', { className: 'quiro-benefits' },
             h('li', {}, 'Aliviar el dolor, nerviosismo y síntomas de estrés'),
             h('li', {}, 'Mejorar el sueño, digestión o movilidad'),
@@ -37,8 +39,8 @@ export function QuiropracticaSection() {
 
       // Técnicas Específicas
       h('div', { className: 'quiro-technique' },
-        h('h3', {}, 'DEA - Deep Energetic Awakening'),
-        h('p', {}, 'Basada en Network Spinal Analysis, es una técnica avanzada y a la vez muy suave. Ayuda a que el cuerpo aprenda a reconocer y corregir patrones de tensión y distorsión que impiden su buen funcionamiento.'),
+        h('h3', {}, c.quiro_dea_title || 'DEA - Deep Energetic Awakening'),
+        h('p', {}, c.quiro_dea_desc || 'Basada en Network Spinal Analysis, es una técnica avanzada y a la vez muy suave. Ayuda a que el cuerpo aprenda a reconocer y corregir patrones de tensión y distorsión que impiden su buen funcionamiento.'),
         h('p', {}, '¡Asiste a tu cuerpo a recuperar su estado natural de salud para disfrutar de la vida con menos dolor, menos estrés y más flexibilidad y energía!'),
         h('a', { 
           href: 'https://www.deawakening.com/', 
@@ -51,7 +53,7 @@ export function QuiropracticaSection() {
       h('div', { className: 'quiro-grid reverse' },
         h('div', { className: 'quiro-text-block' },
           h('h3', { style: { color: 'hsl(var(--color-primary))', marginBottom: 'var(--space-md)' } }, 'Resosense'),
-          h('p', {}, 'Práctica personal desarrollada por David Biddle aquí en Mallorca. Utiliza la resonancia estructural del cuerpo para equilibrar y mejorar tu ser.'),
+          h('p', {}, c.quiro_resosense_desc || 'Práctica personal desarrollada por David Biddle aquí en Mallorca. Utiliza la resonancia estructural del cuerpo para equilibrar y mejorar tu ser.'),
           h('p', {}, 'Con solo unos minutos al día, tumbado, usando los suaves movimientos, se generan cambios sorprendentes. Es el complemento perfecto al DEA.')
         ),
         h('div', { className: 'quiro-text-block' },
@@ -67,9 +69,9 @@ export function QuiropracticaSection() {
         h('p', {}, 'Llámanos para concertar una cita de evaluación'),
         h('div', { 
           className: 'cta-phone phone-cta-link', 
-          onclick: () => window.location.href = 'tel:+34601392161' 
+          onclick: () => window.location.href = `tel:+34${(c.contacto_telefono || "601392161").replace(/\\s/g,'')}` 
         }, 
-          h('span', { className: 'tty', style: { '--n': "'601 39 21 61'" } })
+          h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })
         )
       )
     )

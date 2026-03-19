@@ -6,7 +6,8 @@ export function Header() {
     { id: 'quiropractica', label: 'Quiropráctica' },
     { id: 'resosense',     label: 'Resosense' },
     { id: 'salas',         label: 'Salas' },
-    { id: 'contacto',      label: 'Contacto' }
+    { id: 'contacto',      label: 'Contacto' },
+    { id: 'admin',         label: 'Panel Admin', isLink: true, url: '/admin' }
   ];
 
   const handleLinkClick = (e, id) => {
@@ -36,12 +37,14 @@ export function Header() {
     h('ul', { className: 'nav-links' },
       navItems.map(item =>
         h('li', {},
-          h('a', {
-            dataset: { tab: item.id },
-            className: item.id === 'home' ? 'active' : '',
-            href: '#',
-            onclick: (e) => handleLinkClick(e, item.id)
-          }, item.label)
+          item.isLink 
+            ? h('a', { href: item.url, style: { color: 'hsl(var(--color-primary))', fontWeight: 'bold' } }, item.label)
+            : h('a', {
+                dataset: { tab: item.id },
+                className: item.id === 'home' ? 'active' : '',
+                href: '#',
+                onclick: (e) => handleLinkClick(e, item.id)
+              }, item.label)
         )
       )
     )

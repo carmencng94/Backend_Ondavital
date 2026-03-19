@@ -9,6 +9,9 @@ const path = require('path');
 const chatRoutes = require('./routes/chatRoutes');
 const reservaRoutes = require('./routes/reservaRoutes');
 const salaRoutes = require('./routes/salaRoutes');
+const contentRoutes = require('./routes/contentRoutes');
+const authRoutes = require('./routes/authRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,9 +24,12 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Rutas de API
+app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/reservas', reservaRoutes);
 app.use('/api/salas', salaRoutes); // Endpoint opcional para consultar el catálogo
+app.use('/api/content', contentRoutes);
 
 // Ruta por defecto que sirve el frontend
 app.get('/', (req, res) => {

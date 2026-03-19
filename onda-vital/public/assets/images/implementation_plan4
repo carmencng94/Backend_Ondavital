@@ -1,0 +1,37 @@
+# Plan de Implementación: Integración Total y UX Administración (Fase 4)
+
+Este plan describe cómo haremos que toda la web sea 100% editable y cómo organizaremos el panel de administración a nivel profesional.
+
+## User Review Required
+No hay decisiones técnicas bloqueantes; confirmaremos que la categorización sea útil para tu cliente.
+
+## Proposed Changes
+
+### 1. Botón de Acceso en la Web
+Modificaremos el componente [Header.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/Header.js) público para añadir el enlace al Panel Admin en el menú de navegación superior.
+- **[MODIFY]** [public/src/components/Header.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/Header.js): Se inyecta un enlace `<a href="/admin">Acceso Admin</a>`.
+
+### 2. Panel CMS Organizado en Pestañas (Categorías)
+Haremos que [admin.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.js) sea inteligente: detectará si la clave empieza por `contacto_`, `salas_`, `quiro_`, `reso_` o `home_`, y las agrupará en "cajas" o "secciones" limpias, en lugar de una lista alfabética infinita.
+- **[MODIFY]** [public/admin/admin.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.js): Lógica de agrupación y renderizado por categorías (Ej. "Textos de Inicio", "Textos de Contacto", "Salas", etc.).
+- **[MODIFY]** [public/admin/admin.css](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.css): Estilos visuales de las nuevas cajas de grupos.
+
+### 3. Semilla de Textos Fijos (Backend)
+Configuraremos [ContentModel.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/models/ContentModel.js) para que la primera vez que arranque el servidor, inyecte en SQLite todos los textos predeterminados de todas tus páginas (decenas de textos clave). Así tu cliente ya tendrá todo listo para editar.
+- **[MODIFY]** [models/ContentModel.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/models/ContentModel.js): Añadir un bloque de inyección inicial con todas las variables de la web.
+
+### 4. Conexión Total del Frontend Público
+Reemplazaremos los textos "quemados" por variables de lectura dinámica de nuestro objeto global `window.siteContent`.
+- **[MODIFY]** [public/src/components/ContactoSection.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/ContactoSection.js)
+- **[MODIFY]** [public/src/components/Footer.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/Footer.js)
+- **[MODIFY]** [public/src/components/QuiropracticaSection.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/QuiropracticaSection.js)
+- **[MODIFY]** [public/src/components/ResosenseSection.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/ResosenseSection.js)
+- **[MODIFY]** [public/src/components/AboutSection.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/AboutSection.js)
+- **[MODIFY]** [public/src/components/ServicesSection.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/src/components/ServicesSection.js)
+
+## Verification Plan
+1. Acceder a `http://localhost:3000`. Observar que toda la web luce igual pero un botón de "Admin" aparece en la cabecera.
+2. Hacer clic en "Admin", iniciar sesión.
+3. Observar que el Dashboard ahora tiene títulos como "Sección Contacto", "Sección Inicio", agrupando los campos visualmente en bloques.
+4. Editar la dirección o el teléfono de Contacto y guardar.
+5. Volver a la página principal y verificar que el pie de página y la página de contacto muestran el nuevo número telefónico al instante.
