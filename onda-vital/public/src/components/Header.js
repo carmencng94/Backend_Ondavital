@@ -34,17 +34,35 @@ export function Header() {
       }, '✦ Asistente Vitalis')
     ),
     // Lado derecho: Menú de navegación
-    h('ul', { className: 'nav-links' },
-      navItems.map(item =>
-        h('li', {},
-          item.isLink 
-            ? h('a', { href: item.url, style: { color: 'hsl(var(--color-primary))', fontWeight: 'bold' } }, item.label)
-            : h('a', {
-                dataset: { tab: item.id },
-                className: item.id === 'home' ? 'active' : '',
-                href: '#',
-                onclick: (e) => handleLinkClick(e, item.id)
-              }, item.label)
+    h('div', { className: 'nav-menu' },
+      h('button', {
+        className: 'nav-toggle',
+        onclick: (e) => {
+          e.currentTarget.classList.toggle('active');
+          document.querySelector('.nav-links').classList.toggle('active');
+        }
+      },
+        h('span', { className: 'bar' }),
+        h('span', { className: 'bar' }),
+        h('span', { className: 'bar' })
+      ),
+      h('ul', { className: 'nav-links' },
+        navItems.map(item =>
+          h('li', {},
+            item.isLink 
+              ? h('a', { href: item.url, style: { color: 'hsl(var(--color-primary))', fontWeight: 'bold' } }, item.label)
+              : h('a', {
+                  dataset: { tab: item.id },
+                  className: item.id === 'home' ? 'active' : '',
+                  href: '#',
+                  onclick: (e) => {
+                    handleLinkClick(e, item.id);
+                    // Close menu on click
+                    document.querySelector('.nav-links').classList.remove('active');
+                    document.querySelector('.nav-toggle').classList.remove('active');
+                  }
+                }, item.label)
+          )
         )
       )
     )
