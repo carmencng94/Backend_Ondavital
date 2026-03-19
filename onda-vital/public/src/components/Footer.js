@@ -5,11 +5,11 @@ export function Footer() {
 
   const container = h('footer', { id: 'main-footer', className: 'site-footer' },
     h('div', { className: 'footer-top-bar' },
-      h('a', { href: '#' }, 'Contrato de Formación'),
+      h('a', { href: '#' }, c.footer_link_contrato || 'Contrato de Formación'),
       h('span', {}, ' | '),
-      h('a', { href: '#' }, 'Política de Privacidad'),
+      h('a', { href: '#' }, c.footer_link_privacidad || 'Política de Privacidad'),
       h('span', {}, ' | '),
-      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, 'Web Oficial de DEAwakening ↗')
+      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, c.footer_link_dea || 'Web Oficial de DEAwakening ↗')
     ),
     h('div', { className: 'container footer-main-grid' },
       // Columna 1: Info General

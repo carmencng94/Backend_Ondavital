@@ -102,7 +102,7 @@ function renderDashboard(wrapper) {
 
   document.getElementById('btn-logout').addEventListener('click', () => {
     localStorage.removeItem('adminToken');
-    renderLogin(wrapper);
+    window.location.href = '/'; 
   });
 
   // Manejador de imágenes

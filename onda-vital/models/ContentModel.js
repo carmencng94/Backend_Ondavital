@@ -178,6 +178,9 @@ try {
       'sala_comunitaria_equipo': 'Cocina Equipada, Microondas/Nevera, Cafetera/Tetera, Vajilla completa, Terraza exterior',
 
       // --- FOOTER ---
+      'footer_link_contrato': 'Contrato de Formación',
+      'footer_link_privacidad': 'Política de Privacidad',
+      'footer_link_dea': 'Web Oficial de DEAwakening ↗',
       'footer_desc': 'Centro de bienestar y técnicas manuales para tu salud integral.',
       'footer_copyright': '© 1996- 2025 Onda Vital Holistic. All Rights Reserved.'
     };
