@@ -1,140 +1,42 @@
 // Model: SalaModel.js
-// Propósito: Gestionar el catálogo de salas disponibles como fuente de verdad.
-
-const salas = [
-  {
-    id: "jardin",
-    nombre: "Sala Jardín",
-    dimensiones: "8.5×4.5 m (32 m²)",
-    capacidad: "10 esterillas / 25 sentados",
-    descripcionLarga: "Un espacio amplio y luminoso que conecta directamente con nuestro jardín exterior. Ideal para clases de yoga, meditación, talleres grupales o conferencias pequeñas. Su suelo de madera y la luz natural crean una atmósfera de paz inigualable.",
-    equipamiento: ["Proyector HD", "Sistema de Sonido Bluetooth", "15 Esterillas", "25 Sillas", "Luz Natural", "Acceso a Jardín"],
-    imagenes: [
-      "/assets/images/sala-jardin-enhanced.jpg",
-      "/assets/images/sala-jardin-real.jpg"
-    ],
-    tarifas: { 
-      hora: "20€/h", 
-      dia: "120€/día", 
-      bono: "150€ (10h)",
-      mensual: "Desde 40€/h"
-    }
-  },
-  {
-    id: "azul",
-    nombre: "Sala Azul",
-    dimensiones: "6.5×5 m (32 m²)",
-    capacidad: "10 camillas / 30 sentados",
-    descripcionLarga: "Nuestra Sala Azul ofrece un entorno profesional y acogedor. Con vistas al jardín y una moqueta de alta calidad, es perfecta para formaciones que requieran camillas o para charlas dinámicas.",
-    equipamiento: ["Aire Acondicionado", "Moqueta Premium", "Proyector/Sonido", "Vistas al Jardín", "8 Camillas disponibles"],
-    imagenes: [
-      "/assets/images/sala-azul-enhanced.jpg",
-      "/assets/images/sala-azul-real.jpg"
-    ],
-    tarifas: { 
-      hora: "20€/h", 
-      dia: "120€/día", 
-      bono: "150€ (10h)",
-      mensual: "Desde 40€/h"
-    }
-  },
-  {
-    id: "despacho-plus",
-    nombre: "Despacho+",
-    dimensiones: "4.1×3.2 m (13 m²)",
-    capacidad: "8 personas",
-    descripcionLarga: "El Despacho+ es la joya de la corona para terapeutas que buscan privacidad y exclusividad. Un espacio íntimo, con aire acondicionado y vistas relajantes, diseñado para sesiones de psicología, nutrición o masajes.",
-    equipamiento: ["Privacidad Total", "Aire Acondicionado", "Mesa de Reunión", "2 Sillones Premium", "Camilla disponible"],
-    imagenes: [
-      "/assets/images/despacho-plus-enhanced.jpg",
-      "/assets/images/despacho-plus-real.jpg"
-    ],
-    tarifas: { 
-      hora: "16€/h", 
-      dia: "90€/día", 
-      bono: "140€ (10h)",
-      mensual: "Desde 35€/h"
-    }
-  },
-  {
-    id: "terapia-a",
-    nombre: "Sala Terapia A",
-    dimensiones: "3×2.5 m (7.5 m²)",
-    capacidad: "1-3 personas",
-    descripcionLarga: "Especialmente diseñada para consultas individuales de corta o larga duración. Equipada con todo lo necesario para el profesional de la salud: escritorio, camilla y lavabo.",
-    equipamiento: ["Mesa escritorio", "Camilla de examen", "Lavabo funcional", "Internet Fibra"],
-    imagenes: [
-      "/assets/images/sala-terapia-a-enhanced.jpg",
-      "/assets/images/sala-terapia-a-real.jpg"
-    ],
-    tarifas: { 
-      hora: "12€/h", 
-      dia: "70€/día", 
-      bono: "110€ (10h)",
-      mensual: "Desde 30€/h"
-    }
-  },
-  {
-    id: "terapia-b",
-    nombre: "Sala Terapia B",
-    dimensiones: "3×2.5 m (7.5 m²)",
-    capacidad: "1-3 personas",
-    descripcionLarga: "Un espacio funcional y tranquilo, optimizado para sesiones individuales de fisioterapia o masajes específicos en un ambiente relajado.",
-    equipamiento: ["Mesa escritorio", "Camilla plegable", "Internet Fibra", "Ambiente Climatizado"],
-    imagenes: [
-      "/assets/images/sala-terapia-b-enhanced.jpg",
-      "/assets/images/sala-terapia-b-real.jpg"
-    ],
-    tarifas: { 
-      hora: "12€/h", 
-      dia: "70€/día", 
-      bono: "110€ (10h)",
-      mensual: "Desde 30€/h"
-    }
-  },
-  {
-    id: "comunitaria",
-    nombre: "Sala Comunitaria",
-    dimensiones: "Área común con terraza",
-    capacidad: "Descanso y networking",
-    descripcionLarga: "Nuestra sala comunitaria es el corazón social de Onda Vital. Aquí los profesionales y alumnos pueden relajarse entre sesiones, tomar un té o intercambiar ideas en un ambiente distendido.",
-    equipamiento: ["Cocina Equipada", "Microondas/Nevera", "Cafetera/Tetera", "Vajilla completa", "Terraza exterior"],
-    imagenes: [
-      "/assets/images/sala-comunitaria.png",
-      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800"
-    ],
-    tarifas: { 
-      hora: "Incluido", 
-      dia: "N/A", 
-      bono: "N/A", 
-      mensual: "N/A" 
-    }
-  }
-];
+// Propósito: Gestionar el catálogo de salas. Todos los campos se leen desde ContentModel (DB).
 
 const ContentModel = require('./ContentModel');
+
+// IDs canónicos de las salas y su clave DB correspondiente
+const SALA_IDS = [
+  { id: 'jardin',       dbKey: 'sala_jardin',        imagenes: ['/assets/images/sala-jardin-enhanced.jpg', '/assets/images/sala-jardin-real.jpg'] },
+  { id: 'azul',         dbKey: 'sala_azul',           imagenes: ['/assets/images/sala-azul-enhanced.jpg', '/assets/images/sala-azul-real.jpg'] },
+  { id: 'despacho-plus',dbKey: 'sala_despacho_plus',  imagenes: ['/assets/images/despacho-plus-enhanced.jpg', '/assets/images/despacho-plus-real.jpg'] },
+  { id: 'terapia-a',    dbKey: 'sala_terapia_a',      imagenes: ['/assets/images/sala-terapia-a-enhanced.jpg', '/assets/images/sala-terapia-a-real.jpg'] },
+  { id: 'terapia-b',    dbKey: 'sala_terapia_b',      imagenes: ['/assets/images/sala-terapia-b-enhanced.jpg', '/assets/images/sala-terapia-b-real.jpg'] },
+  { id: 'comunitaria',  dbKey: 'sala_comunitaria',    imagenes: ['/assets/images/sala-comunitaria.png'] },
+];
 
 class SalaModel {
   static obtenerTodas() {
     try {
-      const dbTextos = ContentModel.obtenerTodos();
-      
-      return salas.map(sala => {
-        let keyEnBD = '';
-        if (sala.id === 'jardin') keyEnBD = 'sala_jardin_desc';
-        if (sala.id === 'azul') keyEnBD = 'sala_azul_desc';
-        if (sala.id === 'despacho-plus') keyEnBD = 'despacho_desc';
-        
-        // Si el admin ha editado esta clave, usamos la versión de la Base de Datos
-        if (keyEnBD && dbTextos[keyEnBD]) {
-          return { ...sala, descripcionLarga: dbTextos[keyEnBD] };
+      const db = ContentModel.obtenerTodos();
+
+      return SALA_IDS.map(({ id, dbKey, imagenes }) => ({
+        id,
+        imagenes,
+        nombre:         db[`${dbKey}_nombre`]          || id,
+        dimensiones:    db[`${dbKey}_dimensiones`]     || '',
+        capacidad:      db[`${dbKey}_capacidad`]       || '',
+        descripcionLarga: db[`${dbKey}_desc`]          || '',
+        // Equipamiento almacenado como string separado por comas
+        equipamiento:   (db[`${dbKey}_equipo`] || '').split(',').map(s => s.trim()).filter(Boolean),
+        tarifas: {
+          hora:    db[`${dbKey}_tarifa_hora`]    || '',
+          dia:     db[`${dbKey}_tarifa_dia`]     || '',
+          bono:    db[`${dbKey}_tarifa_bono`]    || '',
+          mensual: db[`${dbKey}_tarifa_mensual`] || '',
         }
-        
-        return sala;
-      });
+      }));
     } catch (e) {
-      console.error("Error al inyectar contenido dinámico en salas:", e);
-      return salas;
+      console.error('Error al construir salas desde ContentModel:', e);
+      return [];
     }
   }
 }

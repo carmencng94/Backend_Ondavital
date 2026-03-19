@@ -165,13 +165,15 @@ async function loadContentEditor() {
     }
     
     const categoryNames = {
-      'home': '🌎 Inicio',
-      'contacto': '📞 Contacto',
-      'quiro': '💆 Quiropráctica',
-      'reso': '🌊 Resosense',
-      'footer': '🦶 Footer',
-      'sala': '🛋️ Salas Base',
-      'despacho': '🛋️ Despachos Privados'
+      'home':     'Inicio',
+      'contacto': 'Contacto',
+      'quiro':    'Quiropractica',
+      'reso':     'Resosense',
+      'about':    'Sobre Nosotros',
+      'services': 'Servicios',
+      'salas':    'Salas (Config)',
+      'sala':     'Salas (Contenido)',
+      'footer':   'Footer'
     };
 
     tabsContainer.innerHTML = '';

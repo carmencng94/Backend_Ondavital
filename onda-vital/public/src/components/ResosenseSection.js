@@ -28,7 +28,7 @@ export function ResosenseSection() {
             h('h3', {}, c.reso_question || '¿Qué es Resosense?'),
             h('p', {}, c.reso_answer_1 || 'Resosense es una práctica personal en la que utilizas tus propios músculos para generar ondas de resonancia en tu cuerpo.'),
             h('p', { className: 'highlight-text' }, 
-              'El movimiento suave en frecuencias específicas es simple y sus efectos se pueden ver en todos los sistemas del cuerpo, tanto físicos como energéticos.'
+              c.reso_highlight || 'El movimiento suave en frecuencias específicas es simple y sus efectos se pueden ver en todos los sistemas del cuerpo, tanto físicos como energéticos.'
             )
           )
         ),
@@ -47,7 +47,7 @@ export function ResosenseSection() {
             h('h3', {}, c.reso_origen_title || 'Nuestros Orígenes'),
             h('p', {}, c.reso_origen_desc || 'A partir de 2006, David reconoció por primera vez la existencia de frecuencias específicas de movimiento ondulatorio u oscilación en el cuerpo.'),
             h('p', {}, 
-              'Tras un momento de epifanía, se dio cuenta de que lo que había encontrado era en realidad la frecuencia fundamental del cuerpo humano. Utilizando ese conocimiento, desarrolló el sistema que hoy es Resosense.'
+              c.reso_origen_extra || 'Tras un momento de epifanía, se dio cuenta de que lo que había encontrado era en realidad la frecuencia fundamental del cuerpo humano. Utilizando ese conocimiento, desarrolló el sistema que hoy es Resosense.'
             )
           )
         )
@@ -55,15 +55,15 @@ export function ResosenseSection() {
 
       // Beneficios Grid
       h('div', { className: 'reso-benefits-section' },
-        h('h3', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)', color: 'hsl(var(--color-primary))' } }, '¿Por qué practicar Resosense?'),
+        h('h3', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)', color: 'hsl(var(--color-primary))' } }, c.reso_benefits_title || '¿Por qué practicar Resosense?'),
         h('div', { className: 'reso-feature-grid' },
           h('div', { className: 'reso-feature-card shadow-premium' },
-            h('h4', {}, 'Estado Natural'),
-            h('p', {}, 'La práctica regular de Resosense te restaura a ti y a tu cuerpo a un estado más cercano a su condición original pura.')
+            h('h4', {}, c.reso_feature1_title || 'Estado Natural'),
+            h('p', {}, c.reso_feature1_desc || 'La práctica regular de Resosense te restaura a ti y a tu cuerpo a un estado más cercano a su condición original pura.')
           ),
           h('div', { className: 'reso-feature-card shadow-premium' },
-            h('h4', {}, 'Liberación de Impactos'),
-            h('p', {}, 'Ayuda a liberar la huella de los eventos de la vida que han impactado tu ser antes de que tengan la oportunidad de dejar una marca permanente.')
+            h('h4', {}, c.reso_feature2_title || 'Liberación de Impactos'),
+            h('p', {}, c.reso_feature2_desc || 'Ayuda a liberar la huella de los eventos de la vida que han impactado tu ser antes de que tengan la oportunidad de dejar una marca permanente.')
           )
         )
       ),
@@ -71,28 +71,28 @@ export function ResosenseSection() {
       // Formación / Cursos
       h('div', { className: 'reso-training-section shadow-premium' },
         h('div', { className: 'training-header' },
-          h('h3', {}, 'Formación y Talleres'),
-          h('p', {}, 'La práctica de Resosense se enseña en un curso de dos módulos (Básico y Avanzado) utilizando diversas modalidades de aprendizaje.')
+          h('h3', {}, c.reso_training_title || 'Formación y Talleres'),
+          h('p', {}, c.reso_training_desc || 'La práctica de Resosense se enseña en un curso de dos módulos (Básico y Avanzado) utilizando diversas modalidades de aprendizaje.')
         ),
         
         h('div', { className: 'training-modules' },
-          h('div', { className: 'module-card' }, 'Módulo Básico'),
-          h('div', { className: 'module-card' }, 'Módulo Avanzado')
+          h('div', { className: 'module-card' }, c.reso_training_mod1 || 'Módulo Básico'),
+          h('div', { className: 'module-card' }, c.reso_training_mod2 || 'Módulo Avanzado')
         ),
 
         h('div', { className: 'training-extra-card shadow-premium' },
           h('p', {}, 
-            'El formato suele ser de dos días durante un fin de semana, pero puede adaptarse a diferentes programas y lugares.'
+            c.reso_training_format || 'El formato suele ser de dos días durante un fin de semana, pero puede adaptarse a diferentes programas y lugares.'
           ),
           h('p', { className: 'professional-note' }, 
-            'También existen formaciones profesionales para terapeutas interesados en compartir Resosense con sus clientes.'
+            c.reso_training_prof || 'También existen formaciones profesionales para terapeutas interesados en compartir Resosense con sus clientes.'
           )
         )
       ),
 
       // Footer Final
       h('div', { className: 'section-footer-banner shadow-premium' },
-        h('p', {}, 'Descubre la frecuencia fundamental de tu bienestar.')
+        h('p', {}, c.reso_banner_text || 'Descubre la frecuencia fundamental de tu bienestar.')
       )
     )
   );

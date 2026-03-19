@@ -1,11 +1,13 @@
 import { h } from '../utils.js';
 
 export function SalasSection() {
+  const c = window.siteContent || {};
+
   const container = h('section', { id: 'salas', className: 'tab-section' },
     h('div', { className: 'container' },
-      h('h2', { style: { textAlign: 'center' } }, 'Salas Polivalentes'),
+      h('h2', { style: { textAlign: 'center' } }, c.salas_header_title || 'Salas Polivalentes'),
       h('p', { style: { textAlign: 'center', color: 'var(--color-text-muted)', marginBottom: 'var(--space-xl)' } },
-        'Un oasis en plena ciudad para clases, talleres o terapias.'
+        c.salas_header_subtitle || 'Un oasis en plena ciudad para clases, talleres o terapias.'
       ),
       h('div', { id: 'salas-grid', className: 'salas-grid' },
         h('p', { className: 'salas-loading' }, 'Cargando salas...')

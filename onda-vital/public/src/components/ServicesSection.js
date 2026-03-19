@@ -23,15 +23,17 @@ export function Accordion(title, content) {
 }
 
 export function ServicesSection() {
+  const c = window.siteContent || {};
+
   return h('section', { id: 'services', className: 'tab-section' },
     h('div', { className: 'container', style: { maxWidth: '800px' } },
-      h('h2', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)' } }, 'Nuestros Servicios Holísticos'),
-      Accordion('Quiropráctica Integral (NSA)', 
-        'El Network Spinal Analysis es una técnica suave que ayuda al sistema nervioso a liberar tensiones y reorganizarse.'),
-      Accordion('Resosense Formación', 
-        'Método único que combina respiración, sonido y conciencia corporal para elevar tu vitalidad.'),
-      Accordion('Talleres y Clases Grupales', 
-        'Disponemos de clases de Yoga, Meditación y diversos talleres de crecimiento personal.')
+      h('h2', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)' } }, c.services_title || 'Nuestros Servicios Holísticos'),
+      Accordion(c.services_nsa_title || 'Quiropráctica Integral (NSA)', 
+        c.services_nsa_desc || 'El Network Spinal Analysis es una técnica suave que ayuda al sistema nervioso a liberar tensiones y reorganizarse.'),
+      Accordion(c.services_reso_title || 'Resosense Formación', 
+        c.services_reso_desc || 'Método único que combina respiración, sonido y conciencia corporal para elevar tu vitalidad.'),
+      Accordion(c.services_talleres_title || 'Talleres y Clases Grupales', 
+        c.services_talleres_desc || 'Disponemos de clases de Yoga, Meditación y diversos talleres de crecimiento personal.')
     )
   );
 }
