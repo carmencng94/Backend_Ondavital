@@ -113,6 +113,7 @@ body {
 /* Mobile Toggle */
 .nav-toggle {
   display: none;
+  position: relative;
   flex-direction: column;
   justify-content: space-between;
   width: 28px;
@@ -194,8 +195,47 @@ body {
   .nav-links li a {
     font-size: var(--text-lg);
     display: block;
-    padding: var(--space-md);
   }
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bubble-close-x {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 1px solid hsl(var(--color-primary) / 0.2);
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.bubble-close-x:hover {
+  background: #fdfdfd;
+  transform: scale(1.1);
 }
 
 /* Botón Asistente Vitalis en el nav (junto al logo) */

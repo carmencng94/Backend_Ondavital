@@ -19,6 +19,15 @@ export function Header() {
     document.dispatchEvent(new CustomEvent('tab-change', { detail: id }));
   };
 
+  const overlay = h('div', { 
+    className: 'nav-overlay', 
+    onclick: () => {
+      document.querySelector('.nav-links').classList.remove('active');
+      document.querySelector('.nav-toggle').classList.remove('active');
+      overlay.classList.remove('active');
+    } 
+  });
+
   return h('header', { className: 'navbar' },
     // Lado izquierdo: Logo + botón Asistente Vitalis
     h('div', { className: 'brand' },
@@ -35,11 +44,13 @@ export function Header() {
     ),
     // Lado derecho: Menú de navegación
     h('div', { className: 'nav-menu' },
+      overlay,
       h('button', {
         className: 'nav-toggle',
         onclick: (e) => {
-          e.currentTarget.classList.toggle('active');
+          const isActive = e.currentTarget.classList.toggle('active');
           document.querySelector('.nav-links').classList.toggle('active');
+          overlay.classList.toggle('active', isActive);
         }
       },
         h('span', { className: 'bar' }),
@@ -57,9 +68,9 @@ export function Header() {
                   href: '#',
                   onclick: (e) => {
                     handleLinkClick(e, item.id);
-                    // Close menu on click
                     document.querySelector('.nav-links').classList.remove('active');
                     document.querySelector('.nav-toggle').classList.remove('active');
+                    overlay.classList.remove('active');
                   }
                 }, item.label)
           )

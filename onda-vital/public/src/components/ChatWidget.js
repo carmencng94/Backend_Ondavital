@@ -91,14 +91,16 @@ export function ChatWidget() {
         h('h2', {}, '¡Tu sala está lista para confirmar!'),
         h('p', {}, 'David cerrará tu reserva por WhatsApp.'),
         h('div', { className: 'reserva-details' },
-          h('div', {}, h('strong', {}, 'Sala: '), res.sala),
+          h('div', {}, h('strong', {}, 'Nombre: '), res.nombre),
+          h('div', {}, h('strong', {}, 'Contacto: '), res.contacto),
+          h('div', {}, h('strong', {}, 'Sala/Servicio: '), res.sala),
           h('div', {}, h('strong', {}, 'Fecha: '), res.fecha),
           h('div', {}, h('strong', {}, 'Horario: '), res.horario)
         ),
         h('button', { 
           className: 'btn-primary', 
           onclick: () => {
-            const texto = `Hola David, quiero confirmar mi reserva de la ${res.sala} para el ${res.fecha} a las ${res.horario}.`;
+            const texto = `Hola David, soy ${res.nombre}. Quiero confirmar mi reserva de ${res.sala} para el ${res.fecha} a las ${res.horario}. Mi contacto es ${res.contacto}.`;
             window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
             modalOverlay.classList.add('hidden');
           }
@@ -125,6 +127,13 @@ export function ChatWidget() {
 
   return h('div', { id: 'chat-root' },
     h('div', { id: 'chat-help-bubble', className: 'chat-help-bubble', onclick: toggleChat },
+      h('button', { 
+        className: 'bubble-close-x', 
+        onclick: (e) => {
+          e.stopPropagation();
+          document.getElementById('chat-help-bubble').style.display = 'none';
+        }
+      }, '✕'),
       '¿Necesitas ayuda?', h('br'), 'Estoy aquí para ti.'
     ),
     h('button', { className: 'chat-widget-btn', onclick: toggleChat },
