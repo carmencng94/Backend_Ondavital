@@ -24,3 +24,6 @@ Thumbs.db
 # Backups de refactorización (opcional, pero recomendado si ya no se usan)
 public/legacy_app.js
 public/legacy_style.css
+
+# Archivos de la configuración de los agentes IA (privados)
+agente-*.md

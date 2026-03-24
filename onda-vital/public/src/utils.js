@@ -55,3 +55,14 @@ export function render(component, container) {
   container.innerHTML = '';
   container.appendChild(component);
 }
+
+/**
+ * Inyecta una cadena de CSS en el head del documento si no ha sido inyectado ya.
+ */
+export function injectStyles(id, css) {
+  if (document.getElementById(id)) return;
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = css;
+  document.head.appendChild(style);
+}

@@ -1,6 +1,96 @@
-import { h } from '../utils.js';
+import { h, injectStyles } from '../utils.js';
+
+const contactStyles = `
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-2xl);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .contacto-grid { grid-template-columns: 1fr; }
+}
+
+.contact-method h3, .contact-location h3 {
+  color: hsl(var(--color-primary));
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.contact-form {
+  background: white;
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid hsl(var(--color-border));
+}
+
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  margin-bottom: 4px;
+}
+
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid hsl(var(--color-border));
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast);
+}
+
+.form-group input:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: hsl(var(--color-primary));
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: hsl(var(--color-primary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  margin-top: var(--space-sm);
+}
+
+.btn-submit:hover {
+  background: hsl(var(--color-primary-hover));
+}
+
+.tty {
+  display: inline-block;
+  font-style: normal;
+}
+
+.tty::after {
+  content: var(--n);
+  display: inline-block;
+}
+
+.map-container {
+  height: 400px;
+  background-image: url('../../map_placeholder_styled.png');
+  background-size: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid hsl(var(--color-border));
+}
+`;
 
 export function ContactoSection() {
+  injectStyles('contacto-styles', contactStyles);
   const c = window.siteContent || {};
 
   return h('section', { id: 'contacto', className: 'tab-section' },
