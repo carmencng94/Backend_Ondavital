@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../utils.js';
+import { BookingGrid } from './booking/BookingGrid.js';
 
 const salasStyles = `
 /* Grid de Salas */
@@ -421,21 +422,19 @@ function SalaModal(sala) {
             h('h4', {}, 'Estructura de Tarifas'),
             h('div', { className: 'rates-grid' },
               h('div', { className: 'rate-card' }, h('span', {}, 'Hora'), h('strong', {}, sala.tarifas.hora)),
-              h('div', { className: 'rate-card' }, h('span', {}, 'Día'), h('strong', {}, sala.tarifas.dia)),
-              h('div', { className: 'rate-card' }, h('span', {}, 'Bono (10h)'), h('strong', {}, sala.tarifas.bono)),
-              h('div', { className: 'rate-card' }, h('span', {}, 'Mensual'), h('strong', {}, sala.tarifas.mensual))
+              h('div', { className: 'rate-card' }, h('span', {}, 'Día'), h('strong', {}, sala.tarifas.dia))
             )
           ),
-
-          h('div', { className: 'modal-cta' },
-            h('button', {
-              className: 'btn-check-availability primary',
-              onclick: () => {
-                closeModal();
-                document.dispatchEvent(new CustomEvent('consultar-sala', { detail: sala.nombre }));
-              }
-            }, 'Ver Disponibilidad Real')
-          )
+          
+          BookingGrid({
+            sala,
+            onReserve: (reservaDetails) => {
+              // UX Fluida PropTech: Redirección rápida a confirmación (WhatsApp)
+              const texto = `Hola, quiero pre-reservar la sala *${sala.nombre}*.\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n- Precio Aprox: ${reservaDetails.totalPrice}€.\n\nPor favor indícame los pasos para confirmar el pago.`;
+              window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
+              closeModal();
+            }
+          })
         )
       )
     )

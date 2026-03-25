@@ -43,6 +43,88 @@ const homeStyles = `
   margin-bottom: var(--space-xl);
 }
 
+/* AI Booking Home Section */
+.ai-booking-home {
+  margin-top: -60px;
+  position: relative;
+  z-index: 10;
+  padding: 0 var(--space-md);
+}
+
+.ai-card {
+  background: white;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  border: 1px solid hsl(var(--color-primary-light) / 0.3);
+}
+
+.ai-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.ai-icon-pulse {
+  width: 40px;
+  height: 40px;
+  background: hsl(var(--color-primary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  box-shadow: 0 0 0 0 rgba(26, 77, 59, 0.4);
+  animation: pulse-ai 2s infinite;
+}
+
+.ai-input-group {
+  display: flex;
+  gap: var(--space-sm);
+  background: #f8f9fa;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #eee;
+}
+
+.ai-input-group input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-main);
+  font-size: var(--text-md);
+  outline: none;
+}
+
+.ai-search-btn {
+  background: hsl(var(--color-primary));
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-search-btn:hover {
+  background: hsl(var(--color-primary-hover));
+  transform: translateY(-1px);
+}
+
+@keyframes pulse-ai {
+  0% { box-shadow: 0 0 0 0 rgba(26, 77, 59, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(26, 77, 59, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(26, 77, 59, 0); }
+}
+
 .hero-glass-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -168,6 +250,44 @@ const homeStyles = `
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Quick Availability Home */
+.quick-avail-home {
+  margin-top: var(--space-xl);
+}
+
+.avail-tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  background: white;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  border: 1px solid #eee;
+}
+
+.room-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  border-bottom: 1px solid #eee;
+  padding-bottom: var(--space-sm);
+}
+
+.room-tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  color: #666;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.room-tab-btn.active {
+  background: hsl(var(--color-primary-light) / 0.1);
+  color: hsl(var(--color-primary));
+}
 `;
 
 export function HomeSection() {
@@ -179,11 +299,55 @@ export function HomeSection() {
     h('div', { className: 'hero-sea' },
       h('div', { className: 'hero-overlay' }),
       h('div', { className: 'hero-content container' },
-        h('h1', { className: 'hero-main-title' }, c.home_hero_title || 'Nuestro Enfoque Eres Tú'),
-        h('p', { className: 'hero-subtitle' }, c.home_hero_subtitle || 'Vuelve a conectar con tu vitalidad natural'),
+        h('h1', { className: 'hero-main-title' }, 'Espacios para Crecer'),
+        h('p', { className: 'hero-subtitle' }, 'Tu evento o terapia en el mejor entorno de Onda Vital'),
         h('div', { className: 'hero-glass-card' },
-          h('p', {}, c.home_glass_p1 || 'Tu cuerpo tiene una capacidad innata de mantenerse sano,'),
-          h('p', { style: { marginTop: '10px' } }, c.home_glass_p2 || 'Estamos aquí para ayudarte a recuperarla.')
+          h('p', {}, 'Alquiler de salas equipadas y gestionadas para tu éxito.'),
+          h('p', { style: { marginTop: '10px' } }, 'Encuentra el lugar perfecto para tu propósito.')
+        )
+      )
+    ),
+
+    // Sección: Booking IA + Vista Rápida de Disponibilidad
+    h('div', { className: 'ai-booking-home container' },
+      h('div', { className: 'ai-card' },
+        h('div', { className: 'ai-card-header' },
+          h('div', { className: 'ai-icon-pulse' }, '✦'),
+          h('div', {},
+            h('h3', { style: { margin: 0, fontSize: '1.2rem' } }, 'Reserva Directa con IA'),
+            h('p', { style: { margin: 0, fontSize: '0.9rem', color: '#666' } }, 'Indica qué sala necesitas y cuándo, yo me encargo del resto.')
+          )
+        ),
+        h('div', { className: 'ai-input-group' },
+          h('input', { 
+            id: 'home-ai-input',
+            type: 'text', 
+            placeholder: 'Ej: Quiero reservar la Sala Jardín para el lunes...',
+            onkeydown: (e) => {
+              if (e.key === 'Enter') {
+                const val = e.target.value;
+                if (val) {
+                  document.dispatchEvent(new CustomEvent('abrir-chat-asistente', { detail: val }));
+                  e.target.value = '';
+                }
+              }
+            }
+          }),
+          h('button', { 
+            className: 'ai-search-btn',
+            onclick: () => {
+              const input = document.getElementById('home-ai-input');
+              if (input && input.value) {
+                document.dispatchEvent(new CustomEvent('abrir-chat-asistente', { detail: input.value }));
+                input.value = '';
+              }
+            }
+          }, 'Consultar')
+        ),
+
+        // Vista Rápida de Disponibilidad (Unified Booking Grid)
+        h('div', { className: 'quick-avail-home' },
+          h('div', { id: 'home-booking-grid-container' })
         )
       )
     ),
@@ -217,12 +381,31 @@ export function HomeSection() {
     h('div', { className: 'full-cta-section' },
       h('div', { className: 'container' },
         h('div', { className: 'cta-inner' },
-          h('h2', {}, c.home_cta_title || 'Restaura tu habilidad de sanar'),
-          h('p', {}, c.home_cta_desc || 'En Onda Vital trabajamos para que puedas disfrutar de una vida plena y libre de limitaciones.'),
+          h('h2', {}, 'Un Espacio para Cada Necesidad'),
+          h('p', {}, 'Además de nuestras salas, colaboramos con profesionales externos para ofrecerte un bienestar integral.'),
           h('div', { className: 'line-divider' }),
-          h('p', { className: 'final-tagline' }, c.home_cta_tagline || 'Mereces disfrutar de tu vida')
+          h('a', { 
+            href: 'https://deawakening.site', 
+            target: '_blank',
+            className: 'final-tagline',
+            style: { textDecoration: 'none', display: 'block', cursor: 'pointer' }
+          }, '✦ Visita Deawakening - Nuestra plataforma aliada')
         )
       )
     )
   );
 }
+
+// Inyección inicial diferida para cargar el Global Grid
+setTimeout(async () => {
+    const container = document.getElementById('home-booking-grid-container');
+    if (container) {
+      const { BookingGrid } = await import('./booking/BookingGrid.js');
+      container.appendChild(BookingGrid({
+        onReserve: (reservaDetails) => {
+           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}*.\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
+           window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+      }));
+    }
+}, 200);

@@ -17,6 +17,52 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/check-availability', async (req, res) => {
+  try {
+    const status = await ReservaController.checkAvailability(req);
+    res.json(status);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/webhook/calendar', async (req, res) => {
+  try {
+    const result = await ReservaController.handleCalendarWebhook(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Ruta para calcular disponibilidad global de un día
+router.get('/dia', async (req, res) => {
+  try {
+    const { fecha } = req.query;
+    if (!fecha) {
+      return res.status(400).json({ success: false, error: 'Falta parámetro fecha' });
+    }
+    const disponibilidad = await ReservaController.getDisponibilidadGlobal(fecha);
+    res.json(disponibilidad);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Ruta para calcular disponibilidad en slots PropTech
+router.get('/disponibilidad', async (req, res) => {
+  try {
+    const { salaId, fecha } = req.query;
+    if (!salaId || !fecha) {
+      return res.status(400).json({ success: false, error: 'Faltan parámetros salaId o fecha' });
+    }
+    const disponibilidad = await ReservaController.getDisponibilidadSlots(salaId, fecha);
+    res.json(disponibilidad);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 // Ruta para que David confirme una reserva
 router.patch('/:id/confirmar', async (req, res) => {
   try {

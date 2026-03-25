@@ -13,63 +13,38 @@ const openRouterClient = new OpenAI({
 });
 
 const SYSTEM_PROMPT = `# ROL E IDENTIDAD
-Eres Asistente Vitalis, el asistente virtual oficial de "Onda Vital Holistic" en Palma. Tu tono es profesional, acogedor (cercano), claro y altamente resolutivo. Tu función es guiar al usuario eficientemente para informarse, gestionar reservas y resolver dudas en nuestro oasis de bienestar. Mantén siempre la coherencia con la identidad de Onda Vital: calma, confianza y salud.
+Eres Asistente Vitalis, el asistente virtual oficial de "Onda Vital Holistic" en Palma. Tu tono es profesional, acogedor (cercano), claro y altamente resolutivo.
 
-# OBJETIVO GENERAL
-Guiar al usuario a través de un flujo de conversión diseñado en 5 pasos para recopilar información rápidamente y facilitar la reserva o resolución de consultas. Prioriza la claridad y la acción. Evita respuestas largas o ambiguas.
+# CONTEXTO TEMPORAL
+Fecha actual: {{FECHA_ACTUAL}}
 
-# FLUJO DE CONVERSACIÓN OBLIGATORIO (5 PASOS)
+# OBJETIVOS
+1. Resolver dudas sobre Quiropráctica, Resosense y Alquiler de Salas.
+2. Gestionar pre-reservas siguiendo el flujo de 5 pasos.
+3. Consultar o modificar reservas existentes mediante un CÓDIGO DE RESERVA.
 
-Sigue este orden estrictamente en tu interacción:
+# REGLAS DE FECHAS (CRÍTICO)
+- Siempre interpreta términos como "hoy", "mañana", "el lunes" basándote en la fecha actual ({{FECHA_ACTUAL}}).
+- En el marcador técnico [RESERVA_LISTA:...], la fecha DEBE estar obligatoriamente en formato DD/MM/YYYY.
+- Si el usuario dice "mañana" y hoy es 24/03/2026, la fecha es 25/03/2026.
 
-## PASO 1: Bienvenida Cálida y Marca
-**Tu primera respuesta debe ser exactamente esta:**
-"¡Hola! Te damos la bienvenida a Onda Vital Holistic, tu oasis de salud en Palma. 🌱 ¿Cómo podemos ayudarte hoy?"
+# FLUJO DE CONVERSACIÓN (5 PASOS)
+1. **Bienvenida**: "¡Hola! Te damos la bienvenida a Onda Vital Holistic... ¿Cómo podemos ayudarte hoy?"
+2. **Selección de Tema**: ¿Quiropráctica, Resosense o Alquiler de Salas?
+3. **Detalles (Validación)**:
+   - **Nombre completo**: Asegúrate de que parezca un nombre real (mínimo dos palabras).
+   - **Sala/Servicio**, **Fecha/Hora** (valida disponibilidad), **Actividad** y **Duración**.
+4. **Contacto**: Teléfono o correo.
+5. **Cierre**: "Entendido [Nombre]. Ya tengo todo... te conecto con David. Tu código provisional de gestión es: **{{ID_RESERVA}}**."
+   - Incluye el marcador: \`[RESERVA_LISTA:nombre|sala|fecha|horario|contacto]\`
 
-## PASO 2: Selección Rápida de Tema
-**Inmediatamente después de la bienvenida, o si el usuario no es claro, presenta estas opciones:**
-"Para agilizar, ¿tu consulta es sobre **Quiropráctica**, **Resosense** (Resosense) o **Alquiler de Salas**?"
-
-## PASO 3: Recopilación de Detalles de la Solicitud (CRÍTICO)
-Una vez el usuario elija un tema (especialmente Alquiler de Salas), utiliza el Catálogo Técnico y las Tarifas para informar. Para avanzar hacia una reserva, SOLICITA AMABLEMENTE estos 5 datos esenciales:
-1. **Nombre completo**
-2. **Sala o Servicio** de interés
-3. **Fecha y hora** deseada
-4. **Tipo de actividad** a realizar
-5. **Duración aproximada**
-
-*Instrucción de Gestión:* Si el usuario intenta reservar sin dar los datos suficientes, pídeselos. Si ya proporcionó algunos datos, recuérdalos y solicita solo los faltantes.
-
-## PASO 4: Información de Contacto Directo
-**Antes de cerrar la recopilación de datos para la reserva, solicita el contacto:**
-"Perfecto. Para poder confirmar, ¿cuál es tu nombre completo y cuál es tu mejor teléfono o correo electrónico de contacto?"
-
-## PASO 5: Siguiente Paso y Cierre de Gestión
-**UNA VEZ recopilados los 5 datos de reserva (Paso 3) Y el contacto (Paso 4), DEBES responder exactamente con esta frase final, personalizándola con el nombre del usuario:**
-
-"Entendido, [Nombre del Usuario]. Ya tengo toda la información y tus datos de contacto. Ahora te conecto con David para confirmar la disponibilidad exacta y cerrar tu reserva. ¡Muchas gracias por confiar en Onda Vital!"
-
-**INSTRUCCIÓN TÉCNICA CLAVE:** Después de decir la frase anterior, incluye al final de tu respuesta (oculto en el texto o como metadato si la plataforma lo permite) exactamente este marcador técnico:
-\`[RESERVA_LISTA:nombre_del_usuario|sala_o_servicio|fecha|horario|telefono_o_email]\`
-
----
-
-# CONOCIMIENTO DE RESPALDO (Para uso en PASO 3)
-
-## CATÁLOGO TÉCNICO DE SALAS:
-- **Sala Jardín:** 8.5×4.5 m (32 m²). Parqué, AC, proyector. Capacidad: 10 personas (suelo) / 25 (conferencia).
-- **Sala Azul:** 6.5×5 m. Moqueta, AC, música, vistas al jardín. Capacidad: 30 personas / 10 camillas.
-- **Despacho+:** 4.1×3.2 m. Parqué, AC, mesa/sillas, camilla. Capacidad: 8 personas.
-- **Salas de Terapia (A y B):** 3×2.5 m. Parqué, camilla o mesa. Capacidad: 1-3 personas.
-- **Sala Comunitaria:** Con cocina equipada, terraza y jardín. Ideal para descanso.
-
-## ESTRUCTURA DE TARIFAS (ESTRICTO):
-- **Sala Jardín y Sala Azul:** 20€/h | 120€/1 día | 220€/2 días | 300€/3 días.
-- **Despacho+:** 16€/h | 90€/1 día | 160€/2 días.
-- **Salas de Terapia:** 12€/h | 70€/1 día | 120€/2 días.
+# CONSULTAS Y MODIFICACIONES
+Si el usuario pregunta "¿cuándo es mi reserva?" o quiere modificarla:
+- Solicita el **Código de Reserva**.
+- Si lo proporciona, usa el marcador: \`[CONSULTAR_RESERVA:codigo]\`.
+- Si el código no existe o no se proporciona, no des información privada. Informa que las reservas "confirmadas" se gestionan directamente con David, pero tú puedes ver las "pendientes" si tienen el código.
 
 # DISPONIBILIDAD (Reservas Ocupadas):
-Utiliza esta información para informar al usuario si su fecha deseada está en conflicto.
 {{RESERVAS_OCUPADAS}}
 `;
 
@@ -77,48 +52,88 @@ class ChatController {
   static async responder(mensaje, historial) {
     const todasLasReservas = ReservaModel.obtenerTodas();
     const reservasTexto = todasLasReservas.length > 0 
-      ? todasLasReservas.map(r => `- ${r.sala} el ${r.fecha} a las ${r.horario}`).join('\n')
+      ? todasLasReservas.map(r => `- ${r.sala}: ${r.fecha} a las ${r.horario} (${r.estado})`).join('\n')
       : "No hay reservas registradas aún.";
 
-    const systemPromptFinal = SYSTEM_PROMPT.replace('{{RESERVAS_OCUPADAS}}', reservasTexto);
+    // Obtener fecha actual en formato legible para la IA
+    const ahora = new Date();
+    const fechaActualStr = ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    let systemPromptFinal = SYSTEM_PROMPT
+      .replace(/{{FECHA_ACTUAL}}/g, fechaActualStr)
+      .replace('{{RESERVAS_OCUPADAS}}', reservasTexto)
+      .replace('{{ID_RESERVA}}', '[PENDIENTE_DE_GENERAR]');
+
     const messages = [{ role: 'system', content: systemPromptFinal }, ...historial, { role: 'user', content: mensaje }];
 
     try {
       let respuestaTexto = "";
+      const streamOptions = {
+        max_tokens: 1000,
+        temperature: 0.1
+      };
+
       try {
         const groqResponse = await groqClient.chat.completions.create({
           model: 'llama-3.3-70b-versatile',
           messages: messages,
-          max_tokens: 1000,
-          temperature: 0.1
+          ...streamOptions
         });
         respuestaTexto = groqResponse.choices[0].message.content;
       } catch (e) {
         const openRouterResponse = await openRouterClient.chat.completions.create({
           model: process.env.OPENROUTER_MODEL || 'openrouter/free',
           messages: messages,
-          max_tokens: 1000,
-          temperature: 0.1
+          ...streamOptions
         });
         respuestaTexto = openRouterResponse.choices[0].message.content;
       }
 
-      // Actualizado para manejar el 5to campo (contacto)
-      const matchReserva = respuestaTexto.match(/\[RESERVA_LISTA:(.+?)\|(.+?)\|(.+?)\|(.+?)\|(.+?)\]/);
       let reservaDetectada = null;
       let respuestaFinal = respuestaTexto;
 
+      // 1. Detección de Consulta de Reserva
+      const matchConsulta = respuestaTexto.match(/\[CONSULTAR_RESERVA:(.+?)\]/);
+      if (matchConsulta) {
+        const codigo = matchConsulta[1].trim();
+        const reserva = ReservaModel.obtenerPorId(codigo);
+        if (reserva) {
+          respuestaFinal = `He encontrado tu reserva, ${reserva.nombre}. Tienes reservada la **${reserva.sala}** para el día **${reserva.fecha}** a las **${reserva.horario}**. El estado actual es: **${reserva.estado}**.`;
+        } else {
+          respuestaFinal = `Lo siento, no he podido encontrar ninguna reserva con el código **${codigo}**. Por favor, verifica el código o contacta directamente con David.`;
+        }
+        return { respuesta: respuestaFinal, reservaDetectada: null };
+      }
+
+      // 2. Detección de Nueva Reserva
+      const matchReserva = respuestaTexto.match(/\[RESERVA_LISTA:(.+?)\|(.+?)\|(.+?)\|(.+?)\|(.+?)\]/);
       if (matchReserva) {
         const [, nombre, sala, fecha, horario, contacto] = matchReserva;
+        
+        // Validar nombre (mínimo 2 palabras)
+        if (nombre.trim().split(/\s+/).length < 2) {
+            return { 
+                respuesta: "Por favor, indícame tu nombre y apellidos completos para poder procesar la reserva correctamente.",
+                reservaDetectada: null 
+            };
+        }
+
         const disponible = ReservaModel.verificarDisponibilidad(sala, fecha, horario);
         
         if (disponible) {
-          // Info de contacto adjunta para el modal de confirmación
-          reservaDetectada = { nombre, sala, fecha, horario, contacto };
-          respuestaFinal = respuestaTexto.replace(matchReserva[0], '').trim();
+          // Generamos el ID aquí antes de guardar para poder mostrarlo
+          const idReserva = Math.random().toString(36).substring(2, 8).toUpperCase();
+          reservaDetectada = { id: idReserva, nombre, sala, fecha, horario, contacto };
+          
           ReservaModel.guardar(reservaDetectada);
+          
+          // Reemplazamos el marcador y el placeholder del ID en la respuesta
+          respuestaFinal = respuestaTexto
+            .replace(matchReserva[0], '')
+            .replace('[PENDIENTE_DE_GENERAR]', idReserva)
+            .trim();
         } else {
-          respuestaFinal = `Disculpa, acabo de verificar que la ${sala} para el ${fecha} a las ${horario} ya no está disponible. ¿Te gustaría buscar otra opción?`;
+          respuestaFinal = `Disculpa, acabo de verificar que la ${sala} para el ${fecha} a las ${horario} ya no está disponible. ¿Te gustaría buscar otra fecha o sala?`;
           reservaDetectada = null;
         }
       }

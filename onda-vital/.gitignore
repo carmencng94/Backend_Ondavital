@@ -27,3 +27,16 @@ public/legacy_style.css
 
 # Archivos de la configuración de los agentes IA (privados)
 agente-*.md
+
+# Seguridad y Credenciales (¡MUY IMPORTANTE!)
+config/google-credentials.json
+google-credentials.json
+*.json.json
+.vscode/
+.cert/
+
+# Logs de error y backups
+*.bak
+*.old
+error.log
+debug.log

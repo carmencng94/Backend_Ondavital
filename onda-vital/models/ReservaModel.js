@@ -3,6 +3,7 @@
 
 const Database = require('better-sqlite3');
 const path = require('path');
+const { encryptData, decryptData } = require('../utils/crypto');
 
 // Obtener la ruta de la DB desde var de entorno o usar fallback
 const dbPath = process.env.DB_PATH || './memory.db';
@@ -36,24 +37,36 @@ try {
 class ReservaModel {
   /**
    * Guarda una nueva pre-reserva en la base de datos SQLite con estado pendiente.
-   * @param {Object} reservaData - { nombre, sala, fecha, horario }
-   * @returns {Object} La reserva guardada con un ID generado
+   * @param {Object} reservaData - { id?, nombre, sala, fecha, horario, contacto }
+   * @returns {Object} La reserva guardada
    */
   static guardar(reservaData) {
     const nuevaReserva = {
-      id: Date.now().toString(),
-      ...reservaData,
+      id: reservaData.id || Date.now().toString(),
+      nombre: reservaData.nombre,
+      sala: reservaData.sala,
+      fecha: reservaData.fecha,
+      horario: reservaData.horario,
+      contacto: encryptData(reservaData.contacto || ''),
       estado: 'pendiente',
       createdAt: new Date().toISOString()
     };
     
-    const stmt = db.prepare('INSERT INTO reservas (id, nombre, sala, fecha, horario, estado, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    // Primero verificamos si la columna contacto existe (migración rápida si no)
+    try {
+      db.exec("ALTER TABLE reservas ADD COLUMN contacto TEXT");
+    } catch (e) {
+      // Ignorar si ya existe
+    }
+
+    const stmt = db.prepare('INSERT INTO reservas (id, nombre, sala, fecha, horario, contacto, estado, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     stmt.run(
       nuevaReserva.id, 
       nuevaReserva.nombre, 
       nuevaReserva.sala, 
       nuevaReserva.fecha, 
       nuevaReserva.horario, 
+      nuevaReserva.contacto,
       nuevaReserva.estado,
       nuevaReserva.createdAt
     );
@@ -93,6 +106,18 @@ class ReservaModel {
     const stmt = db.prepare("SELECT COUNT(*) as count FROM reservas WHERE sala = ? AND fecha = ? AND horario = ? AND estado != 'rechazada'");
     const result = stmt.get(sala, fecha, horario);
     return result.count === 0;
+  }
+
+  /**
+   * Obtiene una reserva y descifra su contacto (para mostrar a David)
+   */
+  static obtenerContactoDesencriptado(id) {
+    const reserva = this.obtenerPorId(id);
+    if (!reserva) return null;
+    return {
+      ...reserva,
+      contacto_real: decryptData(reserva.contacto)
+    };
   }
 }
 

@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../utils.js';
+import { siteConfig } from '../config.js';
 
 // Estilos del Header
 const headerStyles = `
@@ -191,13 +192,13 @@ const headerStyles = `
 export function Header() {
   injectStyles('header-styles', headerStyles);
   const navItems = [
-    { id: 'home',          label: 'Home' },
-    { id: 'quiropractica', label: 'Quiropráctica' },
-    { id: 'resosense',     label: 'Resosense' },
-    { id: 'salas',         label: 'Salas' },
+    { id: 'home',          label: 'Inicio' },
+    siteConfig.features.showSalas ? { id: 'salas', label: 'Salas' } : null,
+    siteConfig.features.showQuiropractica ? { id: 'quiropractica', label: 'Quiropráctica' } : null,
+    siteConfig.features.showResosenseRedirect ? { id: 'resosense', label: 'Resosense', isExternal: true, url: siteConfig.urls.deawakening } : null,
     { id: 'contacto',      label: 'Contacto' },
     { id: 'admin',         label: 'Panel Admin', isLink: true, url: '/admin' }
-  ];
+  ].filter(item => item !== null);
 
   const handleLinkClick = (e, id) => {
     e.preventDefault();
@@ -254,12 +255,15 @@ export function Header() {
               : h('a', {
                   dataset: { tab: item.id },
                   className: item.id === 'home' ? 'active' : '',
-                  href: '#',
+                  href: item.isExternal ? item.url : '#',
+                  target: item.isExternal ? '_blank' : '_self',
                   onclick: (e) => {
-                    handleLinkClick(e, item.id);
-                    document.querySelector('.nav-links').classList.remove('active');
-                    document.querySelector('.nav-toggle').classList.remove('active');
-                    overlay.classList.remove('active');
+                    if (!item.isExternal) {
+                      handleLinkClick(e, item.id);
+                      document.querySelector('.nav-links').classList.remove('active');
+                      document.querySelector('.nav-toggle').classList.remove('active');
+                      overlay.classList.remove('active');
+                    }
                   }
                 }, item.label)
           )

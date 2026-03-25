@@ -62,6 +62,37 @@ class GoogleCalendarService {
       return null;
     }
   }
+
+  /**
+   * Consulta los periodos ocupados ("busy") en el calendario de David.
+   * Filtro de Privacidad: Solo devuelve intervalos ocupados sin detalles del evento.
+   * @param {string} timeMin - Fecha/hora inicio (ISO string)
+   * @param {string} timeMax - Fecha/hora fin (ISO string)
+   * @returns {Array} - Array de objetos { start, end }
+   */
+  async checkBusyPeriods(timeMin, timeMax) {
+    try {
+      if (!this.calendarId) {
+        console.warn('Google Calendar ID no configurado en .env. No se pueden verificar periodos ocupados.');
+        return [];
+      }
+
+      const response = await this.calendar.freebusy.query({
+        requestBody: {
+          timeMin,
+          timeMax,
+          timeZone: 'Europe/Madrid',
+          items: [{ id: this.calendarId }],
+        },
+      });
+
+      const busyPeriods = response.data.calendars[this.calendarId].busy;
+      return busyPeriods;
+    } catch (error) {
+      console.error('Error al consultar periodos ocupados en Google Calendar:', error.message);
+      return [];
+    }
+  }
 }
 
 module.exports = new GoogleCalendarService();

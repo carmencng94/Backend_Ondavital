@@ -117,11 +117,14 @@ export function ChatWidget() {
     enviarMensaje(`Quiero consultar disponibilidad para la ${e.detail}`);
   });
 
-  document.addEventListener('abrir-chat-asistente', () => {
+  document.addEventListener('abrir-chat-asistente', (e) => {
     const win = document.getElementById('chat-window');
     const bubble = document.getElementById('chat-help-bubble');
     if (win && win.classList.contains('hidden')) {
       toggleChat();
+    }
+    if (e.detail && typeof e.detail === 'string') {
+      enviarMensaje(e.detail);
     }
   });
 

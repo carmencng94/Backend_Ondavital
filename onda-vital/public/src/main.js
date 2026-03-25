@@ -7,6 +7,7 @@ import { SalasSection } from './components/SalasSection.js';
 import { ContactoSection } from './components/ContactoSection.js';
 import { ChatWidget } from './components/ChatWidget.js';
 import { Footer } from './components/Footer.js';
+import { siteConfig } from './config.js';
 
 function App() {
   // Manejador de navegación global para toda la app
@@ -31,16 +32,18 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  return h('div', { id: 'wrapper' },
+  const sections = [
     Header(),
-    HomeSection(),
-    QuiropracticaSection(),
-    ResosenseSection(),
-    SalasSection(),
-    ContactoSection(),
+    siteConfig.features.showHome ? HomeSection() : null,
+    siteConfig.features.showSalas ? SalasSection() : null,
+    siteConfig.features.showQuiropractica ? QuiropracticaSection() : null,
+    // Resosense ya no se renderiza como sección interna, será un link externo en el Header
+    siteConfig.features.showContacto ? ContactoSection() : null,
     Footer(),
     ChatWidget()
-  );
+  ].filter(section => section !== null);
+
+  return h('div', { id: 'wrapper' }, ...sections);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
