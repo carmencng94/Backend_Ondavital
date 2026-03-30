@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../utils.js';
+import { i18n } from '../i18n.js';
 
 const homeStyles = `
 /* Hero Sea Style */
@@ -299,11 +300,11 @@ export function HomeSection() {
     h('div', { className: 'hero-sea' },
       h('div', { className: 'hero-overlay' }),
       h('div', { className: 'hero-content container' },
-        h('h1', { className: 'hero-main-title' }, 'Espacios para Crecer'),
-        h('p', { className: 'hero-subtitle' }, 'Tu evento o terapia en el mejor entorno de Onda Vital'),
+        h('h1', { className: 'hero-main-title' }, i18n.t('home_hero_main')),
+        h('p', { className: 'hero-subtitle' }, i18n.t('home_hero_sub')),
         h('div', { className: 'hero-glass-card' },
-          h('p', {}, 'Alquiler de salas equipadas y gestionadas para tu éxito.'),
-          h('p', { style: { marginTop: '10px' } }, 'Encuentra el lugar perfecto para tu propósito.')
+          h('p', {}, i18n.t('home_glass_1')),
+          h('p', { style: { marginTop: '10px' } }, i18n.t('home_glass_2'))
         )
       )
     ),
@@ -314,15 +315,15 @@ export function HomeSection() {
         h('div', { className: 'ai-card-header' },
           h('div', { className: 'ai-icon-pulse' }, '✦'),
           h('div', {},
-            h('h3', { style: { margin: 0, fontSize: '1.2rem' } }, 'Reserva Directa con IA'),
-            h('p', { style: { margin: 0, fontSize: '0.9rem', color: '#666' } }, 'Indica qué sala necesitas y cuándo, yo me encargo del resto.')
+            h('h3', { style: { margin: 0, fontSize: '1.2rem' } }, i18n.t('home_ai_title')),
+            h('p', { style: { margin: 0, fontSize: '0.9rem', color: '#666' } }, i18n.t('home_ai_desc'))
           )
         ),
         h('div', { className: 'ai-input-group' },
           h('input', { 
             id: 'home-ai-input',
             type: 'text', 
-            placeholder: 'Ej: Quiero reservar la Sala Jardín para el lunes...',
+            placeholder: i18n.t('home_ai_placeholder'),
             onkeydown: (e) => {
               if (e.key === 'Enter') {
                 const val = e.target.value;
@@ -342,7 +343,7 @@ export function HomeSection() {
                 input.value = '';
               }
             }
-          }, 'Consultar')
+          }, i18n.t('home_ai_btn'))
         ),
 
         // Vista Rápida de Disponibilidad (Unified Booking Grid)
@@ -356,20 +357,20 @@ export function HomeSection() {
     h('div', { className: 'container mission-focus' },
       h('div', { className: 'mission-grid' },
         h('div', { className: 'mission-text' },
-          h('h2', {}, c.home_intro_title || 'Entendiendo el Desequilibrio'),
-          h('p', {}, c.home_intro_desc || 'La vida diaria está llena de fuentes de estrés que interfieren con tu bienestar:'),
+          h('h2', {}, c.home_intro_title || i18n.t('home_intro_title')),
+          h('p', {}, c.home_intro_desc || i18n.t('home_intro_desc')),
           h('ul', { className: 'stress-list' },
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_1 || 'Estrés Físico (posturas, lesiones)'),
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_2 || 'Estrés Mental (bloqueos, preocupaciones)'),
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_3 || 'Estrés Emocional (tensiones acumuladas)')
+            h('li', {}, h('span', { className: 'dot' }), c.home_stress_1 || i18n.t('home_stress_1')),
+            h('li', {}, h('span', { className: 'dot' }), c.home_stress_2 || i18n.t('home_stress_2')),
+            h('li', {}, h('span', { className: 'dot' }), c.home_stress_3 || i18n.t('home_stress_3'))
           ),
-          h('p', { className: 'consequence' }, c.home_stress_conc || 'Estas interferencias resultan en dolor, disfunción y malestar.')
+          h('p', { className: 'consequence' }, c.home_stress_conc || i18n.t('home_stress_conc'))
         ),
         h('div', { className: 'mission-visual' },
           h('div', { className: 'focus-circle' },
             h('img', { 
               src: 'assets/images/tree_life_home_v3.png', 
-              alt: 'Árbol de la Vida Onda Vital',
+              alt: 'Onda Vital',
               className: 'focus-img'
             })
           )
@@ -381,15 +382,15 @@ export function HomeSection() {
     h('div', { className: 'full-cta-section' },
       h('div', { className: 'container' },
         h('div', { className: 'cta-inner' },
-          h('h2', {}, 'Un Espacio para Cada Necesidad'),
-          h('p', {}, 'Además de nuestras salas, colaboramos con profesionales externos para ofrecerte un bienestar integral.'),
+          h('h2', {}, i18n.t('home_cta_title_alt')),
+          h('p', {}, i18n.t('home_cta_desc_alt')),
           h('div', { className: 'line-divider' }),
           h('a', { 
             href: 'https://deawakening.site', 
             target: '_blank',
             className: 'final-tagline',
             style: { textDecoration: 'none', display: 'block', cursor: 'pointer' }
-          }, '✦ Visita Deawakening - Nuestra plataforma aliada')
+          }, i18n.t('home_cta_deawakening'))
         )
       )
     )
@@ -403,8 +404,9 @@ setTimeout(async () => {
       const { BookingGrid } = await import('./booking/BookingGrid.js');
       container.appendChild(BookingGrid({
         onReserve: (reservaDetails) => {
-           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}*.\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
-           window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
+           const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
+           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}* (${rateType}).\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
+           window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
         }
       }));
     }

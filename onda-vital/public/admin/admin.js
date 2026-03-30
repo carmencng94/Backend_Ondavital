@@ -146,6 +146,120 @@ function renderDashboard(wrapper) {
   });
 
   loadContentEditor();
+  // Listener para el cierre de sesión ya está arriba.
+}
+
+async function renderReservations(container) {
+  container.innerHTML = '<div style="padding: 20px;">Cargando reservas...</div>';
+  const token = localStorage.getItem('adminToken');
+  
+  try {
+    const res = await fetch('/api/reservas', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    
+    if (!data.success) {
+      container.innerHTML = `<div style="color:red; padding:20px;">Error: ${data.error}</div>`;
+      return;
+    }
+
+    const { reservas } = data;
+    
+    if (reservas.length === 0) {
+      container.innerHTML = '<div style="padding: 40px; text-align: center; color: #64748b;">No hay reservas registradas todavía.</div>';
+      return;
+    }
+
+    const table = document.createElement('div');
+    table.className = 'reservations-list';
+    table.style.display = 'flex';
+    table.style.flexDirection = 'column';
+    table.style.gap = '15px';
+
+    reservas.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'reserva-card-admin';
+      card.style.background = 'white';
+      card.style.border = '1px solid #e2e8f0';
+      card.style.borderRadius = '12px';
+      card.style.padding = '20px';
+      card.style.display = 'grid';
+      card.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';
+      card.style.gap = '20px';
+      card.style.alignItems = 'center';
+
+      const statusColors = {
+        'pendiente': '#f59e0b',
+        'confirmada': '#10b981',
+        'rechazada': '#ef4444'
+      };
+
+      card.innerHTML = `
+        <div class="res-info">
+          <div style="font-weight: 700; font-size: 1.1rem; color: #1e293b; margin-bottom: 4px;">${r.nombre}</div>
+          <div style="font-size: 0.85rem; color: #64748b;">${r.contacto || 'Sin contacto'}</div>
+          <div style="margin-top: 8px; display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: ${statusColors[r.estado] || '#ccc'}1a; color: ${statusColors[r.estado] || '#666'};">
+            ${r.estado.toUpperCase()}
+          </div>
+        </div>
+        <div class="res-details">
+          <div style="font-weight: 600; color: #334155;">${r.sala}</div>
+          <div style="font-size: 0.9rem; color: #475569;">${r.fecha} | <span style="font-family: monospace;">${r.horario}h</span></div>
+        </div>
+        <div class="res-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+          ${r.estado === 'pendiente' ? `
+            <button class="btn-approve" data-id="${r.id}" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Confirmar</button>
+            <button class="btn-reject" data-id="${r.id}" style="background: white; color: #ef4444; border: 1px solid #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Rechazar</button>
+          ` : `
+            <span style="color: #94a3b8; font-size: 0.85rem;">Procesada el ${new Date(r.createdAt).toLocaleDateString()}</span>
+          `}
+        </div>
+      `;
+
+      // Eventos para botones
+      const approveBtn = card.querySelector('.btn-approve');
+      const rejectBtn = card.querySelector('.btn-reject');
+
+      if (approveBtn) {
+        approveBtn.onclick = async () => {
+          if (!confirm('¿Confirmar esta reserva? Se guardará en el Google Calendar oficial.')) return;
+          try {
+            const res = await fetch(`/api/reservas/${r.id}/confirmar`, {
+              method: 'PATCH',
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const d = await res.json();
+            if (d.success) renderReservations(container);
+            else alert('Error: ' + (d.error || 'No se pudo confirmar'));
+          } catch(e) { console.error(e); }
+        };
+      }
+
+      if (rejectBtn) {
+        rejectBtn.onclick = async () => {
+          if (!confirm('¿Rechazar esta reserva? No se mostrará en el calendario público.')) return;
+          try {
+            const res = await fetch(`/api/reservas/${r.id}/rechazar`, {
+              method: 'PATCH',
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const d = await res.json();
+            if (d.success) renderReservations(container);
+            else alert('Error');
+          } catch(e) { console.error(e); }
+        };
+      }
+
+      table.appendChild(card);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(table);
+
+  } catch(e) {
+    container.innerHTML = `<div style="color:red; padding:20px;">Error al conectar: ${e.message}</div>`;
+  }
 }
 
 async function loadContentEditor() {
@@ -177,43 +291,56 @@ async function loadContentEditor() {
     };
 
     tabsContainer.innerHTML = '';
-    container.innerHTML = '';
+    
+    // --- Pestaña Principal de Reservas (HARDCODED) ---
+    const resTab = document.createElement('button');
+    resTab.textContent = '📅 Reservas y Calendario';
+    resTab.className = 'tab-btn fixed-active';
+    resTab.style.padding = '12px 24px';
+    resTab.style.border = 'none';
+    resTab.style.borderBottom = '3px solid hsl(158 25% 30%)';
+    resTab.style.background = 'transparent';
+    resTab.style.cursor = 'pointer';
+    resTab.style.fontWeight = '700';
+    resTab.style.color = 'hsl(158 25% 30%)';
+    resTab.style.fontSize = '14px';
+    resTab.style.borderRadius = '4px 4px 0 0';
 
-    // Construir pestañas y contenedores ocultos
+    tabsContainer.appendChild(resTab);
+    
+    // Cargar Reservas inicialmente
+    renderReservations(container);
+
+    resTab.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.style.borderBottom = '3px solid transparent';
+        b.style.fontWeight = 'normal';
+        b.style.color = '#64748b';
+      });
+      resTab.style.borderBottom = '3px solid hsl(158 25% 30%)';
+      resTab.style.fontWeight = 'bold';
+      resTab.style.color = 'hsl(158 25% 30%)';
+      renderReservations(container);
+    };
+
+    // --- Pestañas de Contenido (Dinámicas) ---
     const sortedPrefixes = Object.keys(groups).sort();
     
-    sortedPrefixes.forEach((prefix, index) => {
-      const isFirst = index === 0;
-      
+    sortedPrefixes.forEach((prefix) => {
       // 1. Crear Tab
       const tabBtn = document.createElement('button');
       tabBtn.textContent = categoryNames[prefix] || prefix.toUpperCase();
       tabBtn.className = 'tab-btn';
       tabBtn.style.padding = '12px 24px';
       tabBtn.style.border = 'none';
-      tabBtn.style.borderBottom = isFirst ? '3px solid hsl(158 25% 30%)' : '3px solid transparent';
+      tabBtn.style.borderBottom = '3px solid transparent';
       tabBtn.style.background = 'transparent';
       tabBtn.style.cursor = 'pointer';
-      tabBtn.style.fontWeight = isFirst ? '700' : '500';
-      tabBtn.style.color = isFirst ? 'hsl(158 25% 30%)' : '#94a3b8';
+      tabBtn.style.fontWeight = '500';
+      tabBtn.style.color = '#94a3b8';
       tabBtn.style.fontSize = '14px';
       tabBtn.style.whiteSpace = 'nowrap';
       tabBtn.style.borderRadius = '4px 4px 0 0';
-      
-      // 2. Crear Grupo Contenedor
-      const groupDiv = document.createElement('div');
-      groupDiv.id = 'group-' + prefix;
-      groupDiv.className = 'group-content editor-grid';
-      groupDiv.style.display = isFirst ? 'grid' : 'none';
-      groupDiv.style.animation = 'fadeIn 0.5s ease';
-      groupDiv.style.gridColumn = '1 / -1';
-
-      // 3. Rellenar Grupo
-      for (const key of groups[prefix]) {
-        const isUrl = content[key] && (content[key].startsWith('/uploads/') || content[key].startsWith('http'));
-        const itemDiv = doItemDiv(key, content[key], isUrl);
-        groupDiv.appendChild(itemDiv);
-      }
       
       // Configurar clic de pestaña
       tabBtn.onclick = () => {
@@ -221,19 +348,25 @@ async function loadContentEditor() {
         document.querySelectorAll('.tab-btn').forEach(b => {
           b.style.borderBottom = '3px solid transparent';
           b.style.fontWeight = 'normal';
-          b.style.color = '#666';
+          b.style.color = '#64748b';
         });
-        document.querySelectorAll('.group-content').forEach(g => g.style.display = 'none');
         
         // Poner activo
         tabBtn.style.borderBottom = '3px solid hsl(158 25% 30%)';
         tabBtn.style.fontWeight = 'bold';
         tabBtn.style.color = 'hsl(158 25% 30%)';
-        groupDiv.style.display = 'block';
+        
+        // Rellenar Editor
+        container.innerHTML = '';
+        container.className = 'editor-grid';
+        for (const key of groups[prefix]) {
+          const isUrl = content[key] && (content[key].startsWith('/uploads/') || content[key].startsWith('http'));
+          const itemDiv = doItemDiv(key, content[key], isUrl);
+          container.appendChild(itemDiv);
+        }
       };
 
       tabsContainer.appendChild(tabBtn);
-      container.appendChild(groupDiv);
     });
 
   } catch (error) {

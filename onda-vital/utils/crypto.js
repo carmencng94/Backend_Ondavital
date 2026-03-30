@@ -5,7 +5,9 @@ const crypto = require('crypto');
 // Usamos el environment o generamos uno fallback de 32 bytes para dev.
 // EN PRODUCCIÓN DEFINIR ESTA VARIABLE DE ENTORNO.
 const algorithm = 'aes-256-gcm';
-const secretKey = process.env.AES_SECRET_KEY || crypto.randomBytes(32).toString('hex').slice(0, 32);
+const rawKey = process.env.AES_SECRET_KEY || 'default-secret-key-onda-vital';
+// Usar SHA-256 para garantizar exactamente 32 bytes, incluso si el .env cambia o no tiene la longitud correcta
+const secretKey = crypto.createHash('sha256').update(rawKey).digest();
 
 /**
  * Encripta un texto usando AES-256-GCM.
@@ -51,7 +53,7 @@ function decryptData(hash) {
     
     return decrypted;
   } catch (error) {
-    console.error('Error desencriptando datos:', error.message);
+    // console.error('Error desencriptando datos:', error.message);
     return hash; // Fallback al original si falla (por ej. keys rotadas y sin manejo de versioning en dev)
   }
 }

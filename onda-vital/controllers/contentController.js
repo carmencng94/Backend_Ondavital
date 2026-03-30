@@ -4,7 +4,8 @@ const ContentModel = require('../models/ContentModel');
 
 exports.getAllContent = (req, res) => {
   try {
-    const content = ContentModel.obtenerTodos();
+    const format = req.query.format === 'all' ? 'all' : 'flat';
+    const content = ContentModel.obtenerTodos(format);
     res.json(content);
   } catch (error) {
     console.error('Error al obtener el contenido:', error);

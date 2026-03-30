@@ -1,5 +1,6 @@
 import { h, injectStyles } from '../utils.js';
 import { BookingGrid } from './booking/BookingGrid.js';
+import { i18n } from '../i18n.js';
 
 const salasStyles = `
 /* Grid de Salas */
@@ -209,65 +210,27 @@ const salasStyles = `
   border-radius: 4px;
 }
 
-.sala-modal-content {
-  padding: var(--space-2xl);
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: var(--space-2xl);
-}
-
-@media (max-width: 768px) {
-  .sala-modal-content { grid-template-columns: 1fr; }
-  .carousel-container { height: 260px; }
-}
-
-.modal-header-text h2 {
-  font-size: var(--text-3xl);
-  color: hsl(var(--color-primary));
-}
-
-.modal-dims {
-  font-size: var(--text-lg);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-md);
-}
-
-.modal-desc {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: hsl(var(--color-text));
-  margin-bottom: var(--space-xl);
-}
-
-.features-list {
-  list-style: none;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
-}
-
-.features-list li::before {
-  content: '✓';
-  color: hsl(var(--color-primary));
-  margin-right: 8px;
-  font-weight: bold;
-}
-
-.rates-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
 .rate-card {
   background: hsl(var(--color-primary-light) / 0.1);
   padding: var(--space-md);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.rate-card:hover {
+  background: hsl(var(--color-primary-light) / 0.2);
+  transform: translateY(-2px);
+}
+
+.rate-card.active {
+  border-color: hsl(var(--color-primary));
+  background: hsl(var(--color-primary-light) / 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .rate-card span { font-size: var(--text-xs); color: var(--color-text-muted); }
@@ -285,16 +248,17 @@ const salasStyles = `
 
 export function SalasSection() {
   injectStyles('salas-styles', salasStyles);
-  const c = window.siteContent || {};
 
   const container = h('section', { id: 'salas', className: 'tab-section' },
     h('div', { className: 'container' },
-      h('h2', { style: { textAlign: 'center' } }, c.salas_header_title || 'Salas Polivalentes'),
-      h('p', { style: { textAlign: 'center', color: 'var(--color-text-muted)', marginBottom: 'var(--space-xl)' } },
-        c.salas_header_subtitle || 'Un oasis en plena ciudad para clases, talleres o terapias.'
+      h('div', { className: 'salas-header-wrapper', style: { textAlign: 'center', marginBottom: 'var(--space-2xl)' } },
+        h('h2', { className: 'section-title' }, i18n.t('salas_title')),
+        h('p', { className: 'section-subtitle', style: { maxWidth: '800px', margin: '0 auto var(--space-xl)' } },
+          i18n.t('salas_subtitle')
+        )
       ),
       h('div', { id: 'salas-grid', className: 'salas-grid' },
-        h('p', { className: 'salas-loading' }, 'Cargando salas...')
+        h('p', { className: 'salas-loading' }, i18n.t('salas_loading'))
       )
     )
   );
@@ -311,7 +275,7 @@ export function SalasSection() {
         });
       }
     } catch (error) {
-      grid.innerHTML = '<p class="salas-error">Error al cargar el catálogo.</p>';
+      grid.innerHTML = `<p class="salas-error">${i18n.t('salas_error')}</p>`;
     }
   };
 
@@ -322,6 +286,7 @@ export function SalasSection() {
 
 function SalaCard(sala) {
   const mainImage = sala.imagenes && sala.imagenes[0] ? sala.imagenes[0] : '/assets/images/placeholder.png';
+  const roomKey = sala.dbKey || ('sala_' + sala.id.replace(/-/g, '_'));
 
   return h('div', { 
     className: 'sala-card',
@@ -337,17 +302,19 @@ function SalaCard(sala) {
       h('div', { className: 'sala-badge' }, sala.tarifas.hora)
     ),
     h('div', { className: 'sala-info' },
-      h('h3', {}, sala.nombre),
-      h('p', { className: 'sala-capacity' }, `${sala.capacidad} | ${sala.dimensiones}`),
+      h('h3', {}, i18n.t(roomKey + '_nombre') || sala.nombre),
+      h('p', { className: 'sala-capacity' }, 
+        (i18n.t(roomKey + '_capacidad') || sala.capacidad) + ' | ' + (i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
+      ),
       h('div', { className: 'card-footer' },
-        h('span', { className: 'learn-more' }, 'Más detalles +'),
+        h('span', { className: 'learn-more' }, i18n.t('salas_more')),
         h('button', {
           className: 'btn-check-availability',
           onclick: (e) => {
             e.stopPropagation();
             document.dispatchEvent(new CustomEvent('consultar-sala', { detail: sala.nombre }));
           }
-        }, 'Ver Disponibilidad')
+        }, i18n.t('salas_availability'))
       )
     )
   );
@@ -356,6 +323,7 @@ function SalaCard(sala) {
 function SalaModal(sala) {
   let currentIndex = 0;
   const images = sala.imagenes || ['/assets/images/placeholder.png'];
+  const roomKey = sala.dbKey || ('sala_' + sala.id.replace(/-/g, '_'));
 
   const closeModal = () => {
     modalOverlay.classList.remove('active');
@@ -404,35 +372,34 @@ function SalaModal(sala) {
       h('div', { className: 'sala-modal-content' },
         h('div', { className: 'sala-modal-info' },
           h('div', { className: 'modal-header-text' },
-            h('h2', {}, sala.nombre),
-            h('p', { className: 'modal-dims' }, sala.dimensiones)
+            h('h2', {}, i18n.t(roomKey + '_nombre') || sala.nombre),
+            h('p', { className: 'modal-dims' }, i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
           ),
-          h('p', { className: 'modal-desc' }, sala.descripcionLarga || 'Sin descripción disponible.'),
+          h('p', { className: 'modal-desc' }, i18n.t(roomKey + '_desc') || sala.descripcionLarga || i18n.t('salas_no_desc')),
           
           h('div', { className: 'sala-features' },
-            h('h4', {}, 'Equipamiento y Servicios'),
+            h('h4', { style: { marginBottom: '1rem', color: 'hsl(var(--color-primary))'} }, i18n.t('salas_equip_title')),
             h('ul', { className: 'features-list' },
-              ...(sala.equipamiento || []).map(f => h('li', {}, f))
+              (i18n.t(roomKey + '_equipo') || (sala.equipamiento && sala.equipamiento.join(', ')) || '').split(',').map(f => f.trim()).filter(Boolean).map(f => h('li', {}, f))
             )
           )
         ),
 
         h('div', { className: 'sala-modal-side' },
-          h('div', { className: 'sala-rates' },
-            h('h4', {}, 'Estructura de Tarifas'),
-            h('div', { className: 'rates-grid' },
-              h('div', { className: 'rate-card' }, h('span', {}, 'Hora'), h('strong', {}, sala.tarifas.hora)),
-              h('div', { className: 'rate-card' }, h('span', {}, 'Día'), h('strong', {}, sala.tarifas.dia))
-            )
-          ),
-          
           BookingGrid({
             sala,
             onReserve: (reservaDetails) => {
-              // UX Fluida PropTech: Redirección rápida a confirmación (WhatsApp)
-              const texto = `Hola, quiero pre-reservar la sala *${sala.nombre}*.\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n- Precio Aprox: ${reservaDetails.totalPrice}€.\n\nPor favor indícame los pasos para confirmar el pago.`;
-              window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
-              closeModal();
+              const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
+              const translatedSalaName = i18n.t(roomKey + '_nombre') || sala.nombre;
+
+              const texto = i18n.t('wa_message')
+                .replace('{nombre}', reservaDetails.nombre || '')
+                .replace('{sala}', `${translatedSalaName} (${rateType})`)
+                .replace('{fecha}', reservaDetails.fecha)
+                .replace('{horario}', reservaDetails.slots.join(', ') + 'h')
+                .replace('{contacto}', reservaDetails.contacto || '');
+                
+              window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
             }
           })
         )

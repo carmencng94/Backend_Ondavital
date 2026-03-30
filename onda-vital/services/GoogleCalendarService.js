@@ -27,18 +27,25 @@ class GoogleCalendarService {
         return null;
       }
 
-      // Combinar fecha y hora. Asumimos duración de 1 hora por defecto.
-      const startTime = `${reserva.fecha}T${reserva.horario}:00`;
+      // Si el usuario seleccionó varias horas (ej: "9:00, 10:00")
+      const slots = reserva.horario.split(',').map(s => s.trim()).sort((a, b) => {
+        return parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]);
+      });
+      const firstSlot = slots[0];
+      const lastSlot = slots[slots.length - 1];
+
+      // Combinar fecha y hora para el inicio (slot más temprano)
+      const startTime = `${reserva.fecha}T${firstSlot.padStart(5, '0')}:00`;
       
-      // Calcular hora de fin (sumar 1 hora)
-      const [horas, minutos] = reserva.horario.split(':').map(Number);
+      // Calcular hora de fin (sumar 1 hora a la última seleccionada)
+      const [horas, minutos] = lastSlot.split(':').map(Number);
       const finHoras = (horas + 1).toString().padStart(2, '0');
       const endTime = `${reserva.fecha}T${finHoras}:${minutos.toString().padStart(2, '0')}:00`;
 
       const event = {
         summary: `Reserva: ${reserva.sala} - ${reserva.nombre}`,
         location: `Onda Vital - ${reserva.sala}`,
-        description: `Reserva creada automáticamente para ${reserva.nombre}.`,
+        description: `Reserva creada automáticamente para ${reserva.nombre}.\nContacto: ${reserva.contacto_real || 'No especificado (o encriptado localmente)'}`,
         start: {
           dateTime: startTime,
           timeZone: 'Europe/Madrid', 

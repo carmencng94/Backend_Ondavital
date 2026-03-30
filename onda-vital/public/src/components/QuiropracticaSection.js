@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../utils.js';
+import { i18n } from '../i18n.js';
 
 const quiroStyles = `
 #quiropractica {
@@ -172,7 +173,7 @@ export function QuiropracticaSection() {
           target: '_blank', 
           rel: 'noopener noreferrer',
           className: 'btn-external-link' 
-        }, 'Visitar la web oficial de DEAwakening ↗')
+        }, i18n.t('quiro_visit_dea'))
       ),
 
       h('div', { className: 'quiro-grid reverse' },

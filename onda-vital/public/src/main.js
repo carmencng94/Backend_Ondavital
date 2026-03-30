@@ -8,6 +8,7 @@ import { ContactoSection } from './components/ContactoSection.js';
 import { ChatWidget } from './components/ChatWidget.js';
 import { Footer } from './components/Footer.js';
 import { siteConfig } from './config.js';
+import { i18n } from './i18n.js';
 
 function App() {
   // Manejador de navegación global para toda la app
@@ -48,16 +49,25 @@ function App() {
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/api/content');
+    const response = await fetch('/api/content?format=all');
     if (response.ok) {
-      window.siteContent = await response.json();
+      const content = await response.json();
+      i18n.setSiteContent(content);
     } else {
-      window.siteContent = {};
+      i18n.setSiteContent({});
     }
   } catch (err) {
     console.error('Error al obtener el contenido de la web:', err);
-    window.siteContent = {};
+    i18n.setSiteContent({});
   }
+  
+  const pageTitles = {
+    es: 'Onda Vital Holistic | Bienestar y Terapias',
+    en: 'Onda Vital Holistic | Wellness & Therapies',
+    de: 'Onda Vital Holistic | Wohlbefinden & Therapien',
+    ca: 'Onda Vital Holistic | Benestar i Teràpies'
+  };
+  document.title = pageTitles[i18n.currentLanguage] || pageTitles.es;
   
   render(App(), document.getElementById('app'));
 });

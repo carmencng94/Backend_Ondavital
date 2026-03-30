@@ -7,9 +7,9 @@ const ChatController = require('../controllers/ChatController');
 
 router.post('/', async (req, res) => {
   try {
-    const { mensaje, historial = [] } = req.body;
+    const { mensaje, historial = [], idioma = 'es' } = req.body;
     // Delegar lógica al controlador
-    const resultado = await ChatController.responder(mensaje, historial);
+    const resultado = await ChatController.responder(mensaje, historial, idioma);
     res.json({ success: true, ...resultado });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });

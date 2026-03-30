@@ -1,5 +1,7 @@
 import { h, injectStyles } from '../utils.js';
 import { siteConfig } from '../config.js';
+import { i18n } from '../i18n.js';
+import { LanguageSwitcher } from './LanguageSwitcher.js';
 
 // Estilos del Header
 const headerStyles = `
@@ -192,12 +194,12 @@ const headerStyles = `
 export function Header() {
   injectStyles('header-styles', headerStyles);
   const navItems = [
-    { id: 'home',          label: 'Inicio' },
-    siteConfig.features.showSalas ? { id: 'salas', label: 'Salas' } : null,
-    siteConfig.features.showQuiropractica ? { id: 'quiropractica', label: 'Quiropráctica' } : null,
-    siteConfig.features.showResosenseRedirect ? { id: 'resosense', label: 'Resosense', isExternal: true, url: siteConfig.urls.deawakening } : null,
-    { id: 'contacto',      label: 'Contacto' },
-    { id: 'admin',         label: 'Panel Admin', isLink: true, url: '/admin' }
+    { id: 'home',          label: i18n.t('nav_home') },
+    siteConfig.features.showSalas ? { id: 'salas', label: i18n.t('nav_salas') } : null,
+    siteConfig.features.showQuiropractica ? { id: 'quiropractica', label: i18n.t('nav_quiro') } : null,
+    siteConfig.features.showResosenseRedirect ? { id: 'resosense', label: i18n.t('nav_reso'), isExternal: true, url: siteConfig.urls.deawakening } : null,
+    { id: 'contacto',      label: i18n.t('nav_contacto') },
+    { id: 'admin',         label: i18n.t('nav_admin'), isLink: true, url: '/admin' }
   ].filter(item => item !== null);
 
   const handleLinkClick = (e, id) => {
@@ -230,10 +232,11 @@ export function Header() {
       h('button', {
         className: 'btn-vitalis-nav',
         onclick: (e) => { e.preventDefault(); handleLinkClick(e, 'asistente'); }
-      }, '✦ Asistente Vitalis')
+      }, i18n.t('chat_button'))
     ),
-    // Lado derecho: Menú de navegación
-    h('div', { className: 'nav-menu' },
+    // Lado derecho: Menú de navegación y Switcher
+    h('div', { className: 'nav-menu', style: { display: 'flex', alignItems: 'center', gap: 'var(--space-md)' } },
+      LanguageSwitcher(),
       overlay,
       h('button', {
         className: 'nav-toggle',
@@ -267,7 +270,8 @@ export function Header() {
                   }
                 }, item.label)
           )
-        )
+        ),
+        LanguageSwitcher({ isMobile: true })
       )
     )
   );

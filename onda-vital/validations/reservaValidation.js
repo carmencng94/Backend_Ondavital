@@ -17,10 +17,12 @@ const reservaSchema = Joi.object({
     'string.pattern.base': 'formato de fecha inválido (YYYY-MM-DD)',
     'any.required': 'la fecha es obligatoria'
   }),
-  horario: Joi.string().pattern(/^\d{2}:\d{2}$/).required().messages({
-    'string.pattern.base': 'formato de horario inválido (HH:MM)',
+  horario: Joi.string().pattern(/^(\d{1,2}:\d{2})(,\s*\d{1,2}:\d{2})*$/).required().messages({
+    'string.pattern.base': 'formato de horario inválido (ej: 10:00, 11:00)',
     'any.required': 'el horario es obligatorio'
-  })
+  }),
+  contacto: Joi.string().allow('', null).optional(),
+  estado: Joi.string().valid('pendiente', 'confirmada', 'rechazada').optional()
 });
 
 module.exports = {

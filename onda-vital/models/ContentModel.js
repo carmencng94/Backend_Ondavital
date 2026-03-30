@@ -14,10 +14,21 @@ db.exec(`
     id TEXT PRIMARY KEY,
     key TEXT UNIQUE NOT NULL,
     value TEXT,
+    value_en TEXT,
+    value_de TEXT,
+    value_ca TEXT,
     type TEXT,
     updated_at TEXT
   )
 `);
+
+['value_en', 'value_de', 'value_ca'].forEach(langCol => {
+  try {
+    db.exec(`ALTER TABLE content_blocks ADD COLUMN ${langCol} TEXT`);
+  } catch (e) {
+    // La columna ya existe
+  }
+});
 
 // Insertar contenido de prueba inicial o sincronizar nuevos campos
 try {
@@ -194,19 +205,33 @@ try {
 
 class ContentModel {
   /**
-   * Obtiene todos los bloques de contenido formateados como un objeto { clave: valor }.
+   * Obtiene todos los bloques de contenido formateados.
+   * Si format = 'all' retorna un objeto por idioma { es: {}, en: {} }
+   * Si format = 'flat' retorna un objeto plano con las traducciones por defecto (español)
    */
-  static obtenerTodos() {
-    const stmt = db.prepare('SELECT key, value FROM content_blocks');
+  static obtenerTodos(format = 'all') {
+    const stmt = db.prepare('SELECT key, value, value_en, value_de, value_ca FROM content_blocks');
     const rows = stmt.all();
     
-    // Convertir el array de filas en un objeto { "home_hero_title": "Valor..." }
-    const contentObject = {};
+    if (format === 'flat') {
+      const contentFlat = {};
+      rows.forEach(row => {
+        contentFlat[row.key] = row.value || '';
+      });
+      return contentFlat;
+    }
+
+    // Devolvemos el array agrupado por idioma:
+    const contentByLanguage = { es: {}, en: {}, de: {}, ca: {} };
+    
     rows.forEach(row => {
-      contentObject[row.key] = row.value;
+      contentByLanguage.es[row.key] = row.value || '';
+      contentByLanguage.en[row.key] = row.value_en || '';
+      contentByLanguage.de[row.key] = row.value_de || '';
+      contentByLanguage.ca[row.key] = row.value_ca || '';
     });
     
-    return contentObject;
+    return contentByLanguage;
   }
 
   /**

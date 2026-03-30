@@ -990,22 +990,24 @@ body {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  z-index: 10001;
+  z-index: 10001; /* High z-index for desktop to stay on top of mostly everything */
 }
 
 .chat-help-bubble {
   position: absolute;
   bottom: 80px;
-  right: 10px;
+  right: 8px;
   background: white;
-  padding: 12px 20px;
+  padding: 10px 18px;
   border-radius: var(--radius-bubble);
   box-shadow: var(--shadow-widget);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: hsl(var(--color-text));
   border: 1px solid hsl(var(--color-border));
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 250px;
+  line-height: 1.4;
   cursor: pointer;
   animation: floatBubble 3s ease-in-out infinite, fadeIn 0.5s ease-out;
   z-index: 10000;
@@ -1173,6 +1175,11 @@ body {
 }
 
 @media (max-width: 768px) {
+  #chat-root {
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 900; /* Lower than mobile nav (1000) so it doesn't block language switcher */
+  }
   .reso-row {
     grid-template-columns: 1fr;
   }
@@ -1184,14 +1191,25 @@ body {
   }
   .chat-window {
     width: calc(100vw - 2rem);
-    right: 1rem;
-    bottom: 5.5rem;
+    right: 0;
+    bottom: 4.5rem;
+    height: min(550px, 80vh);
   }
   .chat-widget-btn {
-    right: 1rem;
-    bottom: 1rem;
-    width: 58px;
-    height: 58px;
+    width: 60px;
+    height: 60px;
+    border-width: 1px;
+  }
+  .chat-help-bubble {
+    bottom: 72px;
+    right: 0;
+    font-size: var(--text-xs);
+    max-width: 180px;
+    padding: 8px 14px;
+  }
+  .chat-help-bubble::after,
+  .chat-help-bubble::before {
+    right: 22px;
   }
 }
 

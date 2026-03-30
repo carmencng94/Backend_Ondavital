@@ -3,6 +3,7 @@
 
 const Database = require('better-sqlite3');
 const path = require('path');
+const crypto = require('crypto');
 const { encryptData, decryptData } = require('../utils/crypto');
 
 // Obtener la ruta de la DB desde var de entorno o usar fallback
@@ -17,6 +18,7 @@ db.exec(`
     sala TEXT NOT NULL,
     fecha TEXT NOT NULL,
     horario TEXT NOT NULL,
+    contacto TEXT,
     estado TEXT NOT NULL DEFAULT 'pendiente',
     createdAt TEXT NOT NULL
   )
@@ -34,6 +36,13 @@ try {
   console.error("Error durante la migración de la base de datos:", error.message);
 }
 
+const generarTrackingId = () => {
+  const prefijo = 'OV';
+  const fecha = new Date().toISOString().slice(2,10).replace(/-/g,''); // YYYYMMDD
+  const aleatorio = crypto.randomBytes(3).toString('hex').toUpperCase(); // 6 chars hex
+  return `${prefijo}-${fecha}-${aleatorio}`;
+};
+
 class ReservaModel {
   /**
    * Guarda una nueva pre-reserva en la base de datos SQLite con estado pendiente.
@@ -42,7 +51,7 @@ class ReservaModel {
    */
   static guardar(reservaData) {
     const nuevaReserva = {
-      id: reservaData.id || Date.now().toString(),
+      id: reservaData.id || generarTrackingId(),
       nombre: reservaData.nombre,
       sala: reservaData.sala,
       fecha: reservaData.fecha,

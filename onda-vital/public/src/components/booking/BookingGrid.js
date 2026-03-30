@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../../utils.js';
+import { i18n } from '../../i18n.js';
 
 const bookingStyles = `
 /* Contenedor del Booking System */
@@ -140,6 +141,14 @@ const bookingStyles = `
 }
 
 .btn-reserve:disabled { background: #ccc; cursor: not-allowed; }
+
+/* Rates injection */
+.rates-grid { display: flex; gap: var(--space-md); margin-bottom: var(--space-md); }
+.rate-card { background: hsl(var(--color-primary-light) / 0.1); padding: var(--space-md); border-radius: var(--radius-lg); display: flex; flex-direction: column; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; user-select: none; flex: 1; text-align: center; }
+.rate-card:hover { background: hsl(var(--color-primary-light) / 0.2); transform: translateY(-2px); }
+.rate-card.active { border-color: hsl(var(--color-primary)); background: hsl(var(--color-primary-light) / 0.3); box-shadow: var(--shadow-sm); }
+.rate-card span { font-size: var(--text-xs); color: var(--color-text-muted); }
+.rate-card strong { font-size: var(--text-lg); color: hsl(var(--color-primary)); }
 `;
 
 export function BookingGrid({ sala: initSala, onReserve }) {
@@ -155,6 +164,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     selectedSalaId: initSala ? (initSala.id || initSala.nombre) : '',
     selectedSalaObj: initSala || null,
     loading: false,
+    isDayRate: false,
     form: { nombre: '', contacto: '' }
   };
 
@@ -215,7 +225,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
 
   const saveAttemptAndGo = async () => {
     if (!state.form.nombre || !state.form.contacto) {
-        alert('Por favor, indica tu nombre y contacto.');
+        alert(i18n.t('booking_alert_missing'));
         return;
     }
 
@@ -238,10 +248,13 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         
         if (onReserve) {
           onReserve({
+            nombre: state.form.nombre,
+            contacto: state.form.contacto,
             sala: state.selectedSalaObj?.nombre || state.selectedSalaId,
             fecha: formatearFecha(state.selectedDate),
             slots: state.selectedSlots,
-            totalPrice: calculatePrice()
+            totalPrice: calculatePrice(),
+            isDayRate: state.isDayRate
           });
         }
         
@@ -254,11 +267,23 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     } catch(e) {
         console.error('Error guardando intento:', e);
         // Aun si falla la DB, redirigimos a whatsapp para no perder la venta
-        if (onReserve) onReserve({ sala: state.selectedSalaId, fecha: formatearFecha(state.selectedDate), slots: state.selectedSlots });
+        if (onReserve) onReserve({ 
+          nombre: state.form.nombre,
+          contacto: state.form.contacto,
+          sala: state.selectedSalaId, 
+          fecha: formatearFecha(state.selectedDate), 
+          slots: state.selectedSlots,
+          isDayRate: state.isDayRate
+        });
     }
   };
 
   const calculatePrice = () => {
+    if (state.isDayRate) {
+        const dayPriceMatch = state.selectedSalaObj?.tarifas?.dia?.match(/(\d+)/);
+        return dayPriceMatch ? parseInt(dayPriceMatch[1]) : 0;
+    }
+    
     let hourlyPrice = 0;
     if (state.selectedSalaObj && state.selectedSalaObj.tarifas?.hora) {
         const priceMatch = state.selectedSalaObj.tarifas.hora.match(/(\d+)/);
@@ -268,6 +293,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
   };
 
   const render = () => {
+    const roomKey = state.selectedSalaObj?.dbKey || (state.selectedSalaObj?.id ? 'sala_' + state.selectedSalaObj.id.replace(/-/g, '_') : '');
     // Limpieza profunda y regeneración
     while (container.firstChild) {
       container.removeChild(container.firstChild);
@@ -275,7 +301,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     
     if (state.step === 1) {
         // --- STEP 1: CALENDAR & SELECTION ---
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '1'), '¿Qué día quieres venir?'));
+        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '1'), i18n.t('booking_step1')));
         const dateCardsContainer = h('div', { className: 'booking-date-picker' });
         generateDates().forEach(d => {
             const isSelected = d.toDateString() === state.selectedDate.toDateString();
@@ -283,7 +309,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
                 className: `date-card ${isSelected ? 'active' : ''}`,
                 onclick: () => refreshDate(d)
             },
-                h('div', { className: 'date-day' }, d.toLocaleDateString('es-ES', { weekday: 'short' })),
+                h('div', { className: 'date-day' }, d.toLocaleDateString(i18n.currentLanguage === 'ca' ? 'ca-ES' : i18n.currentLanguage === 'de' ? 'de-DE' : i18n.currentLanguage === 'en' ? 'en-GB' : 'es-ES', { weekday: 'short' })),
                 h('div', { className: 'date-num' }, d.getDate())
             ));
         });
@@ -297,28 +323,55 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             });
             
             container.appendChild(h('div', { className: 'global-mini-info' }, 
-                h('strong', {}, 'Ocupado hoy: '),
+                h('strong', {}, i18n.t('booking_busy_today') + ' '),
                 busyItems.join(', ')
             ));
         }
 
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '2'), 'Escoge Sala y Horas'));
-        const selectBox = h('select', { 
-            className: 'room-selector',
-            onchange: (e) => {
-                state.selectedSalaId = e.target.value;
-                state.selectedSalaObj = state.salasTotales.find(s => s.id === state.selectedSalaId);
-                refreshDate(state.selectedDate);
-            }
-        });
-        state.salasTotales.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.id;
-            opt.textContent = `${s.nombre}`;
-            if(s.id === state.selectedSalaId) opt.selected = true;
-            selectBox.appendChild(opt);
-        });
-        container.appendChild(selectBox);
+        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '2'), i18n.t('booking_step2')));
+        if (!initSala) {
+          const selectBox = h('select', { 
+              className: 'room-selector',
+              onchange: (e) => {
+                  state.selectedSalaId = e.target.value;
+                  state.selectedSalaObj = state.salasTotales.find(s => s.id === state.selectedSalaId);
+                  refreshDate(state.selectedDate);
+              }
+          });
+          state.salasTotales.forEach(s => {
+              const opt = document.createElement('option');
+              opt.value = s.id;
+              opt.textContent = `${s.nombre}`;
+              if(s.id === state.selectedSalaId) opt.selected = true;
+              selectBox.appendChild(opt);
+          });
+          container.appendChild(selectBox);
+        } else {
+          // Si ya hay sala fija, solo mostramos el nombre
+          container.appendChild(h('div', { className: 'selected-room-banner', style: { marginBottom: 'var(--space-md)', padding: 'var(--space-sm)', background: 'hsl(var(--color-primary-light) / 0.1)', borderRadius: 'var(--radius-md)', textAlign: 'center' } }, 
+            h('strong', {}, i18n.t(roomKey + '_nombre') || state.selectedSalaObj.nombre)
+          ));
+        }
+
+        const rateSelectionDiv = h('div', { id: 'booking-rate-selection' });
+        if (state.selectedSalaObj && state.selectedSalaObj.tarifas) {
+          const ratesGrid = h('div', { className: 'rates-grid' },
+            h('div', { 
+              className: `rate-card ${!state.isDayRate ? 'active' : ''}`,
+              onclick: () => { state.isDayRate = false; render(); }
+            }, h('span', {}, i18n.t('salas_rate_hour')), h('strong', {}, state.selectedSalaObj.tarifas.hora)),
+            h('div', { 
+              className: `rate-card ${state.isDayRate ? 'active' : ''}`,
+              onclick: () => { 
+                state.isDayRate = true; 
+                state.selectedSlots = state.slotsData.filter(s => s.status !== 'busy').map(s => s.time);
+                render(); 
+              }
+            }, h('span', {}, i18n.t('salas_rate_day')), h('strong', {}, state.selectedSalaObj.tarifas.dia))
+          );
+          rateSelectionDiv.appendChild(ratesGrid);
+        }
+        container.appendChild(rateSelectionDiv);
 
         const slotsContainer = h('div', { className: 'slots-container' });
         state.slotsData.forEach(slot => {
@@ -346,7 +399,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
                     render(); 
                 }
             }
-        }, 'Siguiente');
+        }, i18n.t('booking_next'));
         
         if (state.selectedSlots.length === 0) {
             nextBtn.disabled = true;
@@ -354,52 +407,69 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         }
 
         const summary = h('div', { className: 'booking-summary' },
-            h('div', {}, h('strong', {}, `${totalPrice}€`)),
+            h('div', {}, 
+                h('strong', {}, `${totalPrice}€`),
+                state.isDayRate ? h('span', { style: {fontSize:'0.8rem', marginLeft:'8px'} }, `(${i18n.t('salas_rate_day')})`) : null
+            ),
             nextBtn
         );
         container.appendChild(summary);
 
     } else {
         // --- STEP 2: CONTACT FORM ---
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '3'), 'Tus Datos de Contacto'));
+        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '3'), i18n.t('booking_step3')));
         
+        const confirmBtn = h('button', { 
+            className: 'btn-reserve',
+            onclick: saveAttemptAndGo
+        }, i18n.t('booking_confirm'));
+
+        const updateBtnState = () => {
+            if (state.form.nombre && state.form.contacto) {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.5';
+            }
+        };
+
         const inputNombre = h('input', { 
-            type: 'text', placeholder: 'Tu nombre completo', 
+            type: 'text', placeholder: i18n.t('booking_name_ph'), 
             className: 'form-input',
             value: state.form.nombre,
-            oninput: (e) => { state.form.nombre = e.target.value; render(); }
+            oninput: (e) => { 
+                state.form.nombre = e.target.value; 
+                updateBtnState();
+            }
         });
         
         const inputContacto = h('input', { 
-            type: 'text', placeholder: 'Email o Teléfono', 
+            type: 'text', placeholder: i18n.t('booking_contact_ph'), 
             className: 'form-input',
             value: state.form.contacto,
-            oninput: (e) => { state.form.contacto = e.target.value; render(); }
+            oninput: (e) => { 
+                state.form.contacto = e.target.value; 
+                updateBtnState();
+            }
         });
 
         const form = h('div', { className: 'booking-form' },
             inputNombre,
             inputContacto,
-            h('p', {style:{fontSize:'0.8rem', color:'#666'}}, 'Al confirmar, se guardará tu pre-reserva y abriremos WhatsApp.')
+            h('p', {style:{fontSize:'0.8rem', color:'#666'}}, i18n.t('booking_form_note'))
         );
         container.appendChild(form);
 
-        const confirmBtn = h('button', { 
-            className: 'btn-reserve',
-            onclick: saveAttemptAndGo
-        }, 'Confirmar Pre-Reserva');
-        
-        if (!state.form.nombre || !state.form.contacto) {
-            confirmBtn.disabled = true;
-            confirmBtn.style.opacity = '0.5';
-        }
+        // Estado inicial del botón
+        updateBtnState();
 
         const actions = h('div', { className: 'booking-summary' },
             h('button', { 
                 className: 'btn-reserve', 
                 style: {background: '#eee', color: '#333'},
                 onclick: () => { state.step = 1; render(); }
-            }, 'Atrás'),
+            }, i18n.t('booking_back')),
             confirmBtn
         );
         container.appendChild(actions);
@@ -408,6 +478,19 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         setTimeout(() => { if(!state.form.nombre) inputNombre.focus(); }, 100);
     }
   };
+
+  container.addEventListener('select-full-day', () => {
+    state.isDayRate = true;
+    state.selectedSlots = state.slotsData
+      .filter(s => s.status !== 'busy')
+      .map(s => s.time);
+    render();
+  });
+
+  container.addEventListener('select-hour-rate', () => {
+    state.isDayRate = false;
+    render();
+  });
 
   loadInitialData();
   return container;

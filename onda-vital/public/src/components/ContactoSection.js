@@ -1,4 +1,5 @@
 import { h, injectStyles } from '../utils.js';
+import { i18n } from '../i18n.js';
 
 const contactStyles = `
 .contacto-grid {
@@ -95,11 +96,11 @@ export function ContactoSection() {
 
   return h('section', { id: 'contacto', className: 'tab-section' },
     h('div', { className: 'container' },
-      h('h2', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)' } }, 'Contáctanos'),
+      h('h2', { style: { textAlign: 'center', marginBottom: 'var(--space-xl)' } }, i18n.t('contacto_title')),
       h('div', { className: 'contacto-grid' },
         h('div', { className: 'contacto-info' },
           h('div', { className: 'contact-method' },
-            h('h3', {}, 'Quiropráctica'),
+            h('h3', {}, i18n.t('contacto_quiro_label')),
             h('p', { className: 'phone' }, h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
             h('div', { className: 'schedule' },
               h('p', {}, c.contacto_horarios_q1 || 'Lunes y Miércoles: 17:30 - 20h'),
@@ -107,12 +108,12 @@ export function ContactoSection() {
             )
           ),
           h('div', { className: 'contact-method', style: { marginTop: 'var(--space-lg)' } },
-            h('h3', {}, 'Alquiler de Salas'),
-            h('p', {}, h('strong', {}, 'WhatsApp: '), h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
-            h('p', { className: 'contact-name' }, 'Atención: David')
+            h('h3', {}, i18n.t('contacto_salas_label')),
+            h('p', {}, h('strong', {}, i18n.t('contacto_wa_label') + ' '), h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
+            h('p', { className: 'contact-name' }, i18n.t('contacto_atencion'))
           ),
           h('div', { className: 'contact-location', style: { marginTop: 'var(--space-lg)' } },
-            h('h3', {}, 'Dirección'),
+            h('h3', {}, i18n.t('contacto_dir_label')),
             h('p', {}, c.contacto_direccion || 'c/ Martí Boneo, 31 bajos, 07013 Palma de Mallorca (Son Dameto)')
           )
         ),
@@ -121,23 +122,23 @@ export function ContactoSection() {
             className: 'contact-form',
             onsubmit: (e) => {
               e.preventDefault();
-              alert('Mensaje enviado. ¡Gracias!');
+              alert(i18n.t('contacto_form_ok'));
               e.target.reset();
             }
           },
             h('div', { className: 'form-group' },
-              h('label', {}, 'Nombre *'),
-              h('input', { type: 'text', required: true, placeholder: 'Tu nombre' })
+              h('label', {}, i18n.t('contacto_form_nombre')),
+              h('input', { type: 'text', required: true, placeholder: i18n.t('contacto_form_nombre_ph') })
             ),
             h('div', { className: 'form-group' },
-              h('label', {}, 'Email *'),
-              h('input', { type: 'email', required: true, placeholder: 'tu@email.com' })
+              h('label', {}, i18n.t('contacto_form_email')),
+              h('input', { type: 'email', required: true, placeholder: i18n.t('contacto_form_email_ph') })
             ),
             h('div', { className: 'form-group' },
-              h('label', {}, 'Mensaje'),
-              h('textarea', { rows: 4, placeholder: '¿En qué podemos ayudarte?' })
+              h('label', {}, i18n.t('contacto_form_msg')),
+              h('textarea', { rows: 4, placeholder: i18n.t('contacto_form_msg_ph') })
             ),
-            h('button', { type: 'submit', className: 'btn-submit' }, 'Enviar')
+            h('button', { type: 'submit', className: 'btn-submit' }, i18n.t('contacto_form_submit'))
           )
         )
       ),

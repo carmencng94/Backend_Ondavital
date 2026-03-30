@@ -6,6 +6,16 @@ const express = require('express');
 const router = express.Router();
 const ReservaController = require('../controllers/ReservaController');
 
+// Ruta para listar todas las reservas (Panel de Administración)
+router.get('/', async (req, res) => {
+  try {
+    const reservas = await ReservaController.listarTodas();
+    res.json({ success: true, reservas });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.post('/', async (req, res) => {
   try {
     // Delegar lógica al controlador

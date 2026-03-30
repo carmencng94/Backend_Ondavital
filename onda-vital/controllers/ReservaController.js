@@ -3,6 +3,7 @@ const SalaModel = require('../models/SalaModel');
 const { reservaSchema } = require('../validations/reservaValidation');
 const googleCalendarService = require('../services/GoogleCalendarService');
 const availabilityService = require('../services/AvailabilityService');
+const { decryptData } = require('../utils/crypto');
 
 class ReservaController {
   
@@ -39,16 +40,28 @@ class ReservaController {
          return reserva.horario.includes(time);
       });
 
-      // 2. Verificar Google Calendar (Busy periods)
-      // Cada slot dura 1 hora. Reconstruimos el objeto Date para comparar.
-      const slotStart = new Date(`${fechaDateStr}T${time.padStart(5, '0')}:00Z`);
-      const slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000);
+      // Para evitar problemas con el UTC vs Hora Local del servidor, usamos minutos basados en "Madrid"
+      const [slotH, slotM] = time.split(':').map(Number);
+      const slotStartMins = slotH * 60 + slotM;
+      const slotEndMins = slotStartMins + 60;
 
       const slotOcupadoGoogle = busyPeriods.some(period => {
-        const busyStart = new Date(period.start);
-        const busyEnd = new Date(period.end);
+        const formatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', hour12: false });
+        
+        const bStart = new Date(period.start);
+        const bEnd = new Date(period.end);
+
+        const [bsH, bsM] = formatter.format(bStart).split(':').map(Number);
+        const busyStartMins = bsH * 60 + bsM;
+        
+        const [beH, beM] = formatter.format(bEnd).split(':').map(Number);
+        // Si el final es a media noche (ej. todo el día), beH es 00 o 24. Si es 00 tras las 23, debería ser 24*60.
+        // Hacemos una correción simple si el evento termina al día siguiente a las 00:00
+        const busyEndMinsTemp = beH * 60 + beM;
+        const busyEndMins = (busyEndMinsTemp === 0 && bsH > 0) ? 24 * 60 : busyEndMinsTemp;
+
         // Solapamiento: (StartA < EndB) y (EndA > StartB)
-        return (slotStart < busyEnd) && (slotEnd > busyStart);
+        return (slotStartMins < busyEndMins) && (slotEndMins > busyStartMins);
       });
 
       return {
@@ -87,9 +100,10 @@ class ReservaController {
 
     const googleOcupaciones = busyPeriods.map(p => {
       const d = new Date(p.start);
+      const formatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', hour12: false });
       return {
         sala: 'Calendario de David',
-        horario: `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`
+        horario: formatter.format(d)
       };
     });
 
@@ -139,8 +153,11 @@ class ReservaController {
     // Actualizar base de datos local
     ReservaModel.actualizarEstado(id, 'confirmada');
 
+    // Obtener contacto desencriptado para Google Calendar
+    const reservaConContacto = ReservaModel.obtenerContactoDesencriptado(id);
+
     // Ahora sí, sincronizar con Google Calendar
-    const googleEvent = await googleCalendarService.crearEvento(reserva);
+    const googleEvent = await googleCalendarService.crearEvento(reservaConContacto);
     
     return { 
       success: true, 
@@ -159,6 +176,19 @@ class ReservaController {
     
     ReservaModel.actualizarEstado(id, 'rechazada');
     return { success: true, id, nuevoEstado: 'rechazada' };
+  }
+
+  /**
+   * Obtiene todas las reservas (para Panel de Administrador)
+   * Desencripta el contacto para que David lo vea.
+   */
+  static async listarTodas() {
+    const rawReservas = ReservaModel.obtenerTodas();
+    
+    return rawReservas.map(r => ({
+      ...r,
+      contacto: decryptData(r.contacto)
+    }));
   }
 
   /**
