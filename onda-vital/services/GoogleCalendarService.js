@@ -6,13 +6,18 @@ class GoogleCalendarService {
     this.SCOPES = ['https://www.googleapis.com/auth/calendar'];
     this.calendarId = process.env.GOOGLE_CALENDAR_ID;
     
-    // Configuramos la autenticación usando una cuenta de servicio
-    // Se asume que el archivo de credenciales estará en la carpeta config/
-    this.auth = new google.auth.GoogleAuth({
-      keyFile: path.join(__dirname, '../config/google-credentials.json'),
-      scopes: this.SCOPES,
-    });
+    // Autenticación: Prioriza variable de entorno (Railway) o usa archivo local (Dev)
+    let authOptions = { scopes: this.SCOPES };
     
+    if (process.env.GOOGLE_CREDENTIALS_JSON) {
+      // Para Railway: Se pega el contenido completo del JSON en la variable de entorno
+      authOptions.credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+    } else {
+      // Para Local: Carga el archivo ignorado en el .gitignore
+      authOptions.keyFile = path.join(__dirname, '../config/google-credentials.json');
+    }
+
+    this.auth = new google.auth.GoogleAuth(authOptions);
     this.calendar = google.calendar({ version: 'v3', auth: this.auth });
   }
 
