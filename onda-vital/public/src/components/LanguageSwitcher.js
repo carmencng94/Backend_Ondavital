@@ -6,61 +6,70 @@ const languageSwitcherStyles = `
 .lang-switcher {
   position: relative;
   display: inline-block;
+  user-select: none;
 }
 
 .lang-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid hsl(var(--color-border));
+  gap: 8px;
+  background: white;
+  border: 1.5px solid hsl(var(--color-border));
   color: hsl(var(--color-text));
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: var(--radius-full);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  font-weight: var(--font-medium);
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
 }
 
 .lang-btn:hover {
-  background: hsl(var(--color-surface-hover));
+  background: hsl(var(--color-primary-light) / 0.1);
   border-color: hsl(var(--color-primary));
+  transform: translateY(-1px);
 }
+
+.lang-btn .flag { font-size: 1.2rem; }
 
 .lang-btn svg {
   width: 14px;
   height: 14px;
   fill: currentColor;
-  transition: transform var(--transition-fast);
+  transition: transform 0.3s;
+  opacity: 0.6;
 }
 
 .lang-dropdown {
   position: absolute;
-  top: calc(100% + var(--space-xs));
+  top: calc(100% + 12px);
   right: 0;
-  background: hsl(var(--color-surface));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border: 1px solid hsl(var(--color-border));
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  min-width: 120px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  min-width: 160px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
-  transition: all var(--transition-fast);
-  z-index: 1100;
-  overflow: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100000;
+  padding: 8px;
 }
 
 .lang-dropdown.active {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .lang-option {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
   text-align: left;
   padding: 10px 16px;
@@ -68,59 +77,70 @@ const languageSwitcherStyles = `
   border: none;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
-  color: hsl(var(--color-text-muted));
+  color: #444;
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  border-radius: 10px;
+  transition: all 0.2s;
 }
 
 .lang-option:hover {
-  background: hsl(var(--color-surface-hover));
-  color: hsl(var(--color-text));
+  background: hsl(var(--color-primary-light) / 0.1);
+  color: hsl(var(--color-primary));
 }
 
 .lang-option.selected {
   color: hsl(var(--color-primary));
-  font-weight: var(--font-semibold);
-  background: hsl(var(--color-surface-hover));
+  font-weight: 700;
+  background: hsl(var(--color-primary-light) / 0.15);
 }
 
-/* Modo Mobile: en el menú lateral */
+.lang-option .flag { font-size: 1.1rem; }
+
+/* Mobile View Improvements */
 @media (max-width: 900px) {
   .lang-switcher.mobile-view {
     width: 100%;
-    margin-top: var(--space-lg);
-    border-top: 1px solid hsl(var(--color-border));
+    margin-top: var(--space-xl);
     padding-top: var(--space-lg);
+    border-top: 1px solid #eee;
     text-align: center;
   }
   
-  .lang-switcher.mobile-view .lang-btn {
-    width: 100%;
-    justify-content: center;
-    border: none;
-    font-size: var(--text-lg);
+  .lang-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
   }
 
   .lang-switcher.mobile-view .lang-dropdown {
     position: static;
-    box-shadow: none;
-    border: none;
-    background: transparent;
-    min-width: 100%;
-    transform: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
     opacity: 1;
     visibility: visible;
-    display: flex;
-    justify-content: center;
-    gap: var(--space-sm);
-    margin-top: var(--space-md);
+    transform: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    min-width: 0;
   }
 
-  .lang-switcher.mobile-view .lang-dropdown .lang-option {
-    padding: 6px 12px;
-    border: 1px solid hsl(var(--color-border));
-    border-radius: var(--radius-md);
-    width: auto;
+  .lang-switcher.mobile-view .lang-option {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 0;
+    border: 1px solid #eee;
+    background: white;
+  }
+  
+  .lang-switcher.mobile-view .lang-option.selected {
+    border-color: hsl(var(--color-primary));
+    background: hsl(var(--color-primary-light) / 0.1);
   }
 
   .lang-switcher.desktop-view {
@@ -135,11 +155,11 @@ const languageSwitcherStyles = `
 }
 `;
 
-const languageNames = {
-  es: 'ES',
-  en: 'EN',
-  de: 'DE',
-  ca: 'CA'
+const languageMap = {
+  es: { name: 'Castellano', flag: '🇪🇸' },
+  en: { name: 'English', flag: '🇬🇧' },
+  de: { name: 'Deutsch', flag: '🇩🇪' },
+  ca: { name: 'Català', flag: '🏳️' }
 };
 
 export function LanguageSwitcher({ isMobile = false } = {}) {
@@ -147,6 +167,10 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
 
   const container = h('div', { className: `lang-switcher ${isMobile ? 'mobile-view' : 'desktop-view'}` });
   
+  if (isMobile) {
+    container.appendChild(h('span', { className: 'lang-label' }, i18n.currentLanguage === 'es' ? 'Cambiar idioma' : 'Change language'));
+  }
+
   const toggleBtn = h('button', { 
     className: 'lang-btn',
     onclick: (e) => {
@@ -161,8 +185,9 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
       }
     }
   }, 
-    languageNames[i18n.currentLanguage],
-    !isMobile ? h('svg', { viewBox: '0 0 24 24', innerHTML: '<path d="M7 10l5 5 5-5z"/>' }) : null
+    h('span', { className: 'flag' }, languageMap[i18n.currentLanguage].flag),
+    h('span', {}, i18n.currentLanguage.toUpperCase()),
+    h('svg', { viewBox: '0 0 24 24', innerHTML: '<path d="M7 10l5 5 5-5z"/>' })
   );
 
   const dropdown = h('div', { className: 'lang-dropdown' },
@@ -172,11 +197,14 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
         onclick: () => {
           i18n.setLanguage(lang);
         }
-      }, languageNames[lang])
+      }, 
+        h('span', { className: 'flag' }, languageMap[lang].flag),
+        h('span', {}, languageMap[lang].name)
+      )
     )
   );
 
-  // Cerrar al hacer clic fuera (solo en desktop)
+  // Click outside listener (Desktop)
   if (!isMobile) {
     document.addEventListener('click', (e) => {
       if (!container.contains(e.target)) {
@@ -187,7 +215,6 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
     });
   }
 
-  // Si es mobile, el dropdown siempre está visible como botones (ver CSS)
   if (isMobile) {
     container.appendChild(dropdown);
   } else {

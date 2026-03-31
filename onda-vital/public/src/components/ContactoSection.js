@@ -103,8 +103,8 @@ export function ContactoSection() {
             h('h3', {}, i18n.t('contacto_quiro_label')),
             h('p', { className: 'phone' }, h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
             h('div', { className: 'schedule' },
-              h('p', {}, c.contacto_horarios_q1 || 'Lunes y Miércoles: 17:30 - 20h'),
-              h('p', {}, c.contacto_horarios_q2 || 'Martes y Jueves: 10:30 - 13h')
+              h('p', {}, i18n.t('contacto_horarios_q1')),
+              h('p', {}, i18n.t('contacto_horarios_q2'))
             )
           ),
           h('div', { className: 'contact-method', style: { marginTop: 'var(--space-lg)' } },
@@ -114,7 +114,7 @@ export function ContactoSection() {
           ),
           h('div', { className: 'contact-location', style: { marginTop: 'var(--space-lg)' } },
             h('h3', {}, i18n.t('contacto_dir_label')),
-            h('p', {}, c.contacto_direccion || 'c/ Martí Boneo, 31 bajos, 07013 Palma de Mallorca (Son Dameto)')
+            h('p', {}, i18n.t('contacto_direccion'))
           )
         ),
         h('div', { className: 'contacto-form-container' },

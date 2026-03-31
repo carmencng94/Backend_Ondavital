@@ -45,6 +45,13 @@ const staticTranslations = {
     home_cta_title_alt: 'Un Espacio para Cada Necesidad',
     home_cta_desc_alt: 'Además de nuestras salas, colaboramos con profesionales externos para ofrecerte un bienestar integral.',
     home_cta_deawakening: '✦ Visita Deawakening - Nuestra plataforma aliada',
+    // --- HOME INTRO ---
+    home_intro_title: 'Entendiendo el Desequilibrio',
+    home_intro_desc: 'La vida diaria está llena de fuentes de estrés que interfieren con tu bienestar:',
+    home_stress_1: 'Estrés Físico (posturas, lesiones)',
+    home_stress_2: 'Estrés Mental (bloqueos, preocupaciones)',
+    home_stress_3: 'Estrés Emocional (tensiones acumuladas)',
+    home_stress_conc: 'Estas interferencias resultan en dolor, disfunción y malestar.',
     // --- CONTACTO ---
     contacto_title: 'Contáctanos',
     contacto_quiro_label: 'Quiropráctica',
@@ -101,6 +108,21 @@ const staticTranslations = {
     booking_contact_ph: 'Email o Teléfono',
     booking_form_note: 'Al confirmar, se guardará tu pre-reserva y abriremos WhatsApp.',
     booking_alert_missing: 'Por favor, indica tu nombre y contacto.',
+    // --- ABOUT & CONTACT ---
+    about_title: 'Mereces disfrutar de tu vida',
+    about_desc: 'Venir a Onda Vital es regalarte un tiempo para ti. Un espacio para sentir y tomar la mejor decisión para tu salud y tu vida.',
+    about_quiro_title: 'Horario de Quiropráctica',
+    about_salas_title: 'Contacto Salas',
+    about_salas_coordinator: 'David - Coordinador de Espacios',
+    contacto_horarios_q1: 'Lunes y Miércoles: 17:30 - 20h',
+    contacto_horarios_q2: 'Martes y Jueves: 10:30 - 13h',
+    contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
+    contacto_email: 'info@ondavitalholistic.com',
+    // --- FOOTER EXTRAS ---
+    footer_link_contrato: 'Contrato de Formación',
+    footer_link_privacidad: 'Política de Privacidad',
+    footer_desc: 'Centro de bienestar y técnicas manuales para tu salud integral.',
+    footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Quiero consultar disponibilidad para la',
     wa_message: 'Hola David, soy {nombre}. Quiero confirmar mi reserva de {sala} para el {fecha} a las {horario}. Mi contacto es {contacto}.',
   },
@@ -143,6 +165,13 @@ const staticTranslations = {
     home_cta_title_alt: 'A Space for Every Need',
     home_cta_desc_alt: 'In addition to our rooms, we collaborate with external professionals to offer you holistic well-being.',
     home_cta_deawakening: '✦ Visit Deawakening – Our partner platform',
+    // --- HOME INTRO ---
+    home_intro_title: 'Understanding Imbalance',
+    home_intro_desc: 'Daily life is full of stress sources that interfere with your well-being:',
+    home_stress_1: 'Physical Stress (postures, injuries)',
+    home_stress_2: 'Mental Stress (blocks, worries)',
+    home_stress_3: 'Emotional Stress (accumulated tension)',
+    home_stress_conc: 'These interferences result in pain, dysfunction and discomfort.',
     // --- CONTACTO ---
     contacto_title: 'Contact Us',
     contacto_quiro_label: 'Chiropractic',
@@ -199,6 +228,21 @@ const staticTranslations = {
     booking_contact_ph: 'Email or Phone',
     booking_form_note: 'When you confirm, your pre-booking will be saved and WhatsApp will open.',
     booking_alert_missing: 'Please enter your name and contact.',
+    // --- ABOUT & CONTACT ---
+    about_title: 'You deserve to enjoy your life',
+    about_desc: 'Coming to Onda Vital is giving yourself time for you. A space to feel and make the best decision for your health and your life.',
+    about_quiro_title: 'Chiropractic Schedule',
+    about_salas_title: 'Rooms Contact',
+    about_salas_coordinator: 'David - Space Coordinator',
+    contacto_horarios_q1: 'Monday & Wednesday: 17:30 - 20h',
+    contacto_horarios_q2: 'Tuesday & Thursday: 10:30 - 13h',
+    contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
+    contacto_email: 'info@ondavitalholistic.com',
+    // --- FOOTER EXTRAS ---
+    footer_link_contrato: 'Training Contract',
+    footer_link_privacidad: 'Privacy Policy',
+    footer_desc: 'Wellness center and manual techniques for your holistic health.',
+    footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'I would like to check availability for',
     wa_message: 'Hello David, I am {nombre}. I want to confirm my booking for {sala} on {fecha} at {horario}. My contact is {contacto}.',
   },
@@ -241,6 +285,13 @@ const staticTranslations = {
     home_cta_title_alt: 'Ein Raum für jedes Bedürfnis',
     home_cta_desc_alt: 'Neben unseren Räumen arbeiten wir mit externen Fachleuten zusammen, um Ihnen ganzheitliches Wohlbefinden zu bieten.',
     home_cta_deawakening: '✦ Besuchen Sie Deawakening – Unsere Partnerplattform',
+    // --- HOME INTRO ---
+    home_intro_title: 'Ungleichgewicht verstehen',
+    home_intro_desc: 'Das tägliche Leben ist voll von Stressquellen, die Ihr Wohlbefinden beeinträchtigen:',
+    home_stress_1: 'Physischer Stress (Haltung, Verletzungen)',
+    home_stress_2: 'Mentaler Stress (Blockaden, Sorgen)',
+    home_stress_3: 'Emotionaler Stress (angestaute Spannungen)',
+    home_stress_conc: 'Diese Störungen führen zu Schmerzen, Funktionsstörungen und Unbehagen.',
     // --- CONTACTO ---
     contacto_title: 'Kontaktieren Sie uns',
     contacto_quiro_label: 'Chiropraktik',
@@ -297,6 +348,21 @@ const staticTranslations = {
     booking_contact_ph: 'E-Mail oder Telefon',
     booking_form_note: 'Nach Bestätigung wird Ihre Vorbuchung gespeichert und WhatsApp geöffnet.',
     booking_alert_missing: 'Bitte geben Sie Ihren Namen und Kontakt ein.',
+    // --- ABOUT & CONTACT ---
+    about_title: 'Sie verdienen es, Ihr Leben zu genießen',
+    about_desc: 'Zu Onda Vital zu kommen bedeutet, sich Zeit für sich selbst zu nehmen. Ein Raum zum Fühlen und um die beste Entscheidung für Ihre Gesundheit und Ihr Leben zu treffen.',
+    about_quiro_title: 'Chiropraktik-Zeiten',
+    about_salas_title: 'Kontakt Räume',
+    about_salas_coordinator: 'David - Raumkoordinator',
+    contacto_horarios_q1: 'Montag & Mittwoch: 17:30 - 20h',
+    contacto_horarios_q2: 'Dienstag & Donnerstag: 10:30 - 13h',
+    contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
+    contacto_email: 'info@ondavitalholistic.com',
+    // --- FOOTER EXTRAS ---
+    footer_link_contrato: 'Ausbildungsvertrag',
+    footer_link_privacidad: 'Datenschutzrichtlinie',
+    footer_desc: 'Wellnesszentrum und manuelle Techniken für Ihre ganzheitliche Gesundheit.',
+    footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Ich möchte die Verfügbarkeit prüfen für',
     wa_message: 'Hallo David, ich bin {nombre}. Ich möchte meine Reservierung für {sala} am {fecha} um {horario} bestätigen. Mein Kontakt ist {contacto}.',
   },
@@ -339,6 +405,13 @@ const staticTranslations = {
     home_cta_title_alt: 'Un Espai per a Cada Necessitat',
     home_cta_desc_alt: 'A més de les nostres sales, col·laborem amb professionals externs per oferir-te un benestar integral.',
     home_cta_deawakening: '✦ Visita Deawakening – La nostra plataforma aliada',
+    // --- HOME INTRO ---
+    home_intro_title: 'Entenent el Desequilibri',
+    home_intro_desc: 'La vida diària està plena de fonts d\'estrès que interfereixen amb el teu benestar:',
+    home_stress_1: 'Estrès Físic (postures, lesions)',
+    home_stress_2: 'Estrès Mental (bloquejos, preocupacions)',
+    home_stress_3: 'Estrès Emocional (tensions acumulades)',
+    home_stress_conc: 'Aquestes interferències resulten en dolor, disfunció i malestar.',
     // --- CONTACTO ---
     contacto_title: 'Contacta\'ns',
     contacto_quiro_label: 'Quiropràctica',
@@ -395,6 +468,21 @@ const staticTranslations = {
     booking_contact_ph: 'Email o Telèfon',
     booking_form_note: 'En confirmar, es guardarà la teva pre-reserva i obrirem WhatsApp.',
     booking_alert_missing: 'Si us plau, indica el teu nom i contacte.',
+    // --- ABOUT & CONTACT ---
+    about_title: 'Mereixes gaudir de la teva vida',
+    about_desc: 'Venir a Onda Vital és regalar-te un temps per a tu. Un espai per sentir i prendre la millor decisió per a la teva salut i la teva vida.',
+    about_quiro_title: 'Horari de Quiropràctica',
+    about_salas_title: 'Contacte Sales',
+    about_salas_coordinator: 'David - Coordinador d\'Espais',
+    contacto_horarios_q1: 'Dilluns i Dimecres: 17:30 - 20h',
+    contacto_horarios_q2: 'Dimarts i Dijous: 10:30 - 13h',
+    contacto_direccion: 'c/ Martí Boneo, 31 baixos, 07013 Palma',
+    contacto_email: 'info@ondavitalholistic.com',
+    // --- FOOTER EXTRAS ---
+    footer_link_contrato: 'Contracte de Formació',
+    footer_link_privacidad: 'Política de Privacitat',
+    footer_desc: 'Centre de benestar i tècniques manuals per a la teva salut integral.',
+    footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Vull consultar la disponibilitat de',
     wa_message: 'Hola David, sóc {nombre}. Vull confirmar la meva reserva de {sala} per al {fecha} a les {horario}. El meu contacte és {contacto}.',
   }
@@ -410,11 +498,11 @@ class I18nManager {
   detectLanguage() {
     const storedQuery = new URLSearchParams(window.location.search).get('lang');
     if (storedQuery && SUPPORTED_LANGUAGES.includes(storedQuery)) {
-      localStorage.setItem('lang', storedQuery);
+      sessionStorage.setItem('lang', storedQuery);
       return storedQuery;
     }
 
-    const storedLang = localStorage.getItem('lang');
+    const storedLang = sessionStorage.getItem('lang');
     if (storedLang && SUPPORTED_LANGUAGES.includes(storedLang)) {
       return storedLang;
     }
@@ -429,7 +517,7 @@ class I18nManager {
 
   setLanguage(lang) {
     if (SUPPORTED_LANGUAGES.includes(lang)) {
-      localStorage.setItem('lang', lang);
+      sessionStorage.setItem('lang', lang);
       this.currentLanguage = lang;
       document.documentElement.lang = lang;
       // Recargar la página para aplicar los cambios fácilmente en toda la UI

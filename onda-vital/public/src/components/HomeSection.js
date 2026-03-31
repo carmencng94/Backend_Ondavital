@@ -357,14 +357,14 @@ export function HomeSection() {
     h('div', { className: 'container mission-focus' },
       h('div', { className: 'mission-grid' },
         h('div', { className: 'mission-text' },
-          h('h2', {}, c.home_intro_title || i18n.t('home_intro_title')),
-          h('p', {}, c.home_intro_desc || i18n.t('home_intro_desc')),
+          h('h2', {}, i18n.t('home_intro_title')),
+          h('p', {}, i18n.t('home_intro_desc')),
           h('ul', { className: 'stress-list' },
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_1 || i18n.t('home_stress_1')),
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_2 || i18n.t('home_stress_2')),
-            h('li', {}, h('span', { className: 'dot' }), c.home_stress_3 || i18n.t('home_stress_3'))
+            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_1')),
+            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_2')),
+            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_3'))
           ),
-          h('p', { className: 'consequence' }, c.home_stress_conc || i18n.t('home_stress_conc'))
+          h('p', { className: 'consequence' }, i18n.t('home_stress_conc'))
         ),
         h('div', { className: 'mission-visual' },
           h('div', { className: 'focus-circle' },

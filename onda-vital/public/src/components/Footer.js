@@ -157,22 +157,22 @@ export function Footer() {
 
   const container = h('footer', { id: 'main-footer', className: 'site-footer' },
     h('div', { className: 'footer-top-bar' },
-      h('a', { href: '#' }, c.footer_link_contrato || 'Contrato de Formación'),
+      h('a', { href: '#' }, i18n.t('footer_link_contrato')),
       h('span', {}, ' | '),
-      h('a', { href: '#' }, c.footer_link_privacidad || 'Política de Privacidad'),
+      h('a', { href: '#' }, i18n.t('footer_link_privacidad')),
       h('span', {}, ' | '),
-      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, c.footer_link_dea || 'Web Oficial de DEAwakening ↗')
+      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, i18n.t('quiro_visit_dea'))
     ),
     h('div', { className: 'container footer-main-grid' },
       // Columna 1: Info General
       h('div', { className: 'footer-col' },
         h('h3', { className: 'footer-title' }, i18n.t('footer_quiro_title')),
-        h('p', { className: 'footer-desc' }, c.footer_desc || 'Centro de bienestar y técnicas manuales para tu salud integral.'),
-        h('p', { className: 'footer-addr' }, c.contacto_direccion || 'c/ Martí Boneo, 31 bajos, 07013 Palma'),
+        h('p', { className: 'footer-desc' }, i18n.t('footer_desc')),
+        h('p', { className: 'footer-addr' }, i18n.t('contacto_direccion')),
         h('div', { className: 'footer-schedule' },
           h('h4', {}, i18n.t('footer_schedule_title')),
-          h('p', {}, h('strong', {}, 'L1: '), c.contacto_horarios_q1 || 'Lunes y Miércoles: 17:30 a 20:00 h'),
-          h('p', {}, h('strong', {}, 'L2: '), c.contacto_horarios_q2 || 'Martes y Jueves: 10:30 a 13:00 h')
+          h('p', {}, h('strong', {}, 'L1: '), i18n.t('contacto_horarios_q1')),
+          h('p', {}, h('strong', {}, 'L2: '), i18n.t('contacto_horarios_q2'))
         ),
         h('div', { className: 'footer-socials' },
           h('a', { href: '#', className: 'social-icon' }, 
@@ -205,7 +205,7 @@ export function Footer() {
       // Columna 3: Contacto
       h('div', { className: 'footer-col' },
         h('h4', { className: 'mini-title' }, i18n.t('footer_contact')),
-        h('p', { className: 'footer-email' }, c.contacto_email || 'info@ondavitalholistic.com'),
+        h('p', { className: 'footer-email' }, i18n.t('contacto_email')),
         h('p', { className: 'footer-phone' }, i18n.t('footer_phone_label') + ' ', h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } })),
         h('p', { className: 'footer-whatsapp' }, i18n.t('footer_wa_label') + ' ', h('span', { className: 'tty', style: { '--n': `'${c.contacto_telefono || "601 39 21 61"}'` } }), ' (David)')
       ),
@@ -230,7 +230,7 @@ export function Footer() {
       )
     ),
     h('div', { className: 'footer-bottom-bar' },
-      h('p', {}, c.footer_copyright || '© 1996- 2025 Onda Vital Holistic. All Rights Reserved.')
+      h('p', {}, i18n.t('footer_copyright'))
     )
   );
 

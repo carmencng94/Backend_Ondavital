@@ -1,7 +1,0 @@
-[build]
-providers = ["node"]
-
-[build.packages]
-python = "3.11"
-g++ = "latest"
-make = "latest"
