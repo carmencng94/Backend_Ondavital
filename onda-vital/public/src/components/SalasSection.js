@@ -299,7 +299,12 @@ function SalaCard(sala) {
       className: 'sala-img', 
       style: { backgroundImage: `url('${mainImage}')` } 
     },
-      h('div', { className: 'sala-badge' }, sala.tarifas.hora)
+      h('div', { className: 'sala-badge' }, 
+        (sala.tarifas.hora || '')
+          .replace(/hora/gi, i18n.t('salas_rate_hour'))
+          .replace(/día/gi, i18n.t('salas_rate_day'))
+          .replace(/Incluido/gi, i18n.t('salas_incluido'))
+      )
     ),
     h('div', { className: 'sala-info' },
       h('h3', {}, i18n.t(roomKey + '_nombre') || sala.nombre),

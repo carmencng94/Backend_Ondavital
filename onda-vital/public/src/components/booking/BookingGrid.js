@@ -359,7 +359,12 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             h('div', { 
               className: `rate-card ${!state.isDayRate ? 'active' : ''}`,
               onclick: () => { state.isDayRate = false; render(); }
-            }, h('span', {}, i18n.t('salas_rate_hour')), h('strong', {}, state.selectedSalaObj.tarifas.hora)),
+            }, h('span', {}, i18n.t('salas_rate_hour')), h('strong', {}, 
+              (state.selectedSalaObj.tarifas.hora || '')
+                .replace(/hora/gi, i18n.t('salas_rate_hour'))
+                .replace(/día/gi, i18n.t('salas_rate_day'))
+                .replace(/Incluido/gi, i18n.t('salas_incluido'))
+            )),
             h('div', { 
               className: `rate-card ${state.isDayRate ? 'active' : ''}`,
               onclick: () => { 
@@ -367,7 +372,12 @@ export function BookingGrid({ sala: initSala, onReserve }) {
                 state.selectedSlots = state.slotsData.filter(s => s.status !== 'busy').map(s => s.time);
                 render(); 
               }
-            }, h('span', {}, i18n.t('salas_rate_day')), h('strong', {}, state.selectedSalaObj.tarifas.dia))
+            }, h('span', {}, i18n.t('salas_rate_day')), h('strong', {}, 
+              (state.selectedSalaObj.tarifas.dia || '')
+                .replace(/hora/gi, i18n.t('salas_rate_hour'))
+                .replace(/día/gi, i18n.t('salas_rate_day'))
+                .replace(/Incluido/gi, i18n.t('salas_incluido'))
+            ))
           );
           rateSelectionDiv.appendChild(ratesGrid);
         }

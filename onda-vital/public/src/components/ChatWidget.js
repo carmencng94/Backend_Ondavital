@@ -394,7 +394,7 @@ export function ChatWidget() {
           document.getElementById('chat-help-bubble').style.display = 'none';
         }
       }, '✕'),
-      '¿Necesitas ayuda?', h('br'), 'Estoy aquí para ti.'
+      i18n.t('chat_help_line1'), h('br'), i18n.t('chat_help_line2')
     ),
     h('button', { className: 'chat-widget-btn', onclick: toggleChat },
       h('img', { 

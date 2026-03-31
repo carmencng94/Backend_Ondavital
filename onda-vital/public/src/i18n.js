@@ -124,6 +124,52 @@ const staticTranslations = {
     footer_desc: 'Centro de bienestar y técnicas manuales para tu salud integral.',
     footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Quiero consultar disponibilidad para la',
+    // --- QUIRO & SALAS EXTRAS ---
+    chat_help_line1: '¿Necesitas ayuda?',
+    chat_help_line2: 'Estoy aquí para ti.',
+    quiro_title: 'Quiropráctica',
+    quiro_subtitle: '¡No hay que estar mal para estar mejor!',
+    quiro_intro_1: 'La Quiropráctica es una profesión sanitaria reconocida en la mayoría de países desarrollados del mundo. Se trata de mejorar la capacidad del cuerpo de curarse y mantenerse sano.',
+    quiro_intro_2: 'La gente acude al quiropráctico por muchas razones, entre ellas, para:',
+    quiro_benefits_li1: 'Aliviar el dolor, nerviosismo y síntomas de estrés',
+    quiro_benefits_li2: 'Mejorar el sueño, digestión o movilidad',
+    quiro_benefits_li3: 'Sentirse bien y disfrutar más de la vida',
+    quiro_integral_desc: 'La Quiropráctica Integral que utilizamos en Onda Vital se basa en un conjunto de métodos. Combina técnicas físicas/energéticas con la enseñanza de prácticas personales que empoderan al cliente a tomar un papel más activo en su propia mejora.',
+    quiro_dea_title: 'DEA - Deep Energetic Awakening',
+    quiro_dea_desc: 'Basada en Network Spinal Analysis, es una técnica avanzada y a la vez muy suave. Ayuda a que el cuerpo aprenda a reconocer y corregir patrones de tensión y distorsión que impiden su buen funcionamiento.',
+    quiro_dea_extra: '¡Asiste a tu cuerpo a recuperar su estado natural de salud para disfrutar de la vida con menos dolor, menos estrés y más flexibilidad y energía!',
+    quiro_resosense_desc: 'Práctica personal desarrollada por David Biddle aquí en Mallorca. Utiliza la resonancia estructural del cuerpo para equilibrar y mejorar tu ser.',
+    quiro_resosense_extra: 'Con solo unos minutos al día, tumbado, usando los suaves movimientos, se generan cambios sorprendentes. Es el complemento perfecto al DEA.',
+    quiro_eval_desc: 'Para empezar con nosotros, hacemos una evaluación inicial en dos visitas. Así podemos entender bien tanto los problemas como las metas de cada cliente para maximizar el éxito de su tratamiento.',
+    quiro_cta_title: '¿Listo para empezar tu camino al bienestar?',
+    quiro_cta_subtitle: 'Llámanos para concertar una cita de evaluación',
+    sala_jardin_nombre: 'Sala Jardín',
+    sala_jardin_capacidad: 'Capacidad 10-15 personas',
+    sala_jardin_dimensiones: '33 metros cuadrados',
+    sala_jardin_desc: 'Nuestra sala más amplia, ideal para talleres grupales, yoga o formaciones.',
+    sala_azul_nombre: 'Sala Azul',
+    sala_azul_capacidad: 'Capacidad 6-8 personas',
+    sala_azul_dimensiones: '20 metros cuadrados',
+    sala_azul_desc: 'Un espacio versátil para grupos medianos o sesiones de trabajo.',
+    sala_despacho_plus_nombre: 'Despacho +',
+    sala_despacho_plus_capacidad: 'Capacidad 1-3 personas (1 camilla)',
+    sala_despacho_plus_dimensiones: '10 metros cuadrados',
+    sala_despacho_plus_desc: 'Despacho privado equipado con camilla para consultas y terapias.',
+    sala_terapia_a_nombre: 'Terapia A',
+    sala_terapia_a_capacidad: 'Capacidad 1-3 personas (1 camilla)',
+    sala_terapia_a_dimensiones: '3 X 2,5 metros',
+    sala_terapia_a_desc: 'Sala tranquila ideal para masajes y consultas individuales.',
+    sala_terapia_b_nombre: 'Terapia B',
+    sala_terapia_b_capacidad: 'Capacidad 1-3 personas (1 camilla)',
+    sala_terapia_b_dimensiones: '7,5 metros cuadrados',
+    sala_terapia_b_desc: 'Espacio optimizado para terapias manuales y bienestar individual.',
+    sala_comunitaria_nombre: 'Sala Comunitaria',
+    sala_comunitaria_capacidad: 'Área común con terraza',
+    sala_comunitaria_dimensiones: 'Networking y descanso',
+    sala_comunitaria_desc: 'Espacio de convivencia para relajarse entre sesiones o eventos.',
+    salas_incluido: 'Incluido',
+    salas_rate_hour: 'hora',
+    salas_rate_day: 'día',
     wa_message: 'Hola David, soy {nombre}. Quiero confirmar mi reserva de {sala} para el {fecha} a las {horario}. Mi contacto es {contacto}.',
   },
   en: {
@@ -244,6 +290,52 @@ const staticTranslations = {
     footer_desc: 'Wellness center and manual techniques for your holistic health.',
     footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'I would like to check availability for',
+    // --- QUIRO & SALAS EXTRAS ---
+    chat_help_line1: 'Need help?',
+    chat_help_line2: 'I am here for you.',
+    quiro_title: 'Chiropractic',
+    quiro_subtitle: 'You don\'t have to be unwell to get better!',
+    quiro_intro_1: 'Chiropractic is a recognized healthcare profession in most developed countries in the world. It is about improving the body\'s ability to heal itself and stay healthy.',
+    quiro_intro_2: 'People visit a chiropractor for many reasons, including:',
+    quiro_benefits_li1: 'To relieve pain, nervousness and stress symptoms',
+    quiro_benefits_li2: 'To improve sleep, digestion or mobility',
+    quiro_benefits_li3: 'To feel good and enjoy life more',
+    quiro_integral_desc: 'The Integral Chiropractic we use at Onda Vital is based on a combination of methods. It merges physical/energetic techniques with teaching personal practices that empower the client to take an active role in their own improvement.',
+    quiro_dea_title: 'DEA - Deep Energetic Awakening',
+    quiro_dea_desc: 'Based on Network Spinal Analysis, it is an advanced yet very gentle technique. It helps the body learn to recognize and correct patterns of tension and distortion that prevent its proper functioning.',
+    quiro_dea_extra: 'Assist your body to recover its natural state of health to enjoy life with less pain, less stress, and more flexibility and energy!',
+    quiro_resosense_desc: 'Personal practice developed by David Biddle here in Mallorca. It uses the structural resonance of the body to balance and improve your being.',
+    quiro_resosense_extra: 'With just a few minutes a day, lying down, using gentle movements, surprising changes are generated. It is the perfect complement to DEA.',
+    quiro_eval_desc: 'To start with us, we do an initial evaluation in two visits. This allows us to fully understand both the problems and goals of each client to maximize the success of their treatment.',
+    quiro_cta_title: 'Ready to start your path to wellness?',
+    quiro_cta_subtitle: 'Call us to arrange an evaluation appointment',
+    sala_jardin_nombre: 'Garden Room',
+    sala_jardin_capacidad: 'Capacity 10-15 people',
+    sala_jardin_dimensiones: '33 square meters',
+    sala_jardin_desc: 'Our largest room, ideal for group workshops, yoga, or professional training.',
+    sala_azul_nombre: 'Blue Room',
+    sala_azul_capacidad: 'Capacity 6-8 people',
+    sala_azul_dimensiones: '20 square meters',
+    sala_azul_desc: 'A versatile space for medium-sized groups or work sessions.',
+    sala_despacho_plus_nombre: 'Office +',
+    sala_despacho_plus_capacidad: 'Capacity 1-3 people (1 stretcher)',
+    sala_despacho_plus_dimensiones: '10 square meters',
+    sala_despacho_plus_desc: 'Private office equipped with a stretcher for consultations and therapies.',
+    sala_terapia_a_nombre: 'Therapy Room A',
+    sala_terapia_a_capacidad: 'Capacity 1-3 people (1 stretcher)',
+    sala_terapia_a_dimensiones: '3 X 2.5 meters',
+    sala_terapia_a_desc: 'Quiet room ideal for massages and individual consultations.',
+    sala_terapia_b_nombre: 'Therapy Room B',
+    sala_terapia_b_capacidad: 'Capacity 1-3 people (1 stretcher)',
+    sala_terapia_b_dimensiones: '7.5 square meters',
+    sala_terapia_b_desc: 'Optimized space for manual therapies and individual well-being.',
+    sala_comunitaria_nombre: 'Community Room',
+    sala_comunitaria_capacidad: 'Common area with terrace',
+    sala_comunitaria_dimensiones: 'Networking and rest',
+    sala_comunitaria_desc: 'Living space to relax between sessions or events.',
+    salas_incluido: 'Included',
+    salas_rate_hour: 'hour',
+    salas_rate_day: 'day',
     wa_message: 'Hello David, I am {nombre}. I want to confirm my booking for {sala} on {fecha} at {horario}. My contact is {contacto}.',
   },
   de: {
@@ -364,6 +456,52 @@ const staticTranslations = {
     footer_desc: 'Wellnesszentrum und manuelle Techniken für Ihre ganzheitliche Gesundheit.',
     footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Ich möchte die Verfügbarkeit prüfen für',
+    // --- QUIRO & SALAS EXTRAS ---
+    chat_help_line1: 'Brauchen Sie Hilfe?',
+    chat_help_line2: 'Ich bin für Sie da.',
+    quiro_title: 'Chiropraktik',
+    quiro_subtitle: 'Man muss nicht krank sein, um besser zu werden!',
+    quiro_intro_1: 'Die Chiropraktik ist in den meisten Industrieländern der Welt ein anerkannter Gesundheitsberuf. Es geht darum, die Fähigkeit des Körpers zur Selbstheilung zu verbessern.',
+    quiro_intro_2: 'Menschen besuchen einen Chiropraktiker aus vielen Gründen, unter anderem:',
+    quiro_benefits_li1: 'Um Schmerzen, Nervosität und Stresssymptome zu lindern',
+    quiro_benefits_li2: 'Um Schlaf, Verdauung oder Beweglichkeit zu verbessern',
+    quiro_benefits_li3: 'Um sich gut zu fühlen und das Leben mehr zu genießen',
+    quiro_integral_desc: 'Die Integrale Chiropraktik, die wir bei Onda Vital anwenden, basiert auf einer Kombination von Methoden. Sie verbindet physiologische/energetische Techniken mit dem Erlernen persönlicher Praktiken, die den Klienten befähigen, eine aktivere Rolle für seine eigene Verbesserung zu übernehmen.',
+    quiro_dea_title: 'DEA - Deep Energetic Awakening',
+    quiro_dea_desc: 'Basierend auf der Network Spinal Analysis ist es eine fortgeschrittene und doch sehr sanfte Technik. Sie hilft dem Körper zu lernen, Spannungs- und Verzerrungsmuster zu erkennen und zu korrigieren.',
+    quiro_dea_extra: 'Unterstützen Sie Ihren Körper dabei, seinen natürlichen Gesundheitszustand wiederzuerlangen, um das Leben mit weniger Schmerzen, weniger Stress und mehr Energie zu genießen!',
+    quiro_resosense_desc: 'Eine persönliche Praxis, entwickelt von David Biddle hier auf Mallorca. Sie nutzt die strukturelle Resonanz des Körpers, um Ihr Sein auszugleichen.',
+    quiro_resosense_extra: 'Mit nur wenigen Minuten am Tag, im Liegen und mit sanften Bewegungen, werden erstaunliche Veränderungen erzielt. Es ist die perfekte Ergänzung zu DEA.',
+    quiro_eval_desc: 'Um bei uns anzufangen, führen wir in zwei Terminen eine Erstbewertung durch. So können wir verstehen, welche Probleme und Ziele jeder Klient hat, um den Erfolg seiner Behandlung zu maximieren.',
+    quiro_cta_title: 'Bereit, Ihren Weg zum Wohlbefinden zu beginnen?',
+    quiro_cta_subtitle: 'Rufen Sie uns an, um einen Bewertungstermin zu vereinbaren',
+    sala_jardin_nombre: 'Garten Saal',
+    sala_jardin_capacidad: 'Kapazität 10-15 Personen',
+    sala_jardin_dimensiones: '33 Quadratmeter',
+    sala_jardin_desc: 'Unser größter Raum, ideal für Gruppenworkshops, Yoga oder Schulungen.',
+    sala_azul_nombre: 'Blauer Saal',
+    sala_azul_capacidad: 'Kapazität 6-8 Personen',
+    sala_azul_dimensiones: '20 Quadratmeter',
+    sala_azul_desc: 'Ein vielseitiger Raum für mittlere Gruppen oder Arbeitssitzungen.',
+    sala_despacho_plus_nombre: 'Büro +',
+    sala_despacho_plus_capacidad: 'Kapazität 1-3 Personen (1 Liege)',
+    sala_despacho_plus_dimensiones: '10 Quadratmeter',
+    sala_despacho_plus_desc: 'Privates Büro, ausgestattet mit Liege für Konsultationen und Therapien.',
+    sala_terapia_a_nombre: 'Therapieraum A',
+    sala_terapia_a_capacidad: 'Kapazität 1-3 Personen (1 Liege)',
+    sala_terapia_a_dimensiones: '3 X 2,5 Meter',
+    sala_terapia_a_desc: 'Ruhiger Raum, ideal für Massagen und Einzelberatungen.',
+    sala_terapia_b_nombre: 'Therapieraum B',
+    sala_terapia_b_capacidad: 'Kapazität 1-3 Personen (1 Liege)',
+    sala_terapia_b_dimensiones: '7,5 Quadratmeter',
+    sala_terapia_b_desc: 'Optimierter Raum für manuelle Therapien und individuelles Wohlbefinden.',
+    sala_comunitaria_nombre: 'Gemeinschaftsraum',
+    sala_comunitaria_capacidad: 'Gemeinschaftsbereich mit Terasse',
+    sala_comunitaria_dimensiones: 'Networking und Erholung',
+    sala_comunitaria_desc: 'Wohnraum zum Entspannen zwischen Sitzungen oder Veranstaltungen.',
+    salas_incluido: 'Inbegriffen',
+    salas_rate_hour: 'Stunde',
+    salas_rate_day: 'Tag',
     wa_message: 'Hallo David, ich bin {nombre}. Ich möchte meine Reservierung für {sala} am {fecha} um {horario} bestätigen. Mein Kontakt ist {contacto}.',
   },
   ca: {
@@ -484,6 +622,52 @@ const staticTranslations = {
     footer_desc: 'Centre de benestar i tècniques manuals per a la teva salut integral.',
     footer_copyright: '© 1996 - 2026 Onda Vital Holistic. All Rights Reserved.',
     chat_consult_room: 'Vull consultar la disponibilitat de',
+    // --- QUIRO & SALAS EXTRAS ---
+    chat_help_line1: 'Necessites ajuda?',
+    chat_help_line2: 'Estic aquí per tu.',
+    quiro_title: 'Quiropràctica',
+    quiro_subtitle: 'No cal estar malament per estar millor!',
+    quiro_intro_1: 'La Quiropràctica és una professió sanitària reconeguda en la majoria de països desenvolupats del món. Es tracta de millorar la capacitat del cos de curar-se i mantenir-se sa.',
+    quiro_intro_2: 'La gent acudeix al quiropràctic per moltes raons, entre elles, per a:',
+    quiro_benefits_li1: 'Alleujar el dolor, nerviosisme i símptomes d\'estrès',
+    quiro_benefits_li2: 'Millorar la son, digestió o mobilitat',
+    quiro_benefits_li3: 'Sentir-se bé i gaudir més de la vida',
+    quiro_integral_desc: 'La Quiropràctica Integral que utilitzem a Onda Vital es basa en un conjunt de mètodes. Combina tècniques físiques/energètiques amb l\'ensenyament de pràctiques personals que empoderen el client a prendre un paper més actiu en la seva pròpia millora.',
+    quiro_dea_title: 'DEA - Deep Energetic Awakening',
+    quiro_dea_desc: 'Basada en Network Spinal Analysis, és una tècnica avançada i alhora molt suau. Ajuda a que el cos aprengui a reconèixer i corregir patrons de tensió i distorsió que impedeixen el seu bon funcionament.',
+    quiro_dea_extra: 'Assisteix al teu cos a recuperar el seu estat natural de salut per gaudir de la vida amb menys dolor, menys estrès i més flexibilitat i energia!',
+    quiro_resosense_desc: 'Pràctica personal desenvolupada per David Biddle aquí a Mallorca. Utilitza la ressonància estructural del cos per equilibrar i millorar el teu ésser.',
+    quiro_resosense_extra: 'Amb només uns minuts al dia, estirat, utilitzant els suaus moviments, es generen canvis sorprenents. És el complement perfecte per al DEA.',
+    quiro_eval_desc: 'Per començar amb nosaltres, fem una avaluació inicial en dues visites. Així podem entendre bé tant els problemes com les metes de cada client per maximitzar l\'èxit del seu tractament.',
+    quiro_cta_title: 'Llest per començar el teu camí al benestar?',
+    quiro_cta_subtitle: 'Truca\'ns per concertar una cita d\'avaluació',
+    sala_jardin_nombre: 'Sala Jardí',
+    sala_jardin_capacidad: 'Capacitat 10-15 persones',
+    sala_jardin_dimensiones: '33 metres quadrats',
+    sala_jardin_desc: 'La nostra sala més àmplia, ideal per a tallers grupals, ioga o formacions.',
+    sala_azul_nombre: 'Sala Blava',
+    sala_azul_capacidad: 'Capacitat 6-8 persones',
+    sala_azul_dimensiones: '20 metres quadrats',
+    sala_azul_desc: 'Un espai versàtil per a grups mitjans o sessions de treball.',
+    sala_despacho_plus_nombre: 'Despatx +',
+    sala_despacho_plus_capacidad: 'Capacitat 1-3 persones (1 llitera)',
+    sala_despacho_plus_dimensiones: '10 metres quadrats',
+    sala_despacho_plus_desc: 'Despatx privat equipat amb llitera per a consultes i teràpies.',
+    sala_terapia_a_nombre: 'Teràpia A',
+    sala_terapia_a_capacidad: 'Capacitat 1-3 persones (1 llitera)',
+    sala_terapia_a_dimensiones: '3 X 2,5 metres',
+    sala_terapia_a_desc: 'Sala tranquil·la ideal per a massatges i consultes individuals.',
+    sala_terapia_b_nombre: 'Teràpia B',
+    sala_terapia_b_capacidad: 'Capacitat 1-3 persones (1 llitera)',
+    sala_terapia_b_dimensiones: '7,5 metres quadrats',
+    sala_terapia_b_desc: 'Espai optimitzat per a teràpies manuals i benestar individual.',
+    sala_comunitaria_nombre: 'Sala Comunitària',
+    sala_comunitaria_capacidad: 'Àrea comuna amb terrassa',
+    sala_comunitaria_dimensiones: 'Networking i descans',
+    sala_comunitaria_desc: 'Espai de convivència per relaxar-se entre sessions o esdeveniments.',
+    salas_incluido: 'Inclòs',
+    salas_rate_hour: 'hora',
+    salas_rate_day: 'dia',
     wa_message: 'Hola David, sóc {nombre}. Vull confirmar la meva reserva de {sala} per al {fecha} a les {horario}. El meu contacte és {contacto}.',
   }
 };
@@ -534,26 +718,23 @@ class I18nManager {
   }
 
   t(key) {
-    // 1. Buscar en el contenido dinámico (DB)
-    if (this.siteContent[this.currentLanguage] && this.siteContent[this.currentLanguage][key]) {
-      return this.siteContent[this.currentLanguage][key];
-    }
-    // Fallback a español (DB)
-    if (this.siteContent[DEFAULT_LANGUAGE] && this.siteContent[DEFAULT_LANGUAGE][key]) {
-      return this.siteContent[DEFAULT_LANGUAGE][key];
-    }
-
-    // 2. Buscar en contenido estático local
+    // 1. Prioritize static current language (Hardcoded fixes)
     if (staticTranslations[this.currentLanguage] && staticTranslations[this.currentLanguage][key]) {
       return staticTranslations[this.currentLanguage][key];
     }
-    // Fallback estático a español
+    // 2. Exact current language match dynamically (DB)
+    if (this.siteContent[this.currentLanguage] && this.siteContent[this.currentLanguage][key]) {
+      return this.siteContent[this.currentLanguage][key];
+    }
+    // 3. Fallback to original DB (ES)
+    if (this.siteContent[DEFAULT_LANGUAGE] && this.siteContent[DEFAULT_LANGUAGE][key]) {
+      return this.siteContent[DEFAULT_LANGUAGE][key];
+    }
+    // 4. Default static fallback (ES)
     if (staticTranslations[DEFAULT_LANGUAGE] && staticTranslations[DEFAULT_LANGUAGE][key]) {
       return staticTranslations[DEFAULT_LANGUAGE][key];
     }
-
-    // Si todo falla, devolver la clave como pista visual
-    return key;
+    return null; // Return null to allow UI-level fallbacks: i18n.t(k) || local_prop
   }
 }
 
