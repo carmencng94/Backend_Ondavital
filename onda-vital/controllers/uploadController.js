@@ -4,6 +4,7 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
 const ContentModel = require('../models/ContentModel');
+const ChangeLogModel = require('../models/ChangeLogModel');
 
 // Asegurar que la carpeta uploads existe de forma estática
 const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
@@ -36,6 +37,8 @@ exports.uploadImage = (req, res) => {
       // Renombrar dinámicamente para destruir caché de navegadores
       const filename = `${key}-${Date.now()}.webp`;
       const outputPath = path.join(uploadDir, filename);
+      const current = ContentModel.obtenerTodos('flat') || {};
+      const previousValue = current[key] || '';
 
       // Usar Sharp para convertir y comprimir inteligentemente
       await sharp(req.file.buffer)
@@ -52,6 +55,19 @@ exports.uploadImage = (req, res) => {
         const db = require('better-sqlite3')(process.env.DB_PATH || './memory.db');
         const insertStmt = db.prepare('INSERT INTO content_blocks (key, value, type, updated_at) VALUES (?, ?, ?, ?)');
         insertStmt.run(key, publicUrl, 'image', new Date().toISOString());
+      }
+
+      try {
+        ChangeLogModel.registrar({
+          adminName: req.user?.username || 'admin',
+          action: 'upload_image',
+          targetKey: key,
+          oldValue: String(previousValue).slice(0, 500),
+          newValue: publicUrl,
+          ip: req.ip
+        });
+      } catch (logError) {
+        console.warn('No se pudo registrar audit_log (upload):', logError.message);
       }
 
       res.json({ success: true, url: publicUrl, message: 'Imagen optimizada y enlazada correctamente.' });

@@ -76,8 +76,28 @@ Actúas como un oasis de tranquilidad en el mundo digital, transformando consult
 Fecha actual: {{FECHA_ACTUAL}}
 `;
 
+const ADMIN_SYSTEM_PROMPT = `
+Eres Vitalis, el asistente del panel de administración de Onda Vital.
+Tu rol aquí es ayudar al administrador (David) a gestionar el contenido de la web.
+
+CAPACIDADES EN EL PANEL:
+- Guiar paso a paso para subir imágenes correctamente
+- Advertir cuando un texto supera la longitud recomendada
+- Recordar buenas prácticas: imágenes < 2MB, textos concisos, alt text descriptivo
+- Confirmar cambios importantes antes de guardarlos ("¿Seguro que quieres reemplazar la imagen del hero?")
+- Explicar qué hace cada campo (qué es el "hero", dónde aparece el "subtítulo", etc.)
+
+TONO: cercano, práctico, eficiente. Llama al admin por su nombre si lo conoces.
+REGLA: nunca hagas cambios directamente. Siempre confirma primero con el admin.
+
+EJEMPLOS DE INTERVENCIÓN:
+- Si imagen > 3MB: "David, esta imagen pesa X MB. Te recomiendo reducirla para mejorar la velocidad. ¿La optimizo automáticamente?"
+- Si texto > 90% límite: "Este texto está casi al límite de caracteres. ¿Quieres que te ayude a resumirlo?"
+- Si cambia hero_image: "Vas a reemplazar la imagen principal de la web. ¿Confirmas el cambio?"
+`;
+
 class ChatController {
-  static async responder(mensaje, historial, idioma = 'es') {
+  static async responder(mensaje, historial, idioma = 'es', context = 'public') {
     const todasLasReservas = ReservaModel.obtenerTodas();
     const reservasTexto = todasLasReservas.length > 0 
       ? todasLasReservas.map(r => `- ${r.sala}: ${r.fecha} a las ${r.horario} (${r.estado})`).join('\n')
@@ -91,11 +111,13 @@ class ChatController {
     const ahora = new Date();
     const fechaActualStr = ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-    let systemPromptFinal = SYSTEM_PROMPT
-      .replace(/{{FECHA_ACTUAL}}/g, fechaActualStr)
-      .replace('{{RESERVAS_OCUPADAS}}', reservasTexto)
-      .replace('{{ID_RESERVA}}', '[PENDIENTE_DE_GENERAR]')
-      .replace('{{IDIOMA}}', idiomaReal);
+    let systemPromptFinal = context === 'admin' 
+      ? ADMIN_SYSTEM_PROMPT
+      : SYSTEM_PROMPT
+        .replace(/{{FECHA_ACTUAL}}/g, fechaActualStr)
+        .replace('{{RESERVAS_OCUPADAS}}', reservasTexto)
+        .replace('{{ID_RESERVA}}', '[PENDIENTE_DE_GENERAR]')
+        .replace('{{IDIOMA}}', idiomaReal);
 
     const messages = [{ role: 'system', content: systemPromptFinal }, ...historial, { role: 'user', content: mensaje }];
 

@@ -1,6 +1,7 @@
 // Controller: contentController.js
 
 const ContentModel = require('../models/ContentModel');
+const ChangeLogModel = require('../models/ChangeLogModel');
 
 exports.getAllContent = (req, res) => {
   try {
@@ -22,7 +23,24 @@ exports.updateContent = (req, res) => {
       return res.status(400).json({ success: false, message: 'Falta el valor a actualizar' });
     }
 
+    const current = ContentModel.obtenerTodos('flat') || {};
+    const previousValue = current[key] || '';
+
     ContentModel.actualizarValor(key, value);
+
+    try {
+      ChangeLogModel.registrar({
+        adminName: req.user?.username || 'admin',
+        action: 'edit_text',
+        targetKey: key,
+        oldValue: String(previousValue).slice(0, 500),
+        newValue: String(value).slice(0, 500),
+        ip: req.ip
+      });
+    } catch (logError) {
+      console.warn('No se pudo registrar audit_log (content):', logError.message);
+    }
+
     res.json({ success: true, message: `Contenido actualizado correctamente`, key, value });
   } catch (error) {
     console.error(`Error al actualizar ${req.params.key}:`, error);
