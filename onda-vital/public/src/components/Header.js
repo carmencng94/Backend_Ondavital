@@ -101,33 +101,38 @@ const headerStyles = `
   .nav-links {
     position: fixed;
     top: 0;
-    right: -100%;
-    width: 280px;
-    height: 100vh;
+    right: 0;
+    width: min(260px, 84vw);
+    height: 100dvh;
     background-color: white;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-xl);
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
     box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateX(100%);
     z-index: 1000;
-    padding: var(--space-2xl);
+    padding: calc(var(--space-xl) + 16px) 12px 14px;
     margin: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .nav-links.active {
-    right: 0;
+    transform: translateX(0);
   }
 
   .nav-links li {
     width: 100%;
-    text-align: center;
+    text-align: left;
   }
 
   .nav-links li a {
-    font-size: var(--text-lg);
+    font-size: var(--text-sm);
     display: block;
+    padding: 5px 0;
+    line-height: 1.35;
   }
 }
 
@@ -180,6 +185,12 @@ const headerStyles = `
   cursor: default;
 }
 
+.brand-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .nav-logo {
   height: 50px; /* Ajuste profesional */
   width: auto;
@@ -188,6 +199,17 @@ const headerStyles = `
 
 .nav-logo:hover {
   transform: scale(1.05);
+}
+
+@media (max-width: 900px) {
+  .brand {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .brand-actions {
+    gap: 6px;
+  }
 }
 `;
 
@@ -229,14 +251,16 @@ export function Header() {
         className: 'nav-logo',
         onclick: (e) => handleLinkClick(e, 'home')
       }),
-      h('button', {
-        className: 'btn-vitalis-nav',
-        onclick: (e) => { e.preventDefault(); handleLinkClick(e, 'asistente'); }
-      }, i18n.t('chat_button'))
+      h('div', { className: 'brand-actions' },
+        h('button', {
+          className: 'btn-vitalis-nav',
+          onclick: (e) => { e.preventDefault(); handleLinkClick(e, 'asistente'); }
+        }, i18n.t('chat_button')),
+        LanguageSwitcher({ variant: 'inline', compact: true })
+      )
     ),
     // Lado derecho: Menú de navegación y Switcher
     h('div', { className: 'nav-menu', style: { display: 'flex', alignItems: 'center', gap: 'var(--space-md)' } },
-      LanguageSwitcher(),
       overlay,
       h('button', {
         className: 'nav-toggle',

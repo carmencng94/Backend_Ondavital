@@ -83,6 +83,13 @@ const homeStyles = `
   font-size: 1.2rem;
   box-shadow: 0 0 0 0 rgba(26, 77, 59, 0.4);
   animation: pulse-ai 2s infinite;
+  overflow: hidden;
+}
+
+.ai-icon-pulse img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .ai-input-group {
@@ -313,7 +320,12 @@ export function HomeSection() {
     h('div', { className: 'ai-booking-home container' },
       h('div', { className: 'ai-card' },
         h('div', { className: 'ai-card-header' },
-          h('div', { className: 'ai-icon-pulse' }, '✦'),
+          h('div', { className: 'ai-icon-pulse' },
+            h('img', {
+              src: 'assets/images/ai_avatar.png',
+              alt: 'Avatar Asistente Vitalis'
+            })
+          ),
           h('div', {},
             h('h3', { style: { margin: 0, fontSize: '1.2rem' } }, i18n.t('home_ai_title')),
             h('p', { style: { margin: 0, fontSize: '0.9rem', color: '#666' } }, i18n.t('home_ai_desc'))

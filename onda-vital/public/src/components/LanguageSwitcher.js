@@ -34,6 +34,47 @@ const languageSwitcherStyles = `
 
 .lang-btn .flag { font-size: 1.2rem; }
 
+.lang-btn-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-switcher.inline-view .lang-btn {
+  padding: 7px 12px;
+  min-height: 38px;
+}
+
+.lang-switcher.inline-view.compact .lang-btn {
+  padding: 7px 10px;
+}
+
+.lang-switcher.inline-view.compact .lang-btn-code {
+  font-size: var(--text-xs);
+}
+
+.lang-flag-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.lang-flag-img {
+  width: 20px;
+  height: 14px;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.lang-flag-fallback {
+  font-size: 10px;
+  font-weight: 700;
+  color: hsl(var(--color-primary));
+}
+
 .lang-btn svg {
   width: 14px;
   height: 14px;
@@ -100,42 +141,63 @@ const languageSwitcherStyles = `
 @media (max-width: 900px) {
   .lang-switcher.mobile-view {
     width: 100%;
-    margin-top: var(--space-xl);
-    padding-top: var(--space-lg);
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid #eee;
-    text-align: center;
+    text-align: left;
   }
-  
+
+  .lang-switcher.mobile-view .lang-btn {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 12px;
+    padding: 8px 10px;
+    min-height: 36px;
+  }
+
   .lang-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     color: #999;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .lang-switcher.mobile-view .lang-dropdown {
     position: static;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    opacity: 1;
-    visibility: visible;
+    gap: 6px;
+    opacity: 0;
+    visibility: hidden;
+    max-height: 0;
+    overflow: hidden;
     transform: none;
     box-shadow: none;
     background: transparent;
     padding: 0;
     min-width: 0;
+    border: 0;
+    margin-top: 0;
+    transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.2s ease;
+  }
+
+  .lang-switcher.mobile-view .lang-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    max-height: 220px;
+    margin-top: 6px;
   }
 
   .lang-switcher.mobile-view .lang-option {
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 12px 0;
+    gap: 3px;
+    padding: 8px 0;
     border: 1px solid #eee;
     background: white;
+    min-height: 50px;
   }
   
   .lang-switcher.mobile-view .lang-option.selected {
@@ -145,6 +207,25 @@ const languageSwitcherStyles = `
 
   .lang-switcher.desktop-view {
     display: none;
+  }
+
+  .lang-switcher.inline-view .lang-btn {
+    padding: 6px 10px;
+    min-height: 34px;
+  }
+
+  .lang-switcher.inline-view .lang-btn-code {
+    font-size: 11px;
+  }
+
+  .lang-switcher.inline-view .lang-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .lang-switcher.inline-view .lang-dropdown {
+    right: auto;
+    left: 0;
   }
 }
 
@@ -156,23 +237,45 @@ const languageSwitcherStyles = `
 `;
 
 const languageMap = {
-  es: { name: 'Castellano', flag: '🇪🇸' },
-  en: { name: 'English', flag: '🇬🇧' },
-  de: { name: 'Deutsch', flag: '🇩🇪' },
-  ca: { name: 'Català', flag: '🏳️' }
+  es: { name: 'Castellano', flag: '🇪🇸', code: 'ES', img: '/assets/images/flags/es.svg' },
+  en: { name: 'English', flag: '🇬🇧', code: 'EN', img: '/assets/images/flags/gb.svg' },
+  de: { name: 'Deutsch', flag: '🇩🇪', code: 'DE', img: '/assets/images/flags/de.svg' },
+  ca: { name: 'Català', flag: '🏴', code: 'CA', img: '/assets/images/flags/ca.svg' }
 };
 
-export function LanguageSwitcher({ isMobile = false } = {}) {
+function renderFlag(lang) {
+  const meta = languageMap[lang] || {};
+  return h('span', { className: 'lang-flag-wrap' },
+    h('img', {
+      className: 'lang-flag-img',
+      src: meta.img,
+      alt: `Bandera ${meta.name || lang}`,
+      loading: 'lazy'
+    }),
+    h('span', { className: 'lang-flag-fallback', style: { display: 'none' } }, meta.code || String(lang).toUpperCase())
+  );
+}
+
+export function LanguageSwitcher({ isMobile = false, variant = null, compact = false } = {}) {
   injectStyles('lang-switcher-styles', languageSwitcherStyles);
 
-  const container = h('div', { className: `lang-switcher ${isMobile ? 'mobile-view' : 'desktop-view'}` });
+  const resolvedVariant = variant || (isMobile ? 'mobile' : 'desktop');
+  const classes = ['lang-switcher'];
+
+  if (resolvedVariant === 'mobile') classes.push('mobile-view');
+  if (resolvedVariant === 'desktop') classes.push('desktop-view');
+  if (resolvedVariant === 'inline') classes.push('inline-view');
+  if (compact) classes.push('compact');
+
+  const container = h('div', { className: classes.join(' ') });
   
-  if (isMobile) {
+  if (resolvedVariant === 'mobile') {
     container.appendChild(h('span', { className: 'lang-label' }, i18n.currentLanguage === 'es' ? 'Cambiar idioma' : 'Change language'));
   }
 
   const toggleBtn = h('button', { 
     className: 'lang-btn',
+    type: 'button',
     onclick: (e) => {
       e.stopPropagation();
       const dropdown = container.querySelector('.lang-dropdown');
@@ -185,8 +288,10 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
       }
     }
   }, 
-    h('span', { className: 'flag' }, languageMap[i18n.currentLanguage].flag),
-    h('span', {}, i18n.currentLanguage.toUpperCase()),
+    h('span', { className: 'lang-btn-main' },
+      renderFlag(i18n.currentLanguage),
+      h('span', { className: 'lang-btn-code' }, i18n.currentLanguage.toUpperCase())
+    ),
     h('svg', { viewBox: '0 0 24 24', innerHTML: '<path d="M7 10l5 5 5-5z"/>' })
   );
 
@@ -196,31 +301,28 @@ export function LanguageSwitcher({ isMobile = false } = {}) {
         className: `lang-option ${lang === i18n.currentLanguage ? 'selected' : ''}`,
         onclick: () => {
           i18n.setLanguage(lang);
+          dropdown.classList.remove('active');
+          const svg = toggleBtn.querySelector('svg');
+          if (svg) svg.style.transform = 'rotate(0deg)';
         }
       }, 
-        h('span', { className: 'flag' }, languageMap[lang].flag),
+        renderFlag(lang),
         h('span', {}, languageMap[lang].name)
       )
     )
   );
 
-  // Click outside listener (Desktop)
-  if (!isMobile) {
-    document.addEventListener('click', (e) => {
-      if (!container.contains(e.target)) {
-        dropdown.classList.remove('active');
-        const svg = toggleBtn.querySelector('svg');
-        if(svg) svg.style.transform = 'rotate(0deg)';
-      }
-    });
-  }
+  // Click outside listener
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      dropdown.classList.remove('active');
+      const svg = toggleBtn.querySelector('svg');
+      if (svg) svg.style.transform = 'rotate(0deg)';
+    }
+  });
 
-  if (isMobile) {
-    container.appendChild(dropdown);
-  } else {
-    container.appendChild(toggleBtn);
-    container.appendChild(dropdown);
-  }
+  container.appendChild(toggleBtn);
+  container.appendChild(dropdown);
 
   return container;
 }
