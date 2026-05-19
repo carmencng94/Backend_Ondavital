@@ -5,7 +5,7 @@
 export const siteConfig = {
   urls: {
     // Cambiar por la URL real cuando esté disponible
-    deawakening: 'https://deawakening.site', 
+    deawakening: 'https://zestful-enjoyment-production-c21a.up.railway.app/events', 
   },
   features: {
     showHome: true,

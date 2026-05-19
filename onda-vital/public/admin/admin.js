@@ -562,7 +562,7 @@ async function loadContentEditor(searchTerm = '') {
       'home':     'Inicio',
       'contacto': 'Contacto',
       'quiro':    'Quiropractica',
-      'reso':     'Resosense',
+      'reso':     'DEAwakening',
       'about':    'Sobre Nosotros',
       'services': 'Servicios',
       'salas':    'Salas (Config)',

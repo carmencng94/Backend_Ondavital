@@ -7,14 +7,14 @@ const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const ChatController = require('../controllers/ChatController');
 
-// 🛡️ Limitador de uso para el Chat (20 peticiones cada 15 min por IP)
+// 🛡️ Limitador de uso para el Chat (5 peticiones por minuto por IP)
 // Esto evita que bots o usuarios malintencionados consuman saldo de la API sin control
 const chatLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 20, 
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 5, 
   message: { 
     success: false, 
-    error: "Has realizado demasiadas consultas. Por favor, espera 15 minutos para seguir chateando con Vitalis." 
+    error: "Has realizado demasiadas consultas. Por favor, espera un minuto para seguir chateando con Vitalis." 
   },
   standardHeaders: true,
   legacyHeaders: false,

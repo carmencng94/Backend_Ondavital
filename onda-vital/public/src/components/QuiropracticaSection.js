@@ -178,7 +178,7 @@ export function QuiropracticaSection() {
 
       h('div', { className: 'quiro-grid reverse' },
         h('div', { className: 'quiro-text-block' },
-          h('h3', { style: { color: 'hsl(var(--color-primary))', marginBottom: 'var(--space-md)' } }, 'Resosense'),
+          h('h3', { style: { color: 'hsl(var(--color-primary))', marginBottom: 'var(--space-md)' } }, i18n.t('nav_reso')),
           h('p', {}, i18n.t('quiro_resosense_desc')),
           h('p', {}, i18n.t('quiro_resosense_extra'))
         ),

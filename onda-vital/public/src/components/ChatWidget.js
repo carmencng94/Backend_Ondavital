@@ -278,7 +278,7 @@ export function ChatWidget() {
 
   const saludar = () => {
     const greetings = {
-      es: "¡Hola! Bienvenido a Onda Vital Holistic. Soy Asistente Vitalis. ¿En qué puedo ayudarte hoy?",
+      es: "¡Hola! Te damos la bienvenida a Onda Vital Holistic, un oasis de tranquilidad en Palma. Soy Vitalis, ¿en qué puedo ayudarte hoy?",
       en: "Hello! Welcome to Onda Vital Holistic. I am Vitalis Assistant. How can I help you today?",
       de: "Hallo! Willkommen bei Onda Vital Holistic. Ich bin Vitalis Assistent. Wie kann ich Ihnen heute helfen?",
       ca: "Hola! Benvingut a Onda Vital Holistic. Sóc l'Assistent Vitalis. En què et puc ajudar avui?"

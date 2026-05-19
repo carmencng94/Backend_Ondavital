@@ -11,7 +11,7 @@ const staticTranslations = {
     nav_home: 'Inicio',
     nav_salas: 'Salas',
     nav_quiro: 'Quiropráctica',
-    nav_reso: 'Resosense',
+    nav_reso: 'DEAwakening',
     nav_contacto: 'Contacto',
     nav_admin: 'Panel Admin',
     // --- CHAT ---
@@ -177,7 +177,7 @@ const staticTranslations = {
     nav_home: 'Home',
     nav_salas: 'Rooms',
     nav_quiro: 'Chiropractic',
-    nav_reso: 'Resosense',
+    nav_reso: 'DEAwakening',
     nav_contacto: 'Contact',
     nav_admin: 'Admin Panel',
     // --- CHAT ---
@@ -343,7 +343,7 @@ const staticTranslations = {
     nav_home: 'Startseite',
     nav_salas: 'Räume',
     nav_quiro: 'Chiropraktik',
-    nav_reso: 'Resosense',
+    nav_reso: 'DEAwakening',
     nav_contacto: 'Kontakt',
     nav_admin: 'Admin-Bereich',
     // --- CHAT ---
@@ -509,7 +509,7 @@ const staticTranslations = {
     nav_home: 'Inici',
     nav_salas: 'Sales',
     nav_quiro: 'Quiropràctica',
-    nav_reso: 'Resosense',
+    nav_reso: 'DEAwakening',
     nav_contacto: 'Contacte',
     nav_admin: 'Panell Admin',
     // --- CHAT ---

@@ -1,5 +1,6 @@
 import { h, injectStyles } from '../utils.js';
 import { i18n } from '../i18n.js';
+import { siteConfig } from '../config.js';
 
 const homeStyles = `
 /* Hero Sea Style */
@@ -398,7 +399,7 @@ export function HomeSection() {
           h('p', {}, i18n.t('home_cta_desc_alt')),
           h('div', { className: 'line-divider' }),
           h('a', { 
-            href: 'https://deawakening.site', 
+            href: siteConfig.urls.deawakening, 
             target: '_blank',
             className: 'final-tagline',
             style: { textDecoration: 'none', display: 'block', cursor: 'pointer' }

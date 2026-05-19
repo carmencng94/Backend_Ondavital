@@ -16,7 +16,7 @@ const adminLogsRoutes = require('./routes/adminLogsRoutes');
 const adminReservaRoutes = require('./routes/adminReservaRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3051;
 const helmet = require('helmet');
 
 const allowedOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_ORIGIN || '')
