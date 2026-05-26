@@ -96,6 +96,20 @@ const staticTranslations = {
     salas_no_desc: 'Sin descripción disponible.',
     salas_title: 'Alquiler de Salas',
     salas_subtitle: '¿Buscas un espacio para presentar tu próximo taller o un despacho para reunirte con tus clientes? En Onda Vital tenemos lo que estás buscando.',
+    // --- PLANES SEMANALES ---
+    planes_title: 'Planes de Horario Fijo / Semanal',
+    planes_subtitle: 'Establece una rutina en nuestro centro reservando horas fijas semanales con cuotas mensuales reducidas. Cuantas más horas reserves, menor será el coste.',
+    planes_grupales: 'Salas Grupales (G1-G2)',
+    planes_despacho: 'Despacho +',
+    planes_terapia: 'Salas de Terapia',
+    planes_hour_week: 'h/semana',
+    planes_monthly: '€/mes',
+    planes_plus_6: '6h o más: multiplica las horas por',
+    planes_conditions_title: 'Condiciones Importantes',
+    planes_cond_1: 'Pago inicial: 2 meses por adelantado (primer y último mes).',
+    planes_cond_2: 'Gestión del tiempo: Contempla el tiempo de preparación y recogida.',
+    planes_cond_3: 'Impuestos: Precios sin IVA incluido.',
+    planes_cta: 'Consultar Plan con David',
     // --- BOOKING GRID ---
     booking_step1: '¿Qué día quieres venir?',
     booking_step2: 'Escoge Sala y Horas',
@@ -171,6 +185,7 @@ const staticTranslations = {
     salas_rate_hour: 'hora',
     salas_rate_day: 'día',
     wa_message: 'Hola David, soy {nombre}. Quiero confirmar mi reserva de {sala} para el {fecha} a las {horario}. Mi contacto es {contacto}.',
+    wa_message_chat: 'Hola David, quiero confirmar mi reserva con código {id}. Soy {nombre}, reservé la {sala} para el {fecha} a las {horario}. Mi contacto es {contacto}.',
   },
   en: {
     // --- NAV ---
@@ -262,6 +277,20 @@ const staticTranslations = {
     salas_no_desc: 'No description available.',
     salas_title: 'Room Rental',
     salas_subtitle: 'Looking for a space for your next workshop or an office to meet your clients? At Onda Vital we have what you are looking for.',
+    // --- PLANES SEMANALES ---
+    planes_title: 'Fixed / Weekly Schedule Plans',
+    planes_subtitle: 'Establish a routine in our center by booking fixed weekly hours with reduced monthly fees. The more hours you book, the lower the cost.',
+    planes_grupales: 'Group Rooms (G1-G2)',
+    planes_despacho: 'Office +',
+    planes_terapia: 'Therapy Rooms',
+    planes_hour_week: 'h/week',
+    planes_monthly: '€/month',
+    planes_plus_6: '6h or more: multiply hours by',
+    planes_conditions_title: 'Important Conditions',
+    planes_cond_1: 'Initial payment: 2 months in advance (first and last month).',
+    planes_cond_2: 'Time management: Consider preparation and cleanup time.',
+    planes_cond_3: 'Taxes: Prices do not include VAT.',
+    planes_cta: 'Consult Plan with David',
     // --- BOOKING GRID ---
     booking_step1: 'What day would you like to come?',
     booking_step2: 'Choose Room and Hours',
@@ -337,6 +366,7 @@ const staticTranslations = {
     salas_rate_hour: 'hour',
     salas_rate_day: 'day',
     wa_message: 'Hello David, I am {nombre}. I want to confirm my booking for {sala} on {fecha} at {horario}. My contact is {contacto}.',
+    wa_message_chat: 'Hello David, I want to confirm my booking with code {id}. I am {nombre}, I booked the {sala} on {fecha} at {horario}. My contact is {contacto}.',
   },
   de: {
     // --- NAV ---
@@ -428,6 +458,20 @@ const staticTranslations = {
     salas_no_desc: 'Keine Beschreibung verfügbar.',
     salas_title: 'Raummiete',
     salas_subtitle: 'Suchen Sie einen Raum für Ihren nächsten Workshop oder ein Büro, um Ihre Kunden zu treffen? Bei Onda Vital haben wir das, wonach Sie suchen.',
+    // --- PLANES SEMANALES ---
+    planes_title: 'Feste / Wöchentliche Zeitpläne',
+    planes_subtitle: 'Etablieren Sie eine Routine in unserem Zentrum, indem Sie feste wöchentliche Stunden zu reduzierten monatlichen Gebühren buchen.',
+    planes_grupales: 'Gruppenräume (G1-G2)',
+    planes_despacho: 'Büro +',
+    planes_terapia: 'Therapieräume',
+    planes_hour_week: 'h/Woche',
+    planes_monthly: '€/Monat',
+    planes_plus_6: '6h oder mehr: Stunden multiplizieren mit',
+    planes_conditions_title: 'Wichtige Bedingungen',
+    planes_cond_1: 'Anzahlung: 2 Monate im Voraus (erster und letzter Monat).',
+    planes_cond_2: 'Zeitmanagement: Planen Sie Vorbereitungs- und Aufräumzeit ein.',
+    planes_cond_3: 'Steuern: Preise verstehen sich ohne MwSt.',
+    planes_cta: 'Plan mit David abfragen',
     // --- BOOKING GRID ---
     booking_step1: 'An welchem Tag möchten Sie kommen?',
     booking_step2: 'Raum und Uhrzeiten wählen',
@@ -503,6 +547,7 @@ const staticTranslations = {
     salas_rate_hour: 'Stunde',
     salas_rate_day: 'Tag',
     wa_message: 'Hallo David, ich bin {nombre}. Ich möchte meine Reservierung für {sala} am {fecha} um {horario} bestätigen. Mein Kontakt ist {contacto}.',
+    wa_message_chat: 'Hallo David, ich möchte meine Reservierung mit dem Code {id} bestätigen. Ich bin {nombre}, ich habe {sala} am {fecha} um {horario} gebucht. Mein Kontakt ist {contacto}.',
   },
   ca: {
     // --- NAV ---
@@ -594,6 +639,20 @@ const staticTranslations = {
     salas_no_desc: 'Sense descripció disponible.',
     salas_title: 'Lloguer de Sales',
     salas_subtitle: 'Busques un espai per presentar el teu proper taller o un despatx per reunir-te amb els teus clients? A Onda Vital tenim el que estàs buscant.',
+    // --- PLANES SEMANALES ---
+    planes_title: 'Plans d\'Horari Fix / Setmanal',
+    planes_subtitle: 'Estableix una rutina al nostre centre reservant hores fixes setmanals amb quotes mensuals reduïdes. Quantes més hores reservis, menor serà el cost.',
+    planes_grupales: 'Sales Grupals (G1-G2)',
+    planes_despacho: 'Despatx +',
+    planes_terapia: 'Sales de Teràpia',
+    planes_hour_week: 'h/setmana',
+    planes_monthly: '€/mes',
+    planes_plus_6: '6h o més: multiplica les hores per',
+    planes_conditions_title: 'Condicions Importants',
+    planes_cond_1: 'Pagament inicial: 2 mesos per avançat (primer i últim mes).',
+    planes_cond_2: 'Gestió del temps: Contempla el temps de preparació i recollida.',
+    planes_cond_3: 'Impostos: Preus sense IVA inclòs.',
+    planes_cta: 'Consultar Pla amb David',
     // --- BOOKING GRID ---
     booking_step1: 'Quin dia vols venir?',
     booking_step2: 'Tria Sala i Hores',
@@ -669,6 +728,7 @@ const staticTranslations = {
     salas_rate_hour: 'hora',
     salas_rate_day: 'dia',
     wa_message: 'Hola David, sóc {nombre}. Vull confirmar la meva reserva de {sala} per al {fecha} a les {horario}. El meu contacte és {contacto}.',
+    wa_message_chat: 'Hola David, vull confirmar la meva reserva amb codi {id}. Sóc {nombre}, he reservat la {sala} per al {fecha} a les {horario}. El meu contacte és {contacto}.',
   }
 };
 

@@ -4,7 +4,10 @@ const { PDFParse } = require('pdf-parse');
 const Database = require('better-sqlite3');
 
 const pdfPath = "C:\\Users\\Usuario\\Desktop\\INTERIOR_Resosense_CAST_V1  7 Mayo.pdf";
-const dbPath = process.env.DB_PATH || './memory.db';
+const rawDbPath = process.env.DB_PATH || './memory.db';
+const dbPath = path.isAbsolute(rawDbPath)
+  ? rawDbPath
+  : path.resolve(__dirname, rawDbPath);
 
 if (!fs.existsSync(pdfPath)) {
     console.error(`El archivo PDF no existe en la ruta: ${pdfPath}`);

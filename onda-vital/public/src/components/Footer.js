@@ -187,7 +187,7 @@ export function Footer() {
       h('span', {}, ' | '),
       h('a', { href: '#' }, i18n.t('footer_link_privacidad')),
       h('span', {}, ' | '),
-      h('a', { href: 'https://www.deawakening.com/', target: '_blank', rel: 'noopener noreferrer' }, i18n.t('quiro_visit_dea'))
+      h('a', { href: 'https://deawakening-production.up.railway.app/', target: '_blank', rel: 'noopener noreferrer' }, i18n.t('quiro_visit_dea'))
     ),
     h('div', { className: 'container footer-main-grid' },
       // Columna 1: Info General

@@ -125,7 +125,7 @@ class ReservaController {
       throw new Error(error.details[0].message);
     }
 
-    const { nombre, sala, fecha, horario } = value;
+    const { nombre, sala, fecha, horario, contacto } = value;
 
     // Validar si la sala está ocupada en ese horario
     const disponible = ReservaModel.verificarDisponibilidad(sala, fecha, horario);
@@ -134,7 +134,7 @@ class ReservaController {
     }
 
     // El Controller delega en el Model el almacenamiento de datos
-    const reservaGuardada = ReservaModel.guardar({ nombre, sala, fecha, horario });
+    const reservaGuardada = ReservaModel.guardar({ nombre, sala, fecha, horario, contacto });
 
     // NOTA: No enviamos a Google Calendar todavía, porque está pendiente de David.
     console.log(`Nueva reserva pendiente de David: ${reservaGuardada.id}`);

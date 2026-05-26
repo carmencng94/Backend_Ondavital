@@ -169,7 +169,7 @@ export function QuiropracticaSection() {
         h('p', {}, i18n.t('quiro_dea_desc')),
         h('p', {}, i18n.t('quiro_dea_extra')),
         h('a', { 
-          href: 'https://www.deawakening.com/', 
+          href: 'https://deawakening-production.up.railway.app/', 
           target: '_blank', 
           rel: 'noopener noreferrer',
           className: 'btn-external-link' 

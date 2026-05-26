@@ -1,7 +1,10 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = process.env.DB_PATH || './memory.db';
+const rawDbPath = process.env.DB_PATH || './memory.db';
+const dbPath = path.isAbsolute(rawDbPath)
+  ? rawDbPath
+  : path.resolve(__dirname, '..', rawDbPath);
 
 class BookRetrievalService {
   /**

@@ -318,10 +318,13 @@ export function ChatWidget() {
         chatHistory.push({ role: 'assistant', content: data.respuesta });
         appendBubble('bot', data.respuesta);
         if (data.reservaDetectada) mostrarModal(data.reservaDetectada);
+      } else {
+        const errorMsg = data.error || (data.errors && data.errors[0] && data.errors[0].msg) || i18n.t('chat_error') || 'Lo siento, hubo un error al procesar tu mensaje.';
+        appendBubble('bot', errorMsg);
       }
     } catch (e) {
       typingIndicator.classList.add('hidden');
-      appendBubble('bot', 'Lo siento, hubo un error de conexión.');
+      appendBubble('bot', i18n.t('chat_error') || 'Lo siento, hubo un error de conexión.');
     }
   };
 
@@ -335,34 +338,39 @@ export function ChatWidget() {
     modalOverlay.innerHTML = '';
     modalOverlay.appendChild(
       h('div', { className: 'modal' },
-        h('h2', {}, '¡Tu sala está lista para confirmar!'),
-        h('p', {}, 'David cerrará tu reserva por WhatsApp.'),
+        h('h2', {}, i18n.t('modal_title') || '¡Tu sala está lista para confirmar!'),
+        h('p', {}, i18n.t('modal_desc') || 'David cerrará tu reserva por WhatsApp.'),
         h('div', { className: 'reserva-details' },
-          h('div', {}, h('strong', {}, 'Nombre: '), res.nombre),
-          h('div', {}, h('strong', {}, 'Contacto: '), res.contacto),
-          h('div', {}, h('strong', {}, 'Sala/Servicio: '), res.sala),
-          h('div', {}, h('strong', {}, 'Fecha: '), res.fecha),
-          h('div', {}, h('strong', {}, 'Horario: '), res.horario)
+          h('div', {}, h('strong', {}, i18n.t('modal_name') || 'Nombre: '), res.nombre),
+          h('div', {}, h('strong', {}, i18n.t('modal_contact') || 'Contacto: '), res.contacto),
+          h('div', {}, h('strong', {}, i18n.t('modal_room') || 'Sala/Servicio: '), res.sala),
+          h('div', {}, h('strong', {}, i18n.t('modal_date') || 'Fecha: '), res.fecha),
+          h('div', {}, h('strong', {}, i18n.t('modal_time') || 'Horario: '), res.horario)
         ),
         h('button', { 
           className: 'btn-primary', 
           onclick: () => {
-            let texto = i18n.t('wa_message')
-              .replace('{nombre}', res.nombre)
-              .replace('{sala}', res.sala)
-              .replace('{fecha}', res.fecha)
-              .replace('{horario}', res.horario)
-              .replace('{contacto}', res.contacto);
+            let template = res.id ? i18n.t('wa_message_chat') : i18n.t('wa_message');
+            if (!template) {
+              template = i18n.t('wa_message') || 'Hola David, soy {nombre}. Quiero confirmar mi reserva de {sala} para el {fecha} a las {horario}. Mi contacto es {contacto}.';
+            }
+            
+            let texto = template
+              .replace('{nombre}', res.nombre || '')
+              .replace('{sala}', res.sala || '')
+              .replace('{fecha}', res.fecha || '')
+              .replace('{horario}', res.horario || '')
+              .replace('{contacto}', res.contacto || '');
             
             if (res.id) {
-              texto += ` (Ref: ${res.id})`;
+              texto = texto.replace('{id}', res.id);
             }
 
             window.open(`https://wa.me/34601392161?text=${encodeURIComponent(texto)}`, '_blank');
             modalOverlay.classList.add('hidden');
           }
-        }, 'Confirmar en WhatsApp'),
-        h('button', { className: 'btn-secondary', onclick: () => modalOverlay.classList.add('hidden') }, 'Editar')
+        }, i18n.t('modal_confirm_wa') || 'Confirmar en WhatsApp'),
+        h('button', { className: 'btn-secondary', onclick: () => modalOverlay.classList.add('hidden') }, i18n.t('modal_edit') || 'Editar')
       )
     );
   };

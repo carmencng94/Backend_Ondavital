@@ -6,8 +6,11 @@ const path = require('path');
 const crypto = require('crypto');
 const { encryptData, decryptData } = require('../utils/crypto');
 
-// Obtener la ruta de la DB desde var de entorno o usar fallback
-const dbPath = process.env.DB_PATH || './memory.db';
+// Obtener la ruta de la DB desde var de entorno o usar fallback de manera absoluta
+const rawDbPath = process.env.DB_PATH || './memory.db';
+const dbPath = path.isAbsolute(rawDbPath)
+  ? rawDbPath
+  : path.resolve(__dirname, '..', rawDbPath);
 const db = new Database(dbPath);
 
 // Inicializar tabla si no existe
@@ -128,6 +131,34 @@ class ReservaModel {
       contacto_real: decryptData(reserva.contacto)
     };
   }
+
+  /**
+   * Busca una reserva existente que coincida en nombre, sala, fecha y horario.
+   * Esto previene el error de auto-solapamiento cuando el usuario vuelve a pedir el enlace.
+   */
+  static obtenerExistente(nombre, sala, fecha, horario) {
+    const stmt = db.prepare("SELECT * FROM reservas WHERE fecha = ? AND horario = ? AND estado != 'rechazada'");
+    const reservas = stmt.all(fecha, horario);
+
+    const cleanStr = (str) => {
+      if (!str) return '';
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+    };
+
+    const targetNombreClean = cleanStr(nombre);
+    const targetSalaClean = cleanStr(sala);
+
+    for (const res of reservas) {
+      if (cleanStr(res.nombre) === targetNombreClean && cleanStr(res.sala) === targetSalaClean) {
+        return {
+          ...res,
+          contacto_real: decryptData(res.contacto)
+        };
+      }
+    }
+    return null;
+  }
 }
 
 module.exports = ReservaModel;
+

@@ -1,6 +1,7 @@
 import { h, injectStyles } from '../utils.js';
 import { i18n } from '../i18n.js';
 import { siteConfig } from '../config.js';
+import { PlanesSemanales } from './PlanesSemanales.js';
 
 const homeStyles = `
 /* Hero Sea Style */
@@ -390,6 +391,9 @@ export function HomeSection() {
         )
       )
     ),
+
+    // Planes Semanales Prominente
+    PlanesSemanales(),
 
     // Sección Final CTA
     h('div', { className: 'full-cta-section' },

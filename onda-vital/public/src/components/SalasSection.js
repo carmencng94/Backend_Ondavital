@@ -1,6 +1,7 @@
 import { h, injectStyles } from '../utils.js';
 import { BookingGrid } from './booking/BookingGrid.js';
 import { i18n } from '../i18n.js';
+import { PlanesSemanales } from './PlanesSemanales.js';
 
 const salasStyles = `
 /* Grid de Salas */
@@ -259,7 +260,10 @@ export function SalasSection() {
       ),
       h('div', { id: 'salas-grid', className: 'salas-grid' },
         h('p', { className: 'salas-loading' }, i18n.t('salas_loading'))
-      )
+      ),
+      
+      // Añadimos el componente de Planes Semanales destacado debajo de las salas
+      PlanesSemanales()
     )
   );
 

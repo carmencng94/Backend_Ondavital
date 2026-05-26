@@ -52,9 +52,14 @@ exports.uploadImage = (req, res) => {
       
       // Si el campo no existía previamente, lo forzamos a existir (UPSERT simulado)
       if (result.changes === 0) {
-        const db = require('better-sqlite3')(process.env.DB_PATH || './memory.db');
+        const rawDbPath = process.env.DB_PATH || './memory.db';
+        const dbPath = path.isAbsolute(rawDbPath)
+          ? rawDbPath
+          : path.resolve(__dirname, '..', rawDbPath);
+        const db = require('better-sqlite3')(dbPath);
         const insertStmt = db.prepare('INSERT INTO content_blocks (key, value, type, updated_at) VALUES (?, ?, ?, ?)');
         insertStmt.run(key, publicUrl, 'image', new Date().toISOString());
+        db.close();
       }
 
       try {

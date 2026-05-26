@@ -25,6 +25,12 @@ exports.login = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Error interno de despliegue de seguridad. Contacte a soporte.' });
   }
 
+  // 🛡️ Hardening de seguridad para producción: Prohibir login con contraseña en texto plano
+  if (process.env.NODE_ENV === 'production' && !adminPassHash) {
+    console.error("CRITICAL SECURITY ERROR: El login de administración está deshabilitado en producción porque no se ha configurado ADMIN_PASSWORD_HASH en el entorno.");
+    return res.status(500).json({ success: false, message: 'Error de configuración de seguridad del servidor.' });
+  }
+
   const usernameMatches = username === adminUser;
   const passwordMatches = adminPassHash
     ? await bcrypt.compare(password || '', adminPassHash)

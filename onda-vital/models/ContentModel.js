@@ -4,8 +4,11 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// Obtener la ruta de la DB desde var de entorno o usar fallback
-const dbPath = process.env.DB_PATH || './memory.db';
+// Obtener la ruta de la DB desde var de entorno o usar fallback de manera absoluta
+const rawDbPath = process.env.DB_PATH || './memory.db';
+const dbPath = path.isAbsolute(rawDbPath)
+  ? rawDbPath
+  : path.resolve(__dirname, '..', rawDbPath);
 const db = new Database(dbPath);
 
 // Inicializar tabla si no existe

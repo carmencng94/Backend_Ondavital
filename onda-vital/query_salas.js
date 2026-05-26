@@ -1,5 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('memory.db');
+const path = require('path');
+const dbPath = path.resolve(__dirname, 'memory.db');
+const db = new sqlite3.Database(dbPath);
 
 db.all("SELECT id, dbKey, nombre FROM salas", (err, rows) => {
     if (err) {

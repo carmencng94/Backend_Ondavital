@@ -1,22 +1,25 @@
 // Routes: reservaRoutes.js
-// Propósito: Definir los endpoints relacionados con reservas.
+// Propósito: Definir los endpoints relacionados con reservas públicas.
 // Solo extrae de req/res y llama al Controller.
 
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const ReservaController = require('../controllers/ReservaController');
 
-// Ruta para listar todas las reservas (Panel de Administración)
-router.get('/', async (req, res) => {
-  try {
-    const reservas = await ReservaController.listarTodas();
-    res.json({ success: true, reservas });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
+// 🛡️ Limitador de reservas para evitar SPAM y abusos en base de datos
+const bookingLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 5, // máx 5 peticiones por IP por minuto
+  message: { 
+    success: false, 
+    error: "Has realizado demasiadas solicitudes en poco tiempo. Por favor, espera un minuto." 
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-router.post('/', async (req, res) => {
+router.post('/', bookingLimiter, async (req, res) => {
   try {
     // Delegar lógica al controlador
     const reserva = await ReservaController.crearReserva(req.body);
@@ -27,7 +30,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/check-availability', async (req, res) => {
+router.post('/check-availability', bookingLimiter, async (req, res) => {
   try {
     const status = await ReservaController.checkAvailability(req);
     res.json(status);
@@ -46,7 +49,7 @@ router.post('/webhook/calendar', async (req, res) => {
 });
 
 // Ruta para calcular disponibilidad global de un día
-router.get('/dia', async (req, res) => {
+router.get('/dia', bookingLimiter, async (req, res) => {
   try {
     const { fecha } = req.query;
     if (!fecha) {
@@ -60,7 +63,7 @@ router.get('/dia', async (req, res) => {
 });
 
 // Ruta para calcular disponibilidad en slots PropTech
-router.get('/disponibilidad', async (req, res) => {
+router.get('/disponibilidad', bookingLimiter, async (req, res) => {
   try {
     const { salaId, fecha } = req.query;
     if (!salaId || !fecha) {
@@ -68,26 +71,6 @@ router.get('/disponibilidad', async (req, res) => {
     }
     const disponibilidad = await ReservaController.getDisponibilidadSlots(salaId, fecha);
     res.json(disponibilidad);
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-// Ruta para que David confirme una reserva
-router.patch('/:id/confirmar', async (req, res) => {
-  try {
-    const resultado = await ReservaController.confirmarReserva(req.params.id);
-    res.json(resultado);
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
-  }
-});
-
-// Ruta para que David rechace una reserva
-router.patch('/:id/rechazar', (req, res) => {
-  try {
-    const resultado = ReservaController.rechazarReserva(req.params.id);
-    res.json(resultado);
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
