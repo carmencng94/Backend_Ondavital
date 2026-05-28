@@ -5,6 +5,7 @@ const ChangeLogModel = require('../models/ChangeLogModel');
 
 exports.getAllContent = (req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     const format = req.query.format === 'all' ? 'all' : 'flat';
     const content = ContentModel.obtenerTodos(format);
     res.json(content);
@@ -17,21 +18,22 @@ exports.getAllContent = (req, res) => {
 exports.updateContent = (req, res) => {
   try {
     const { key } = req.params;
-    const { value } = req.body;
+    const { value, lang } = req.body;
 
     if (value === undefined) {
       return res.status(400).json({ success: false, message: 'Falta el valor a actualizar' });
     }
 
-    const current = ContentModel.obtenerTodos('flat') || {};
-    const previousValue = current[key] || '';
+    const targetLang = lang || 'es';
+    const allContent = ContentModel.obtenerTodos('all');
+    const previousValue = (allContent[targetLang] && allContent[targetLang][key]) || '';
 
-    ContentModel.actualizarValor(key, value);
+    ContentModel.actualizarValor(key, value, targetLang);
 
     try {
       ChangeLogModel.registrar({
         adminName: req.user?.username || 'admin',
-        action: 'edit_text',
+        action: `edit_text_${targetLang}`,
         targetKey: key,
         oldValue: String(previousValue).slice(0, 500),
         newValue: String(value).slice(0, 500),
@@ -41,7 +43,7 @@ exports.updateContent = (req, res) => {
       console.warn('No se pudo registrar audit_log (content):', logError.message);
     }
 
-    res.json({ success: true, message: `Contenido actualizado correctamente`, key, value });
+    res.json({ success: true, message: `Contenido actualizado correctamente`, key, value, lang: targetLang });
   } catch (error) {
     console.error(`Error al actualizar ${req.params.key}:`, error);
     res.status(500).json({ success: false, message: 'Error al actualizar el contenido' });

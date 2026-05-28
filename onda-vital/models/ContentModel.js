@@ -40,19 +40,19 @@ try {
     
     const defaults = {
       // --- HOME ---
-      'home_hero_title': 'Nuestro Enfoque Eres Tú',
-      'home_hero_subtitle': 'Vuelve a conectar con tu vitalidad natural',
-      'home_glass_p1': 'Tu cuerpo tiene una capacidad innata de mantenerse sano',
-      'home_glass_p2': 'Estamos aquí para ayudarte a recuperarla.',
+      'home_hero_main': 'Espacios para Crecer',
+      'home_hero_sub': 'Tu evento o terapia en el mejor entorno de Onda Vital',
+      'home_glass_1': 'Alquiler de salas equipadas y gestionadas para tu éxito.',
+      'home_glass_2': 'Encuentra el lugar perfecto para tu propósito.',
       'home_intro_title': 'Entendiendo el Desequilibrio',
       'home_intro_desc': 'La vida diaria está llena de fuentes de estrés que interfieren con tu bienestar:',
       'home_stress_1': 'Estrés Físico (posturas, lesiones)',
       'home_stress_2': 'Estrés Mental (bloqueos, preocupaciones)',
       'home_stress_3': 'Estrés Emocional (tensiones acumuladas)',
       'home_stress_conc': 'Estas interferencias resultan en dolor, disfunción y malestar.',
-      'home_cta_title': 'Restaura tu habilidad de sanar',
-      'home_cta_desc': 'En Onda Vital trabajamos para que puedas disfrutar de una vida plena y libre de limitaciones.',
-      'home_cta_tagline': 'Mereces disfrutar de tu vida',
+      'home_cta_title_alt': 'Un Espacio para Cada Necesidad',
+      'home_cta_desc_alt': 'Además de nuestras salas, colaboramos con profesionales externos para ofrecerte un bienestar integral.',
+      'home_cta_deawakening': '✦ Visita Deawakening - Nuestra plataforma aliada',
 
       // --- CONTACTO ---
       'contacto_telefono': '601 39 21 61',
@@ -238,10 +238,16 @@ class ContentModel {
   }
 
   /**
-   * Actualiza el valor de un bloque de contenido existente.
+   * Actualiza el valor de un bloque de contenido existente para un idioma específico.
+   * Si no se especifica idioma o es 'es', actualiza 'value' (español por defecto).
    */
-  static actualizarValor(key, newValue) {
-    const stmt = db.prepare('UPDATE content_blocks SET value = ?, updated_at = ? WHERE key = ?');
+  static actualizarValor(key, newValue, lang = 'es') {
+    let columnName = 'value';
+    if (lang === 'en') columnName = 'value_en';
+    else if (lang === 'de') columnName = 'value_de';
+    else if (lang === 'ca') columnName = 'value_ca';
+
+    const stmt = db.prepare(`UPDATE content_blocks SET ${columnName} = ?, updated_at = ? WHERE key = ?`);
     return stmt.run(newValue, new Date().toISOString(), key);
   }
 }

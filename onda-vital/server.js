@@ -38,13 +38,20 @@ const corsOptions = {
 };
 
 // Middlewares de Seguridad 🛡️
-app.use(helmet()); // Cabeceras HTTP de seguridad
+app.use(helmet({
+  contentSecurityPolicy: false
+})); // Cabeceras HTTP de seguridad (desactivando CSP para inyección dinámica de estilos en SPA)
 app.disable('x-powered-by'); // No indicar qué tecnología usamos para no dar pistas a atacantes
 
 // CORS restringido para permitir cookies de sesión del admin sin abrir la API a cualquier origen.
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '10kb' })); // Limitar el tamaño del body para evitar inundaciones (DDoS local)
+
+const authMiddleware = require('./middleware/authMiddleware');
+
+// Servir la carpeta de administración de forma protegida (debe ir antes del static público)
+app.use('/admin', authMiddleware.verifyAdminPage, express.static(path.join(__dirname, 'admin')));
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, 'public')));

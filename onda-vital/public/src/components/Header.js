@@ -220,8 +220,8 @@ export function Header() {
     siteConfig.features.showSalas ? { id: 'salas', label: i18n.t('nav_salas') } : null,
     siteConfig.features.showQuiropractica ? { id: 'quiropractica', label: i18n.t('nav_quiro') } : null,
     siteConfig.features.showResosenseRedirect ? { id: 'resosense', label: i18n.t('nav_reso'), isExternal: true, url: siteConfig.urls.deawakening } : null,
-    { id: 'contacto',      label: i18n.t('nav_contacto') },
-    { id: 'admin',         label: i18n.t('nav_admin'), isLink: true, url: '/admin' }
+    { id: 'about',         label: 'Sobre Nosotros' },
+    { id: 'contacto',      label: i18n.t('nav_contacto') }
   ].filter(item => item !== null);
 
   const handleLinkClick = (e, id) => {

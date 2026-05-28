@@ -1,0 +1,1783 @@
+let adminToken = '';
+const pendingChanges = {};
+let currentActivePrefix = '';
+let activeEditLanguage = 'es';
+
+function buildAuthHeaders(headers = {}) {
+  if (!adminToken) {
+    return { ...headers };
+  }
+
+  return {
+    ...headers,
+    Authorization: 'Bearer ' + adminToken
+  };
+}
+
+async function authFetch(url, options = {}) {
+  const requestOptions = {
+    credentials: 'include',
+    ...options,
+    headers: buildAuthHeaders(options.headers || {})
+  };
+
+  return fetch(url, requestOptions);
+}
+
+function renderLogin(wrapper, errorMsg = '') {
+  document.body.classList.add('admin-body');
+  wrapper.className = 'admin-app-container';
+
+  wrapper.innerHTML = `
+    <div class="login-card">
+      <img src="../assets/images/logo_onda_vital.png" alt="Onda Vital" style="width: 140px; margin-bottom: 20px;">
+      <h1>Panel Administrador</h1>
+      ${errorMsg ? `<div class="error-message">${errorMsg}</div>` : ''}
+      <form id="login-form">
+        <div class="input-group">
+          <label for="username">Usuario</label>
+          <input type="text" id="username" required autocomplete="username" placeholder="Tu usuario">
+        </div>
+        <div class="input-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-primary-admin">Aceder al Sistema</button>
+      </form>
+    </div>
+  `;
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.token) {
+        adminToken = data.token;
+        renderDashboard(wrapper);
+      } else {
+        renderLogin(wrapper, data.message || 'Error de autenticación');
+      }
+    } catch (err) {
+      console.error(err);
+      renderLogin(wrapper, 'Error de conexión con el servidor');
+    }
+  });
+}
+
+function renderDashboard(wrapper) {
+  document.body.classList.remove('admin-body');
+  wrapper.className = 'admin-layout';
+
+  wrapper.innerHTML = /* html */ `
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <div style="background:var(--accent); width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:bold;">OV</div>
+        <span>AdminPanel</span>
+      </div>
+      <div class="sidebar-menu">
+        <div class="sidebar-category">PRINCIPAL</div>
+        <a class="sidebar-link active" id="nav-dashboard">
+          <span>Dashboard</span>
+        </a>
+        <a class="sidebar-link" id="nav-reservas">
+          <span>Reservas</span>
+        </a>
+        <a class="sidebar-link" id="nav-contenido">
+          <span>Contenido</span>
+        </a>
+        <div class="sidebar-category">SISTEMA</div>
+        <a class="sidebar-link" id="nav-historial">
+          <span>Historial Logs</span>
+        </a>
+        <a class="sidebar-link" id="nav-preview">
+          <span>Vista Previa</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <div class="avatar">DA</div>
+        <div class="user-info">
+          <span class="name">David A.</span>
+          <span class="role">Administrador</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h2 class="topbar-title" id="topbar-title">Dashboard</h2>
+        <div class="topbar-actions">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Buscar..." id="global-search">
+          </div>
+          <button id="btn-toggle-chat" class="btn-toggle-chat">💬 Vitalis</button>
+          <button class="btn-new-reserva">+ Nueva reserva</button>
+          <button id="btn-logout" class="btn-logout" style="background:var(--danger-bg); border:1px solid var(--danger); color:var(--danger);">Salir</button>
+        </div>
+      </header>
+      <div class="admin-content-area" id="admin-main-content"></div>
+    </main>
+  `;
+
+  const links = wrapper.querySelectorAll('.sidebar-link');
+  const mainContent = document.getElementById('admin-main-content');
+  const title = document.getElementById('topbar-title');
+
+  function setActive(id, titleText) {
+    links.forEach(l => l.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    title.textContent = titleText;
+  }
+
+  document.getElementById('nav-dashboard').onclick = () => { setActive('nav-dashboard', 'Dashboard'); renderDashboardHome(mainContent); };
+  document.getElementById('nav-reservas').onclick = () => { setActive('nav-reservas', 'Reservas'); renderReservations(mainContent); };
+  document.getElementById('nav-contenido').onclick = () => { setActive('nav-contenido', 'Contenido'); renderContentManager(mainContent); };
+  document.getElementById('nav-historial').onclick = () => { setActive('nav-historial', 'Historial de Sistema'); renderAuditLog(mainContent); };
+  document.getElementById('nav-preview').onclick = () => { setActive('nav-preview', 'Vista Previa Pública'); renderPreview(mainContent); };
+
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    (async () => {
+      try {
+        await authFetch('/api/auth/logout', { method: 'POST' });
+      } catch (error) {
+        console.error(error);
+      }
+
+      adminToken = '';
+      window.location.href = '/';
+    })();
+  });
+
+  initAdminChat();
+  renderDashboardHome(mainContent);
+}
+
+function renderContentManager(container) {
+  container.innerHTML = `
+    <div class="customizer-layout">
+       <!-- Panel de Control Izquierdo -->
+      <div class="customizer-panel">
+        <div id="tabs-container"></div>
+        <div class="language-selector-bar" style="display:flex; gap:8px; margin-bottom:16px; align-items:center; background:#f3f4f6; padding:8px 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.1);">
+          <span style="font-size:12px; font-weight:700; color:#4b5563; margin-right:8px; text-transform:uppercase; letter-spacing:0.5px;">Idioma de edición:</span>
+          <button class="btn-lang-selector" data-lang="es" style="background:var(--accent); color:white; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Español 🇪🇸</button>
+          <button class="btn-lang-selector" data-lang="en" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Inglés 🇬🇧</button>
+          <button class="btn-lang-selector" data-lang="de" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Alemán 🇩🇪</button>
+          <button class="btn-lang-selector" data-lang="ca" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Catalán 🇦🇩</button>
+        </div>
+        <div id="content-tools" style="display:flex; gap:12px; margin-bottom:24px; align-items:center;">
+          <div class="search-box" style="flex:1; display:flex;">
+            <span class="search-icon">🔍</span>
+            <input id="content-search" type="text" placeholder="Buscar textos o claves en esta sección..." style="width:100%; padding-left:38px;">
+          </div>
+          <button id="btn-refresh-content" class="btn-new-reserva" style="margin:0; display:flex; align-items:center; gap:8px;">
+            Recargar
+          </button>
+        </div>
+        <div id="editor-container" class="editor-grid">Cargando contenidos...</div>
+        <div id="floating-save-container"></div>
+      </div>
+      
+      <!-- Vista Previa Derecha (WordPress Customizer Style) -->
+      <div class="customizer-preview-container">
+        <div class="preview-header-bar" style="justify-content: center;">
+          <div class="preview-actions">
+            <button class="btn-preview-device active" id="btn-device-desktop" title="Vista de Escritorio">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </button>
+            <button class="btn-preview-device" id="btn-device-tablet" title="Vista de Tableta">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="3" width="16" height="18" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </button>
+            <button class="btn-preview-device" id="btn-device-mobile" title="Vista Móvil">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="2" width="12" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="preview-iframe-wrapper" id="preview-frame-wrapper">
+          <div id="iframe-scaler" style="position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            <iframe id="customizer-preview-iframe" src="/"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Sincronizar selectores de dispositivo de la vista previa con escalado inteligente
+  const wrapper = document.getElementById('preview-frame-wrapper');
+  const btnDesktop = document.getElementById('btn-device-desktop');
+  const btnTablet = document.getElementById('btn-device-tablet');
+  const btnMobile = document.getElementById('btn-device-mobile');
+
+  const resizePreviewIframe = () => {
+    const scaler = document.getElementById('iframe-scaler');
+    const iframe = document.getElementById('customizer-preview-iframe');
+    if (!wrapper || !scaler || !iframe) return;
+
+    const wrapperWidth = wrapper.clientWidth - 40; // padding 20px de margen
+    const wrapperHeight = wrapper.clientHeight - 40;
+
+    let virtualWidth = 1200;
+    let virtualHeight = 780;
+    let isDesktop = true;
+    let hasDeviceFrame = false;
+
+    if (wrapper.classList.contains('mobile')) {
+      virtualWidth = 375;
+      virtualHeight = 667;
+      isDesktop = false;
+      hasDeviceFrame = true;
+    } else if (wrapper.classList.contains('tablet')) {
+      virtualWidth = 768;
+      virtualHeight = 1024;
+      isDesktop = false;
+      hasDeviceFrame = true;
+    }
+
+    let scale = 1;
+    let scaledWidth = 0;
+    let scaledHeight = 0;
+
+    if (isDesktop) {
+      // Escritorio simulado (pantalla completa sin marcos artificiales)
+      scale = wrapperWidth / virtualWidth;
+      virtualHeight = Math.max(780, wrapperHeight / scale);
+
+      scaledWidth = wrapperWidth;
+      scaledHeight = wrapperHeight;
+    } else {
+      // Dispositivos móviles (mantener relación de aspecto física)
+      const scaleX = wrapperWidth / virtualWidth;
+      const scaleY = wrapperHeight / virtualHeight;
+      scale = Math.min(scaleX, scaleY, 1);
+
+      scaledWidth = virtualWidth * scale;
+      scaledHeight = virtualHeight * scale;
+    }
+
+    // Configurar el contenedor escalador (layout físico exacto en el DOM)
+    scaler.style.width = `${scaledWidth}px`;
+    scaler.style.height = `${scaledHeight}px`;
+    scaler.style.display = 'block';
+
+    // Configurar el iframe real (tamaño virtual + transformación)
+    iframe.style.position = 'absolute';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = `${virtualWidth}px`;
+    iframe.style.height = `${virtualHeight}px`;
+    iframe.style.transform = `scale(${scale})`;
+    iframe.style.transformOrigin = 'top left';
+
+    if (hasDeviceFrame) {
+      scaler.style.borderRadius = wrapper.classList.contains('mobile') ? '28px' : '20px';
+      scaler.style.border = wrapper.classList.contains('mobile') ? '10px solid #222' : '8px solid #222';
+      scaler.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.7)';
+      scaler.style.background = '#222';
+    } else {
+      scaler.style.borderRadius = '8px';
+      scaler.style.border = '1px solid var(--border-color)';
+      scaler.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      scaler.style.background = 'white';
+    }
+  };
+
+  if (btnDesktop && btnTablet && btnMobile && wrapper) {
+    btnDesktop.onclick = () => {
+      btnDesktop.classList.add('active');
+      btnTablet.classList.remove('active');
+      btnMobile.classList.remove('active');
+      wrapper.className = 'preview-iframe-wrapper';
+      resizePreviewIframe();
+    };
+    btnTablet.onclick = () => {
+      btnDesktop.classList.remove('active');
+      btnTablet.classList.add('active');
+      btnMobile.classList.remove('active');
+      wrapper.className = 'preview-iframe-wrapper tablet';
+      resizePreviewIframe();
+    };
+    btnMobile.onclick = () => {
+      btnDesktop.classList.remove('active');
+      btnTablet.classList.remove('active');
+      btnMobile.classList.add('active');
+      wrapper.className = 'preview-iframe-wrapper mobile';
+      resizePreviewIframe();
+    };
+  }
+
+  // Evitar duplicación de listeners globales en resize
+  if (window.customizerResizeHandler) {
+    window.removeEventListener('resize', window.customizerResizeHandler);
+  }
+  window.customizerResizeHandler = resizePreviewIframe;
+  window.addEventListener('resize', window.customizerResizeHandler);
+
+  // Forzar escalado al cargarse el iframe o inmediatamente
+  const previewIframe = document.getElementById('customizer-preview-iframe');
+  if (previewIframe) {
+    previewIframe.onload = resizePreviewIframe;
+  }
+  setTimeout(resizePreviewIframe, 100);
+
+  const searchInput = document.getElementById('content-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      loadContentEditor(searchInput.value.trim());
+    });
+  }
+
+  const refreshBtn = document.getElementById('btn-refresh-content');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      loadContentEditor(searchInput?.value.trim() || '');
+      setTimeout(resizePreviewIframe, 100);
+    });
+  }
+
+  // Configurar gestor de cambio de idioma de edición
+  const langButtons = container.querySelectorAll('.btn-lang-selector');
+  
+  // Sincronizar UI de botones de idioma activos
+  const syncLangButtons = () => {
+    langButtons.forEach(b => {
+      if (b.dataset.lang === activeEditLanguage) {
+        b.style.background = 'var(--accent)';
+        b.style.color = 'white';
+        b.style.border = 'none';
+      } else {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-main)';
+        b.style.border = '1px solid rgba(0,0,0,0.1)';
+      }
+    });
+  };
+  syncLangButtons();
+
+  langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedLang = btn.dataset.lang;
+      if (selectedLang === activeEditLanguage) return;
+
+      if (Object.keys(pendingChanges).length > 0) {
+        if (!confirm('Tienes cambios pendientes de guardar en este idioma. Si cambias de idioma los perderás. ¿Deseas descartarlos para cambiar de idioma?')) {
+          return;
+        }
+        for (const k in pendingChanges) {
+          delete pendingChanges[k];
+        }
+        updateFloatingSaveBar();
+      }
+
+      activeEditLanguage = selectedLang;
+      syncLangButtons();
+
+      // Cambiar idioma de la vista previa iframe
+      const iframe = document.getElementById('customizer-preview-iframe');
+      if (iframe) {
+        iframe.src = `/?lang=${activeEditLanguage}`;
+      }
+
+      loadContentEditor(searchInput?.value.trim() || '');
+      setTimeout(resizePreviewIframe, 100);
+    });
+  });
+
+  loadContentEditor('');
+}
+
+async function renderDashboardHome(container) {
+  container.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Reservas hoy</div>
+        <div class="stat-value">24</div>
+        <div class="stat-trend positive">↑ 12% vs ayer</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Ingresos (mes)</div>
+        <div class="stat-value">4.820€</div>
+        <div class="stat-trend positive">↑ 8% vs anterior</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Usuarios activos</div>
+        <div class="stat-value">138</div>
+        <div class="stat-trend positive">↑ 3 nuevos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Tasa de cancelación</div>
+        <div class="stat-value">4,2%</div>
+        <div class="stat-trend negative">↑ 1,1%</div>
+      </div>
+    </div>
+
+    <div class="middle-grid">
+      <div class="chart-card">
+        <div class="card-header">
+          <h3 class="card-title">Reservas esta semana</h3>
+          <div class="chart-tabs">
+            <div class="chart-tab active">7d</div>
+            <div class="chart-tab">30d</div>
+            <div class="chart-tab">90d</div>
+          </div>
+        </div>
+        <div style="height:150px; display:flex; align-items:flex-end; border-bottom:1px solid var(--border-color); gap:10px;">
+           <div style="flex:1; background:var(--accent); height:30%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:50%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:40%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:70%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:60%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:90%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+           <div style="flex:1; background:var(--accent); height:80%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px; color:var(--text-muted); font-size:0.7rem;">
+           <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+        </div>
+      </div>
+
+      <div class="activity-card">
+        <div class="card-header">
+          <h3 class="card-title">Actividad reciente</h3>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="icon-box success">✓</div>
+            <div class="activity-info">
+              <div class="activity-title">Reserva confirmada</div>
+              <div class="activity-desc">Ana G. — Sala Zen</div>
+            </div>
+            <div class="activity-time">hace 1h</div>
+          </div>
+          <div class="activity-item">
+            <div class="icon-box info">👥</div>
+            <div class="activity-info">
+              <div class="activity-title">Nuevo usuario</div>
+              <div class="activity-desc">marcos@mail.com</div>
+            </div>
+            <div class="activity-time">hace 2h</div>
+          </div>
+          <div class="activity-item">
+            <div class="icon-box warning">!</div>
+            <div class="activity-info">
+              <div class="activity-title">Pago pendiente</div>
+              <div class="activity-desc">Reserva #R-0482</div>
+            </div>
+            <div class="activity-time">hace 4h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="card-header" style="margin-bottom: 0;">
+        <h3 class="card-title">Últimas reservas</h3>
+        <button class="btn-new-reserva" style="background:transparent; border:1px solid var(--border-color); font-size:0.8rem; padding:6px 12px; color:var(--text-main);" onclick="document.getElementById('nav-reservas').click()">Ver todas →</button>
+      </div>
+      <div id="home-reservas-wrapper" style="margin-top:20px; overflow-x:auto;">
+         <div style="padding:20px; color:var(--text-muted);">Cargando reservas...</div>
+      </div>
+    </div>
+  `;
+
+  try {
+    const res = await authFetch('/api/admin/reservas');
+    const data = await res.json();
+    if (data.success && data.reservas) {
+      const recents = data.reservas.slice(0, 5);
+      if (recents.length === 0) {
+        document.getElementById('home-reservas-wrapper').innerHTML = '<div style="color:var(--text-muted);">No hay reservas en el sistema.</div>';
+      } else {
+        let t = '<table class="table-dark"><thead><tr><th>ID</th><th>Cliente</th><th>Sala</th><th>Fecha</th><th>Importe</th><th>Estado</th></tr></thead><tbody>';
+        recents.forEach(r => {
+          let badgeCls = 'info';
+          if (r.estado === 'confirmada') badgeCls = 'success';
+          if (r.estado === 'rechazada') badgeCls = 'danger';
+          if (r.estado === 'pendiente') badgeCls = 'warning';
+
+          const num = parseInt(Math.random() * 100) + 50;
+
+          t += `<tr>
+              <td style="color:var(--text-muted)">#${(r.id || '').split('-')[2] || (r.id || 'N/A').substring(0, 6)}</td>
+              <td style="font-weight:600;">${r.nombre}</td>
+              <td style="color:var(--text-muted)">${r.sala}</td>
+              <td>${r.fecha} <br><span style="font-size:0.8rem; color:var(--text-muted)">${r.horario}h</span></td>
+              <td style="font-weight:600;">${num}€</td>
+              <td><span class="badge ${badgeCls}">${r.estado.charAt(0).toUpperCase() + r.estado.slice(1)}</span></td>
+           </tr>`;
+        });
+        t += '</tbody></table>';
+        document.getElementById('home-reservas-wrapper').innerHTML = t;
+      }
+    }
+  } catch (e) {
+    document.getElementById('home-reservas-wrapper').innerHTML = '<div style="color:var(--danger)">Error cargando reservas.</div>';
+  }
+}
+
+async function renderReservations(container) {
+  // Esta vista consume SOLO rutas admin protegidas por JWT.
+  // Asi evitamos usar endpoints publicos para acciones sensibles.
+  container.innerHTML = '<div style="padding: 20px; color: var(--text-muted);">Cargando reservas...</div>';
+  try {
+    const res = await authFetch('/api/admin/reservas');
+    const data = await res.json();
+
+    if (!data.success) {
+      container.innerHTML = `<div style="color:var(--danger); padding:20px;">Error: ${data.error}</div>`;
+      return;
+    }
+
+    const { reservas } = data;
+
+    if (reservas.length === 0) {
+      container.innerHTML = '<div style="padding: 60px; text-align: center; color: var(--text-muted);">No hay reservas registradas todavía.</div>';
+      return;
+    }
+
+    const listContainer = document.createElement('div');
+    listContainer.className = 'reservations-container';
+
+    reservas.forEach(r => {
+      const card = document.createElement('div');
+      card.className = `reservation-card ${r.estado}`;
+
+      // Procesar iniciales para el avatar
+      const initials = r.nombre
+        ? r.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+        : 'U';
+
+      // Procesar contacto (separar email y telefono si vienen juntos)
+      let email = '';
+      let phone = '';
+      if (r.contacto) {
+        const parts = r.contacto.split(',');
+        if (parts.length >= 2) {
+          email = parts[0].trim();
+          phone = parts[1].trim();
+        } else {
+          const val = r.contacto.trim();
+          if (val.includes('@')) {
+            email = val;
+          } else {
+            phone = val;
+          }
+        }
+      }
+
+      card.innerHTML = `
+        <div class="res-avatar-wrapper">
+          <div class="res-avatar">${initials}</div>
+        </div>
+        
+        <div class="res-client-info">
+          <div class="res-client-name">${r.nombre}</div>
+          ${email ? `
+            <a href="mailto:${email}" class="res-contact-item" title="Enviar correo">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>${email}</span>
+            </a>
+          ` : ''}
+          ${phone ? `
+            <a href="tel:${phone}" class="res-contact-item" title="Llamar por teléfono">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>${phone}</span>
+            </a>
+          ` : ''}
+          ${!email && !phone ? `<div class="res-contact-item" style="opacity: 0.5;">Sin datos de contacto</div>` : ''}
+        </div>
+        
+        <div class="res-booking-details">
+          <div class="res-sala-badge">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>${r.sala}</span>
+          </div>
+          <div class="res-time-info">
+            <div class="res-time-item">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>${r.fecha}</span>
+            </div>
+            <div class="res-time-item">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>${r.horario}h</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="res-actions-wrapper">
+          <div class="res-status-wrapper">
+            <span class="res-status-badge ${r.estado}">
+              <span class="status-dot"></span>
+              ${r.estado}
+            </span>
+          </div>
+          <div style="margin-top: 4px;">
+            ${r.estado === 'pendiente' ? `
+              <div style="display: flex; gap: 8px;">
+                <button class="res-btn-confirm btn-approve" data-id="${r.id}" title="Confirmar reserva">
+                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Confirmar</span>
+                </button>
+                <button class="res-btn-reject btn-reject" data-id="${r.id}" title="Rechazar reserva">
+                  <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <span>Rechazar</span>
+                </button>
+              </div>
+            ` : `
+              <span class="res-processed-text">
+                <svg viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 1 .2 4m-.5 5v-5h5"/></svg>
+                <span>Procesada el ${new Date(r.createdAt).toLocaleDateString()}</span>
+              </span>
+            `}
+          </div>
+        </div>
+      `;
+
+      // Botones de accion por reserva.
+      const approveBtn = card.querySelector('.btn-approve');
+      const rejectBtn = card.querySelector('.btn-reject');
+
+      if (approveBtn) {
+        approveBtn.onclick = async () => {
+          if (!confirm('¿Confirmar esta reserva? Se guardará en el Google Calendar oficial.')) return;
+          try {
+            const res = await authFetch(`/api/admin/reservas/${r.id}/confirmar`, {
+              method: 'PATCH'
+            });
+            const d = await res.json();
+            if (d.success) renderReservations(container);
+            else alert('Error: ' + (d.error || 'No se pudo confirmar'));
+          } catch (e) { console.error(e); }
+        };
+      }
+
+      if (rejectBtn) {
+        rejectBtn.onclick = async () => {
+          if (!confirm('¿Rechazar esta reserva? No se mostrará en el calendario público.')) return;
+          try {
+            const res = await authFetch(`/api/admin/reservas/${r.id}/rechazar`, {
+              method: 'PATCH'
+            });
+            const d = await res.json();
+            if (d.success) renderReservations(container);
+            else alert('Error: ' + (d.error || 'No se pudo rechazar'));
+          } catch (e) { console.error(e); }
+        };
+      }
+
+      listContainer.appendChild(card);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(listContainer);
+
+  } catch (e) {
+    container.innerHTML = `<div style="color:var(--danger); padding:20px;">Error al conectar: ${e.message}</div>`;
+  }
+}
+
+async function renderAuditLog(container) {
+  container.className = '';
+  container.innerHTML = '<div style="padding: 20px;">Cargando historial...</div>';
+  try {
+    const res = await authFetch('/api/admin/logs?limit=100');
+    const data = await res.json();
+
+    if (!data.success) {
+      container.innerHTML = '<div style="color:red; padding:20px;">No se pudo cargar el historial.</div>';
+      return;
+    }
+
+    const logs = data.logs || [];
+    if (logs.length === 0) {
+      container.innerHTML = '<div style="padding:20px; color:#64748b;">Todavia no hay cambios registrados.</div>';
+      return;
+    }
+
+    const list = document.createElement('div');
+    list.style.display = 'grid';
+    list.style.gap = '12px';
+
+    logs.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'item-editor-card';
+      row.style.marginBottom = '0';
+      row.innerHTML = `
+        <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <strong style="color:var(--text-main);">${item.action || 'accion'}</strong>
+          <span style="color:var(--text-muted); font-size:12px;">${new Date(item.timestamp).toLocaleString('es-ES')}</span>
+        </div>
+        <div style="margin-top:8px; color:var(--text-muted); font-size:13px;">
+          <div><strong style="color:var(--text-main);">Admin:</strong> ${item.admin_name || 'admin'}</div>
+          <div><strong style="color:var(--text-main);">Clave:</strong> ${item.target_key || '-'}</div>
+          <div><strong style="color:var(--text-main);">IP:</strong> ${item.ip_address || '-'}</div>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(list);
+  } catch (error) {
+    container.innerHTML = '<div style="color:red; padding:20px;">Error al cargar historial.</div>';
+  }
+}
+
+function renderPreview(container) {
+  // Vista previa embebida:
+  // sirve para revisar cambios visuales rapidamente sin salir del panel.
+  container.className = '';
+  container.innerHTML = `
+    <div class="item-editor-card" style="padding:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+        <strong style="color:var(--text-main);">Vista previa publica</strong>
+        <button id="btn-refresh-preview" class="btn-primary-admin" style="width:auto; padding:8px 14px; margin:0;">Recargar vista</button>
+      </div>
+      <iframe id="admin-preview-frame" src="/" style="width:100%; min-height:70vh; border:1px solid var(--border-color); border-radius:10px; background:#fff;"></iframe>
+    </div>
+  `;
+
+  const refreshPreview = document.getElementById('btn-refresh-preview');
+  refreshPreview?.addEventListener('click', () => {
+    const frame = document.getElementById('admin-preview-frame');
+    if (frame) {
+      frame.src = '/?preview=' + Date.now();
+    }
+  });
+}
+
+const PAGE_GROUPS = [
+  { id: 'inicio', title: '🏠 Página de Inicio', prefixes: ['home', 'services'] },
+  { id: 'salas', title: '🏢 Salas y Espacios', prefixes: ['salas', 'sala'] },
+  { id: 'quiropráctica', title: '💆 Quiropráctica', prefixes: ['quiro'] },
+  { id: 'deawakening', title: '✨ DEAwakening', prefixes: ['reso'] },
+  { id: 'sobre-nosotros', title: '👥 Sobre Nosotros', prefixes: ['about'] },
+  { id: 'contacto', title: '📞 Contacto', prefixes: ['contacto'] },
+  { id: 'footer', title: 'Pie de Página', prefixes: ['footer'] }
+];
+
+function getPublicTabForKey(tabId) {
+  const map = {
+    'inicio': 'home',
+    'salas': 'salas',
+    'quiropráctica': 'quiropractica',
+    'deawakening': 'home',
+    'sobre-nosotros': 'about',
+    'contacto': 'contacto',
+    'footer': ''
+  };
+  return map[tabId] || '';
+}
+
+function getSubsection(key) {
+  if (key.startsWith('home_hero_')) return 'Sección Hero (Bienvenida)';
+  if (key.startsWith('home_glass_')) return 'Caja de Cristal (Filosofía)';
+  if (key.startsWith('home_intro_') || key.startsWith('home_stress_')) return 'Introducción al Desequilibrio y Estrés';
+  if (key.startsWith('home_cta_')) return 'Sección Final / Llamada a la Acción';
+  if (key.startsWith('services_')) return 'Nuestros Servicios Holísticos';
+  
+  if (key.startsWith('salas_header_')) return 'Configuración General';
+  if (key.startsWith('sala_jardin_')) return 'Sala Jardín (Detalles & Tarifas)';
+  if (key.startsWith('sala_azul_')) return 'Sala Azul (Detalles & Tarifas)';
+  if (key.startsWith('sala_despacho_plus_')) return 'Despacho+ (Detalles & Tarifas)';
+  if (key.startsWith('sala_terapia_a_')) return 'Sala Terapia A (Detalles & Tarifas)';
+  if (key.startsWith('sala_terapia_b_')) return 'Sala Terapia B (Detalles & Tarifas)';
+  if (key.startsWith('sala_comunitaria_')) return 'Sala Comunitaria (Área de Descanso)';
+  
+  if (key.startsWith('quiro_title') || key.startsWith('quiro_subtitle') || key.startsWith('quiro_intro_') || key.startsWith('quiro_benefits_')) return 'Introducción y Beneficios';
+  if (key.startsWith('quiro_integral_') || key.startsWith('quiro_eval_') || key.startsWith('quiro_cta_')) return 'Método y Evaluación';
+  if (key.startsWith('quiro_dea_') || key.startsWith('quiro_resosense_')) return 'Técnicas Especiales (DEA & Resosense)';
+  
+  if (key.startsWith('reso_title') || key.startsWith('reso_subtitle') || key.startsWith('reso_question') || key.startsWith('reso_answer_') || key.startsWith('reso_highlight') || key.startsWith('reso_origen_')) return 'Presentación e Historia';
+  if (key.startsWith('reso_benefits_') || key.startsWith('reso_feature') || key.startsWith('reso_training_') || key.startsWith('reso_banner_')) return 'Beneficios y Cursos';
+  
+  if (key.startsWith('about_')) return 'Sobre Nosotros';
+  if (key.startsWith('contacto_')) return 'Información de Contacto y Horarios';
+  if (key.startsWith('footer_')) return 'Información del Pie de Página';
+  
+  return 'Otros Contenidos';
+}
+
+
+function getFriendlyLabel(key) {
+  const customLabels = {
+    // --- HOME ---
+    'home_hero_main': 'Título de Bienvenida (Inicio)',
+    'home_hero_sub': 'Subtítulo Principal (Inicio)',
+    'home_glass_1': 'Caja Glass - Frase Principal',
+    'home_glass_2': 'Caja Glass - Frase Secundaria',
+    'home_intro_title': 'Título de Introducción',
+    'home_intro_desc': 'Descripción de Introducción',
+    'home_stress_1': 'Estrés Físico (Punto de lista)',
+    'home_stress_2': 'Estrés Mental (Punto de lista)',
+    'home_stress_3': 'Estrés Emocional (Punto de lista)',
+    'home_stress_conc': 'Conclusión sobre el Estrés',
+    'home_cta_title_alt': 'Título Sección Final (CTA)',
+    'home_cta_desc_alt': 'Descripción Sección Final (CTA)',
+    'home_cta_deawakening': 'Enlace Deawakening',
+
+    // --- CONTACTO ---
+    'contacto_telefono': 'Teléfono de Contacto',
+    'contacto_email': 'Correo de Soporte / Dudas',
+    'contacto_direccion': 'Dirección del Centro',
+    'contacto_horarios_q1': 'Horarios Quiropráctica Grupo 1',
+    'contacto_horarios_q2': 'Horarios Quiropráctica Grupo 2',
+
+    // --- QUIROPRÁCTICA ---
+    'quiro_title': 'Título de Quiropráctica',
+    'quiro_subtitle': 'Lema / Subtítulo Quiropráctica',
+    'quiro_intro_1': 'Introducción Quiropráctica (Párrafo 1)',
+    'quiro_intro_2': 'Introducción Quiropráctica (Párrafo 2)',
+    'quiro_benefits_li1': 'Beneficio Quiropráctica 1',
+    'quiro_benefits_li2': 'Beneficio Quiropráctica 2',
+    'quiro_benefits_li3': 'Beneficio Quiropráctica 3',
+    'quiro_integral_desc': 'Descripción Quiropráctica Integral',
+    'quiro_dea_title': 'Título DEA (Deep Energetic Awakening)',
+    'quiro_dea_desc': 'Descripción de la Técnica DEA',
+    'quiro_dea_extra': 'Invitación / Salud Integral DEA',
+    'quiro_resosense_desc': 'Descripción de Resosense',
+    'quiro_resosense_extra': 'Complemento Resosense',
+    'quiro_eval_desc': 'Descripción Visita de Evaluación',
+    'quiro_cta_title': 'Título Llamada a la Acción (Quiro)',
+    'quiro_cta_subtitle': 'Subtítulo Llamada a la Acción (Quiro)',
+
+    // --- DEAwakening / RESOSENSE ---
+    'reso_title': 'Título Principal Resosense',
+    'reso_subtitle': 'Subtítulo Resosense',
+    'reso_question': 'Pregunta Inicial',
+    'reso_answer_1': 'Respuesta Inicial',
+    'reso_highlight': 'Texto Destacado',
+    'reso_origen_title': 'Título de Origen / Historia',
+    'reso_origen_desc': 'Historia - Parte 1',
+    'reso_origen_extra': 'Historia - Parte 2 (Epifanía)',
+    'reso_benefits_title': 'Título de Beneficios',
+    'reso_feature1_title': 'Beneficio 1 - Título',
+    'reso_feature1_desc': 'Beneficio 1 - Descripción',
+    'reso_feature2_title': 'Beneficio 2 - Título',
+    'reso_feature2_desc': 'Beneficio 2 - Descripción',
+    'reso_training_title': 'Título Sección Formación',
+    'reso_training_desc': 'Descripción de Formación',
+    'reso_training_mod1': 'Módulo Básico (Nombre)',
+    'reso_training_mod2': 'Módulo Avanzado (Nombre)',
+    'reso_training_format': 'Formato del Curso',
+    'reso_training_prof': 'Para Profesionales / Terapeutas',
+    'reso_banner_text': 'Texto Banner de Resosense',
+
+    // --- SOBRE NOSOTROS ---
+    'about_title': 'Título de la Sección Sobre Nosotros',
+    'about_desc': 'Descripción General Sobre Nosotros',
+    'about_quiro_title': 'Título Horarios de Quiropráctica',
+    'about_salas_title': 'Título de Contacto de Salas',
+    'about_salas_coordinator': 'Nombre / Rol del Coordinador',
+
+    // --- SERVICIOS ---
+    'services_title': 'Título de la Sección Servicios',
+    'services_nsa_title': 'Servicio 1: Título',
+    'services_nsa_desc': 'Servicio 1: Descripción',
+    'services_reso_title': 'Servicio 2: Título',
+    'services_reso_desc': 'Servicio 2: Descripción',
+    'services_talleres_title': 'Servicio 3: Título',
+    'services_talleres_desc': 'Servicio 3: Descripción',
+
+    // --- SALAS ---
+    'salas_header_title': 'Cabecera de Salas: Título',
+    'salas_header_subtitle': 'Cabecera de Salas: Subtítulo',
+
+    'sala_jardin_nombre': 'Sala Jardín: Nombre',
+    'sala_jardin_dimensiones': 'Sala Jardín: Dimensiones',
+    'sala_jardin_capacidad': 'Sala Jardín: Capacidad',
+    'sala_jardin_desc': 'Sala Jardín: Descripción de Actividades',
+    'sala_jardin_tarifa_hora': 'Sala Jardín: Tarifa por hora',
+    'sala_jardin_tarifa_dia': 'Sala Jardín: Tarifa completa por día',
+    'sala_jardin_tarifa_bono': 'Sala Jardín: Bono 10 Horas',
+    'sala_jardin_tarifa_mensual': 'Sala Jardín: Cuota Mensual',
+    'sala_jardin_equipo': 'Sala Jardín: Equipos y Materiales',
+
+    'sala_azul_nombre': 'Sala Azul: Nombre',
+    'sala_azul_dimensiones': 'Sala Azul: Dimensiones',
+    'sala_azul_capacidad': 'Sala Azul: Capacidad',
+    'sala_azul_desc': 'Sala Azul: Descripción de Actividades',
+    'sala_azul_tarifa_hora': 'Sala Azul: Tarifa por hora',
+    'sala_azul_tarifa_dia': 'Sala Azul: Tarifa completa por día',
+    'sala_azul_tarifa_bono': 'Sala Azul: Bono 10 Horas',
+    'sala_azul_tarifa_mensual': 'Sala Azul: Cuota Mensual',
+    'sala_azul_equipo': 'Sala Azul: Equipos y Materiales',
+
+    'sala_despacho_plus_nombre': 'Despacho+: Nombre',
+    'sala_despacho_plus_dimensiones': 'Despacho+: Dimensiones',
+    'sala_despacho_plus_capacidad': 'Despacho+: Capacidad',
+    'sala_despacho_plus_desc': 'Despacho+: Descripción de Actividades',
+    'sala_despacho_plus_tarifa_hora': 'Despacho+: Tarifa por hora',
+    'sala_despacho_plus_tarifa_dia': 'Despacho+: Tarifa completa por día',
+    'sala_despacho_plus_tarifa_bono': 'Despacho+: Bono 10 Horas',
+    'sala_despacho_plus_tarifa_mensual': 'Despacho+: Cuota Mensual',
+    'sala_despacho_plus_equipo': 'Despacho+: Equipos y Materiales',
+
+    // --- FOOTER ---
+    'footer_link_contrato': 'Footer: Enlace Contrato',
+    'footer_link_privacidad': 'Footer: Enlace Privacidad',
+    'footer_link_dea': 'Footer: Enlace DEAwakening',
+    'footer_desc': 'Footer: Descripción Corta',
+    'footer_copyright': 'Footer: Línea de Copyright'
+  };
+
+  if (customLabels[key]) return customLabels[key];
+  const parts = key.split('_');
+  const rawWord = parts.slice(1).join(' ');
+  if (!rawWord) return key.toUpperCase();
+  return rawWord.charAt(0).toUpperCase() + rawWord.slice(1);
+}
+
+function updateFloatingSaveBar() {
+  const container = document.getElementById('floating-save-container');
+  if (!container) return;
+
+  const pendingKeys = Object.keys(pendingChanges);
+  const count = pendingKeys.length;
+
+  if (count === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let bar = document.getElementById('floating-save-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'floating-save-bar';
+    bar.className = 'floating-save-bar';
+    container.appendChild(bar);
+  }
+
+  bar.innerHTML = `
+    <div class="save-info">
+      <div class="indicator"></div>
+      <div>Tienes <strong>${count}</strong> ${count === 1 ? 'cambio pendiente' : 'cambios pendientes'} sin guardar en esta sección.</div>
+    </div>
+    <button class="btn-floating-save" id="btn-save-all-pending">
+      <span>💾</span> Guardar todos los cambios
+    </button>
+  `;
+
+  document.getElementById('btn-save-all-pending').onclick = async () => {
+    const saveBtn = document.getElementById('btn-save-all-pending');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span>⏳</span> Guardando cambios...';
+
+    const promises = pendingKeys.map(async (k) => {
+      const item = pendingChanges[k];
+      try {
+        const resp = await authFetch('/api/content/' + k, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: item.newValue, lang: activeEditLanguage })
+        });
+        const data = await resp.json();
+        if (data.success) {
+          item.cardElement.classList.remove('dirty');
+          const badge = item.cardElement.querySelector('.dirty-badge');
+          if (badge) badge.remove();
+
+          const saveSpan = item.cardElement.querySelector('.status-span-inline');
+          if (saveSpan) {
+            saveSpan.textContent = '¡Guardado!';
+            saveSpan.style.color = 'var(--success)';
+            setTimeout(() => { saveSpan.textContent = ''; }, 2500);
+          }
+
+          delete pendingChanges[k];
+        }
+      } catch (err) {
+        console.error(`Error guardando ${k}:`, err);
+      }
+    });
+
+    await Promise.all(promises);
+
+    saveBtn.innerHTML = '<span>✅</span> ¡Todo guardado con éxito!';
+    saveBtn.style.background = 'var(--success)';
+    saveBtn.style.boxShadow = '0 4px 14px rgba(16, 185, 129, 0.4)';
+
+    setTimeout(() => {
+      updateFloatingSaveBar();
+      const searchInput = document.getElementById('content-search');
+      loadContentEditor(searchInput?.value || '');
+    }, 1500);
+  };
+}
+
+async function loadContentEditor(searchTerm = '') {
+  const container = document.getElementById('editor-container');
+  const tabsContainer = document.getElementById('tabs-container');
+  try {
+    const res = await fetch('/api/content?format=all');
+    const content = await res.json();
+
+    // Agrupar campos por categorías de página lógicas
+    const keys = Object.keys(content.es || {}).sort();
+    const groups = {};
+    PAGE_GROUPS.forEach(g => {
+      groups[g.id] = [];
+    });
+
+    for (const key of keys) {
+      const prefix = key.split('_')[0];
+      const matchedGroup = PAGE_GROUPS.find(g => g.prefixes.includes(prefix));
+      if (matchedGroup) {
+        groups[matchedGroup.id].push(key);
+      } else {
+        // Fallback a inicio si no coincide
+        if (!groups['inicio']) groups['inicio'] = [];
+        groups['inicio'].push(key);
+      }
+    }
+
+    tabsContainer.innerHTML = '';
+
+    const setActiveTab = (btn) => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+    };
+
+    // --- Pestañas de Contenido Organizadas por Páginas ---
+    PAGE_GROUPS.forEach((group) => {
+      const tabBtn = document.createElement('button');
+      tabBtn.className = 'tab-btn';
+      tabBtn.innerHTML = `<span>${group.title}</span>`;
+
+      tabBtn.onclick = () => {
+        setActiveTab(tabBtn);
+        currentActivePrefix = group.id;
+
+        // Sincronizar pestaña en la vista previa lateral en tiempo real
+        const targetTab = getPublicTabForKey(group.id);
+        if (targetTab) {
+          const previewIframe = document.getElementById('customizer-preview-iframe');
+          if (previewIframe && previewIframe.contentWindow) {
+            previewIframe.contentWindow.postMessage({
+              type: 'tab-change',
+              tabId: targetTab
+            }, '*');
+          }
+        }
+
+        container.innerHTML = '';
+        container.className = 'editor-grid';
+
+        const filteredKeys = groups[group.id].filter((key) => {
+          if (!searchTerm) return true;
+          const val = content[activeEditLanguage][key] || content.es[key] || '';
+          const v = String(val).toLowerCase();
+          const k = key.toLowerCase();
+          const q = searchTerm.toLowerCase();
+          return k.includes(q) || v.includes(q);
+        });
+
+        if (filteredKeys.length === 0) {
+          container.innerHTML = '<div style="padding:24px; color:var(--text-muted); grid-column: 1 / -1; text-align: center;">Sin resultados en esta sección.</div>';
+          return;
+        }
+
+        // Agrupar las llaves por sub-secciones para pintarlas ordenadamente con encabezados
+        const subsectionMap = {};
+        filteredKeys.forEach(key => {
+          const sub = getSubsection(key);
+          if (!subsectionMap[sub]) subsectionMap[sub] = [];
+          subsectionMap[sub].push(key);
+        });
+
+        // Pintar secciones ordenadas
+        for (const [subName, subKeys] of Object.entries(subsectionMap)) {
+          // Encabezado visual de la subsección (spans the entire grid)
+          const header = document.createElement('div');
+          header.className = 'subsection-header';
+          header.innerHTML = `<span>${subName}</span>`;
+          container.appendChild(header);
+
+          // Campos correspondientes
+          for (const key of subKeys) {
+            const val = content[activeEditLanguage][key] || '';
+            const isUrl = val && (val.startsWith('/uploads/') || val.startsWith('http'));
+            const itemDiv = doItemDiv(key, val, isUrl);
+            container.appendChild(itemDiv);
+          }
+        }
+      };
+
+      tabsContainer.appendChild(tabBtn);
+    });
+
+    // Auto-seleccionar pestaña activa
+    if (PAGE_GROUPS.length > 0) {
+      let tabToClick = tabsContainer.firstChild;
+      if (currentActivePrefix) {
+        const index = PAGE_GROUPS.findIndex(g => g.id === currentActivePrefix);
+        if (index !== -1) tabToClick = tabsContainer.childNodes[index];
+      }
+      if (tabToClick) tabToClick.click();
+    }
+
+    // Refresh floating bar if there are any lingering edits in memory
+    updateFloatingSaveBar();
+
+  } catch (error) {
+    container.innerHTML = '<p style="color:var(--danger); padding:24px; text-align:center;">Error al cargar los contenidos desde el API.</p>';
+  }
+}
+
+// Función auxiliar para pintar un campo individual
+function doItemDiv(key, val, isUrl) {
+  const itemDiv = document.createElement('div');
+  itemDiv.className = 'item-editor-card';
+
+  const hasPending = pendingChanges[key] !== undefined;
+  const currentVal = hasPending ? pendingChanges[key].newValue : val;
+
+  if (hasPending) {
+    itemDiv.classList.add('dirty');
+  }
+
+  // Header/Title with human-friendly label
+  const labelWrapper = document.createElement('div');
+  labelWrapper.style.display = 'flex';
+  labelWrapper.style.justifyContent = 'space-between';
+  labelWrapper.style.alignItems = 'center';
+  labelWrapper.style.marginBottom = '12px';
+  labelWrapper.style.gap = '8px';
+
+  const label = document.createElement('label');
+  label.textContent = getFriendlyLabel(key);
+  label.style.fontWeight = '700';
+  label.style.color = 'var(--text-main)';
+  label.style.fontSize = '14px';
+  label.style.letterSpacing = '0.5px';
+  labelWrapper.appendChild(label);
+
+  // Technical key display (small, muted)
+  const keyDisplay = document.createElement('span');
+  keyDisplay.textContent = key;
+  keyDisplay.style.fontSize = '10px';
+  keyDisplay.style.color = 'var(--text-muted)';
+  keyDisplay.style.fontFamily = 'monospace';
+  labelWrapper.appendChild(keyDisplay);
+
+  itemDiv.appendChild(labelWrapper);
+
+  if (hasPending) {
+    const dirtyBadge = document.createElement('div');
+    dirtyBadge.className = 'dirty-badge';
+    dirtyBadge.innerHTML = '⚠️ Cambios sin guardar';
+    itemDiv.appendChild(dirtyBadge);
+  }
+
+  if (isUrl) {
+    const previewWrapper = document.createElement('div');
+    previewWrapper.className = 'inline-image-uploader';
+
+    previewWrapper.innerHTML = `
+      <div class="inline-image-preview-wrapper">
+        <img class="inline-image-preview" src="${currentVal}" id="img-preview-${key}">
+        <div class="inline-image-upload-controls">
+          <label class="btn-upload-trigger">
+            <span>📁</span> Seleccionar Imagen
+            <input type="file" accept="image/*" id="file-input-${key}">
+          </label>
+          <span style="font-size:11px; color:var(--text-muted); text-align:center;" id="file-name-${key}">Ningún archivo seleccionado</span>
+          <button class="btn-primary-admin btn-inline-upload" id="btn-upload-${key}" style="display:none; padding:8px 12px; font-size:12px; margin-top:4px; align-items:center; justify-content:center; gap:6px;">
+            🚀 Subir Imagen
+          </button>
+        </div>
+      </div>
+      <div id="upload-status-${key}" style="font-size:12px; font-weight:600; margin-top:8px;"></div>
+    `;
+
+    previewWrapper.onmouseenter = () => {
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'highlight-element',
+          key: key
+        }, '*');
+      }
+    };
+
+    previewWrapper.onmouseleave = () => {
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'clear-highlight'
+        }, '*');
+      }
+    };
+
+    previewWrapper.onclick = () => {
+      const targetTab = getPublicTabForKey(key);
+      if (targetTab) {
+        const previewIframe = document.getElementById('customizer-preview-iframe');
+        if (previewIframe && previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({
+            type: 'tab-change',
+            tabId: targetTab
+          }, '*');
+        }
+      }
+    };
+
+    itemDiv.appendChild(previewWrapper);
+
+    // Set up listeners for the file selection and upload
+    setTimeout(() => {
+      const fileInput = document.getElementById(`file-input-${key}`);
+      const fileNameSpan = document.getElementById(`file-name-${key}`);
+      const uploadBtn = document.getElementById(`btn-upload-${key}`);
+      const statusDiv = document.getElementById(`upload-status-${key}`);
+      const imgPreview = document.getElementById(`img-preview-${key}`);
+
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            fileNameSpan.textContent = file.name;
+            uploadBtn.style.display = 'inline-flex';
+
+            // Show local preview before upload
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              imgPreview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          } else {
+            fileNameSpan.textContent = 'Ningún archivo seleccionado';
+            uploadBtn.style.display = 'none';
+          }
+        });
+      }
+
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+          const file = fileInput.files[0];
+          if (!file) return;
+
+          const formData = new FormData();
+          formData.append('key', key);
+          formData.append('image', file);
+
+          statusDiv.style.color = 'var(--text-muted)';
+          statusDiv.textContent = 'Subiendo...';
+          uploadBtn.disabled = true;
+
+          try {
+            const resp = await fetch('/api/upload', {
+              method: 'POST',
+              headers: buildAuthHeaders(),
+              body: formData
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+              statusDiv.style.color = 'var(--success)';
+              statusDiv.textContent = '✅ ¡Imagen subida y guardada!';
+              uploadBtn.style.display = 'none';
+              imgPreview.src = data.url;
+
+              // Actualizar vista previa en tiempo real
+              const previewIframe = document.getElementById('customizer-preview-iframe');
+              if (previewIframe && previewIframe.contentWindow) {
+                previewIframe.contentWindow.postMessage({
+                  type: 'content-update',
+                  key: key,
+                  value: data.url,
+                  lang: activeEditLanguage
+                }, '*');
+              }
+
+              setTimeout(() => {
+                statusDiv.textContent = '';
+                loadContentEditor(document.getElementById('content-search')?.value || '');
+              }, 2000);
+            } else {
+              statusDiv.style.color = 'var(--danger)';
+              statusDiv.textContent = data.message || 'Error al subir';
+              uploadBtn.disabled = false;
+            }
+          } catch (err) {
+            statusDiv.style.color = 'var(--danger)';
+            statusDiv.textContent = 'Error de red al subir la imagen';
+            uploadBtn.disabled = false;
+          }
+        });
+      }
+    }, 0);
+
+  } else {
+    // Si el texto es cortito usar input, si es largo textarea
+    const inputType = val.length > 60 || val.includes('\\n') ? 'textarea' : 'input';
+    const field = document.createElement(inputType);
+    if (inputType === 'textarea') {
+      field.value = currentVal;
+      field.style.minHeight = '90px';
+      field.style.resize = 'vertical';
+    } else {
+      field.type = 'text';
+      field.value = currentVal;
+    }
+
+    field.style.width = '100%';
+    field.style.padding = '12px 14px';
+    field.style.border = '1px solid var(--border-color)';
+    field.style.borderRadius = '8px';
+    field.style.fontFamily = 'inherit';
+    field.style.fontSize = '14px';
+    field.style.boxSizing = 'border-box';
+    field.style.background = 'var(--bg-surface)';
+    field.style.color = 'var(--text-main)';
+    field.style.transition = 'all 0.2s ease';
+
+    field.onfocus = () => {
+      field.style.borderColor = 'var(--accent-light)';
+      field.style.background = 'var(--bg-surface)';
+      field.style.boxShadow = '0 0 0 3px var(--accent-blue-bg)';
+
+      // Auto-navegación a la pestaña pública de la vista previa
+      const targetTab = getPublicTabForKey(key);
+      if (targetTab) {
+        const previewIframe = document.getElementById('customizer-preview-iframe');
+        if (previewIframe && previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({
+            type: 'tab-change',
+            tabId: targetTab
+          }, '*');
+        }
+      }
+
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'highlight-element',
+          key: key
+        }, '*');
+      }
+    };
+
+    field.onblur = () => {
+      if (!itemDiv.classList.contains('dirty')) {
+        field.style.borderColor = 'var(--border-color)';
+      }
+      field.style.background = 'var(--bg-surface)';
+      field.style.boxShadow = 'none';
+
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'clear-highlight'
+        }, '*');
+      }
+    };
+
+    field.onmouseenter = () => {
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'highlight-element',
+          key: key
+        }, '*');
+      }
+    };
+
+    field.onmouseleave = () => {
+      // Evitar limpiar si el elemento está enfocado actualmente
+      if (document.activeElement === field) return;
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'clear-highlight'
+        }, '*');
+      }
+    };
+
+    // Live change tracking ("dirty" state)
+    const handleInput = () => {
+      const inputVal = field.value;
+      if (inputVal !== val) {
+        if (!itemDiv.classList.contains('dirty')) {
+          itemDiv.classList.add('dirty');
+          if (!itemDiv.querySelector('.dirty-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'dirty-badge';
+            badge.innerHTML = '⚠️ Cambios sin guardar';
+            itemDiv.insertBefore(badge, itemDiv.childNodes[1]);
+          }
+        }
+        pendingChanges[key] = {
+          newValue: inputVal,
+          originalValue: val,
+          fieldElement: field,
+          cardElement: itemDiv
+        };
+      } else {
+        itemDiv.classList.remove('dirty');
+        const badge = itemDiv.querySelector('.dirty-badge');
+        if (badge) badge.remove();
+        delete pendingChanges[key];
+      }
+
+      updateFloatingSaveBar();
+
+      // Actualizar vista previa en tiempo real
+      const previewIframe = document.getElementById('customizer-preview-iframe');
+      if (previewIframe && previewIframe.contentWindow) {
+        previewIframe.contentWindow.postMessage({
+          type: 'content-update',
+          key: key,
+          value: inputVal,
+          lang: activeEditLanguage
+        }, '*');
+      }
+    };
+
+    field.addEventListener('input', handleInput);
+
+    // Individual save button (as fallback or quick action)
+    const btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.alignItems = 'center';
+    btnRow.style.gap = '12px';
+    btnRow.style.marginTop = '16px';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Guardar';
+    saveBtn.className = 'btn-primary-admin';
+    saveBtn.style.width = 'auto';
+    saveBtn.style.padding = '8px 18px';
+    saveBtn.style.fontSize = '12px';
+    saveBtn.style.letterSpacing = '0.5px';
+    saveBtn.style.margin = '0';
+
+    const statusSpan = document.createElement('span');
+    statusSpan.className = 'status-span-inline';
+    statusSpan.style.fontSize = '12px';
+    statusSpan.style.fontWeight = '600';
+
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      statusSpan.textContent = 'Guardando...';
+      statusSpan.style.color = 'var(--text-muted)';
+
+      try {
+        const resp = await authFetch('/api/content/' + key, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ value: field.value, lang: activeEditLanguage })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          statusSpan.textContent = '¡Guardado!';
+          statusSpan.style.color = 'var(--success)';
+
+          itemDiv.classList.remove('dirty');
+          const badge = itemDiv.querySelector('.dirty-badge');
+          if (badge) badge.remove();
+          delete pendingChanges[key];
+
+          val = field.value;
+
+          updateFloatingSaveBar();
+          setTimeout(() => {
+            statusSpan.textContent = '';
+            saveBtn.disabled = false;
+          }, 2000);
+        } else {
+          statusSpan.textContent = data.message || 'Error';
+          statusSpan.style.color = 'var(--danger)';
+          saveBtn.disabled = false;
+        }
+      } catch (err) {
+        statusSpan.textContent = 'Error de red';
+        statusSpan.style.color = 'var(--danger)';
+        saveBtn.disabled = false;
+      }
+    });
+
+    btnRow.appendChild(saveBtn);
+    btnRow.appendChild(statusSpan);
+    itemDiv.appendChild(field);
+    itemDiv.appendChild(btnRow);
+  }
+  return itemDiv;
+}
+
+async function init() {
+  // Añadimos una keyframe rápida para animar pestañas si no existe
+  if (!document.getElementById('admin-styles-addons')) {
+    const st = document.createElement('style');
+    st.id = 'admin-styles-addons';
+    st.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }`;
+    document.head.appendChild(st);
+  }
+
+  const wrapper = document.getElementById('admin-app');
+  try {
+    const response = await authFetch('/api/auth/session');
+    const session = await response.json();
+
+    if (session.success) {
+      renderDashboard(wrapper);
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  renderLogin(wrapper);
+}
+
+let adminChatHistorial = [];
+function initAdminChat() {
+  if (document.getElementById('admin-chat-sidebar')) return;
+
+  const sidebar = document.createElement('div');
+  sidebar.id = 'admin-chat-sidebar';
+  sidebar.className = 'admin-chat-sidebar';
+  sidebar.innerHTML = `
+    <div class="admin-chat-header">
+      <h3><span>💬</span> Asistente Vitalis</h3>
+      <button class="admin-chat-close" id="btn-close-chat">&times;</button>
+    </div>
+    <div class="admin-chat-messages" id="admin-chat-messages">
+      <div class="admin-msg vitalis">¡Hola! Soy Vitalis. ¿En qué puedo ayudarte a gestionar el panel hoy?</div>
+    </div>
+    <form class="admin-chat-input-area" id="admin-chat-form">
+      <input type="text" id="admin-chat-input" placeholder="Pregunta a Vitalis..." required autocomplete="off">
+      <button type="submit" style="font-size: 1.2rem;">➤</button>
+    </form>
+  `;
+  document.body.appendChild(sidebar);
+
+  document.getElementById('btn-close-chat').addEventListener('click', () => {
+    sidebar.classList.remove('active');
+  });
+
+  document.getElementById('admin-chat-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('admin-chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = '';
+    const messagesDiv = document.getElementById('admin-chat-messages');
+
+    const userMsg = document.createElement('div');
+    userMsg.className = 'admin-msg user';
+    userMsg.textContent = msg;
+    messagesDiv.appendChild(userMsg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    const typ = document.createElement('div');
+    typ.className = 'admin-msg vitalis';
+    typ.textContent = '... Escribiendo ...';
+    messagesDiv.appendChild(typ);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mensaje: msg,
+          historial: adminChatHistorial,
+          context: 'admin'
+        })
+      });
+      const data = await resp.json();
+
+      messagesDiv.removeChild(typ);
+
+      const vMsg = document.createElement('div');
+      vMsg.className = 'admin-msg vitalis';
+      if (data.success) {
+        vMsg.textContent = data.respuesta;
+        adminChatHistorial.push({ role: 'user', content: msg });
+        adminChatHistorial.push({ role: 'assistant', content: data.respuesta });
+      } else {
+        vMsg.textContent = 'Error de conexión con Vitalis.';
+      }
+      messagesDiv.appendChild(vMsg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    } catch (err) {
+      console.error(err);
+      messagesDiv.removeChild(typ);
+      const vMsg = document.createElement('div');
+      vMsg.className = 'admin-msg vitalis';
+      vMsg.textContent = 'Hubo un error de red.';
+      messagesDiv.appendChild(vMsg);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target && (e.target.id === 'btn-toggle-chat' || e.target.closest('#btn-toggle-chat'))) {
+      sidebar.classList.add('active');
+    }
+  });
+
+  const btnreservas = document.querySelector(".btn-new-reserva");
+  btnreservas.addEventListener("click", function () {
+    const nuevaReserva = document.createElement("div");
+    nuevaReserva.className = "booking-form-wrapper";
+    nuevaReserva.innerHTML = `
+      <div class="booking-form-card">
+        <div class="booking-header">
+          <h2>Nueva Reserva</h2>
+          <button class="btn-close-booking">×</button>
+        </div>
+
+        <form id="new-booking-form" class="booking-form">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="b-date" value="2026-05-23" required>
+            </div>
+            <div class="form-group">
+              <label>Horario</label>
+              <input type="text" id="b-time" placeholder="Ej: 11:00 o 11:00, 12:00" value="11:00" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de Sala</label>
+            <select id="b-room-type" required>
+              <option value="Sala Jardín (G1)" selected>Sala Jardín (G1)</option>
+              <option value="Sala Azul (G2)">Sala Azul (G2)</option>
+              <option value="Despacho+">Despacho+</option>
+              <option value="Sala Terapia A">Sala Terapia A</option>
+              <option value="Sala Terapia B">Sala Terapia B</option>
+              <option value="Sala Comunitaria">Sala Comunitaria</option>
+            </select>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Cliente</label>
+              <input type="text" id="b-guest-name" placeholder="Nombre del Cliente" value="sergi vanrell" required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="b-guest-email" placeholder="ejemplo@correo.com" value="ergivanrellquevedo14@gmail.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" id="b-guest-phone" placeholder="600000000" value="640340072">
+          </div>
+
+          <div id="booking-error-msg" style="color: var(--danger); font-size: 14px; margin-top: 8px; display: none;"></div>
+          <button type="submit" class="btn-primary-admin" style="width:100%; margin-top:16px;">Reservar</button>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(nuevaReserva);
+
+    const btn_close_looking = nuevaReserva.querySelector(".btn-close-booking");
+    btn_close_looking.addEventListener("click", (e) => {
+      e.preventDefault();
+      nuevaReserva.remove();
+    });
+
+    const bookingForm = nuevaReserva.querySelector("#new-booking-form");
+    bookingForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fecha = document.querySelector("#b-date").value;
+      const horario = document.querySelector("#b-time").value;
+      const sala = document.querySelector("#b-room-type").value;
+      const nombre = document.querySelector("#b-guest-name").value;
+      const email = document.querySelector("#b-guest-email").value.trim();
+      const telefono = document.querySelector("#b-guest-phone").value.trim();
+
+      // Combinar email y telefono para guardarlos en "contacto"
+      let contacto = '';
+      if (email && telefono) {
+        contacto = `${email}, ${telefono}`;
+      } else if (email) {
+        contacto = email;
+      } else if (telefono) {
+        contacto = telefono;
+      }
+
+      const errorMsgDiv = document.querySelector("#booking-error-msg");
+      errorMsgDiv.style.display = "none";
+      errorMsgDiv.textContent = "";
+
+      const submitBtn = bookingForm.querySelector("button[type='submit']");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Procesando...";
+
+      try {
+        const response = await fetch('/api/reservas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombre,
+            sala,
+            fecha,
+            horario,
+            contacto,
+            estado: 'pendiente'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Cerrar modal/popup
+          nuevaReserva.remove();
+          // Recargar la lista de reservas si el contenedor está activo en pantalla
+          const mainContent = document.getElementById('admin-main-content');
+          const topbarTitle = document.getElementById('topbar-title');
+          if (topbarTitle && topbarTitle.textContent === 'Reservas') {
+            renderReservations(mainContent);
+          }
+        } else {
+          errorMsgDiv.textContent = data.error || 'Error al guardar la reserva';
+          errorMsgDiv.style.display = "block";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Reservar";
+        }
+      } catch (err) {
+        console.error(err);
+        errorMsgDiv.textContent = 'Error de conexión con el servidor';
+        errorMsgDiv.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Reservar";
+      }
+    });
+  });
+}
+
+init();

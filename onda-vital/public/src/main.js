@@ -2,6 +2,7 @@ import { h, render } from './utils.js';
 import { Header } from './components/Header.js';
 import { HomeSection } from './components/HomeSection.js';
 import { QuiropracticaSection } from './components/QuiropracticaSection.js';
+import { AboutSection } from './components/AboutSection.js';
 import { ResosenseSection } from './components/ResosenseSection.js';
 import { SalasSection } from './components/SalasSection.js';
 import { ContactoSection } from './components/ContactoSection.js';
@@ -11,27 +12,30 @@ import { siteConfig } from './config.js';
 import { i18n } from './i18n.js';
 
 function App() {
-  // Manejador de navegación global para toda la app
-  document.addEventListener('tab-change', (e) => {
-    const tabId = e.detail;
-    
-    // Cambiar visibilidad de secciones
-    document.querySelectorAll('.tab-section').forEach(sec => {
-      sec.classList.remove('active');
-      if (sec.id === tabId) sec.classList.add('active');
-    });
+  // Manejador de navegación global para toda la app, registrado solo una vez para evitar duplicación
+  if (!window.tabChangeListenerRegistered) {
+    document.addEventListener('tab-change', (e) => {
+      const tabId = e.detail;
+      
+      // Cambiar visibilidad de secciones
+      document.querySelectorAll('.tab-section').forEach(sec => {
+        sec.classList.remove('active');
+        if (sec.id === tabId) sec.classList.add('active');
+      });
 
-    // Cambiar estado activo en nav
-    document.querySelectorAll('.nav-links a').forEach(a => {
-      if (a.dataset.tab === tabId) {
-        a.classList.add('active');
-      } else {
-        a.classList.remove('active');
-      }
-    });
+      // Cambiar estado activo en nav
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        if (a.dataset.tab === tabId) {
+          a.classList.add('active');
+        } else {
+          a.classList.remove('active');
+        }
+      });
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    window.tabChangeListenerRegistered = true;
+  }
 
   const sections = [
     Header(),
@@ -39,6 +43,7 @@ function App() {
     siteConfig.features.showSalas ? SalasSection() : null,
     siteConfig.features.showQuiropractica ? QuiropracticaSection() : null,
     // Resosense ya no se renderiza como sección interna, será un link externo en el Header
+    AboutSection(),
     siteConfig.features.showContacto ? ContactoSection() : null,
     Footer(),
     ChatWidget()
@@ -70,5 +75,122 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.title = pageTitles[i18n.currentLanguage] || pageTitles.es;
   
   render(App(), document.getElementById('app'));
+});
+
+// Estilo CSS para el resaltado animado del elemento editado (Forest Green & Gold premium cycle)
+const highlightStyle = document.createElement('style');
+highlightStyle.textContent = `
+  @keyframes customizerHighlightPulse {
+    0% { outline: 3px solid hsl(158, 25%, 30%); box-shadow: 0 0 12px rgba(26, 77, 59, 0.6); }
+    50% { outline: 3px solid #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+    100% { outline: 3px solid hsl(158, 25%, 30%); box-shadow: 0 0 12px rgba(26, 77, 59, 0.6); }
+  }
+  .customizer-highlighted {
+    animation: customizerHighlightPulse 1.5s infinite ease-in-out !important;
+    outline-offset: 4px !important;
+    position: relative !important;
+    z-index: 99999 !important;
+    border-radius: 4px !important;
+    transition: outline-color 0.2s, box-shadow 0.2s !important;
+  }
+`;
+document.head.appendChild(highlightStyle);
+
+window.activeHighlightKey = null;
+
+// Algoritmo inteligente de búsqueda de elementos por clave de traducción e imagen
+function findElementByKey(key) {
+  const value = i18n.t(key);
+  if (!value) return null;
+  
+  const valStr = String(value).trim();
+  if (!valStr) return null;
+
+  // 1. Si es una imagen (logo, hero img, etc)
+  if (key.includes('img') || key.includes('logo') || key.includes('avatar') || valStr.startsWith('assets/') || valStr.includes('.png') || valStr.includes('.jpg') || valStr.includes('.jpeg')) {
+    const imgs = document.querySelectorAll('img');
+    for (const img of imgs) {
+      const src = img.getAttribute('src');
+      if (src && (src === valStr || valStr.endsWith(src) || src.endsWith(valStr))) {
+        return img;
+      }
+    }
+  }
+
+  // 2. Si es un texto, buscar el nodo hoja más específico que lo contenga
+  const tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'span', 'li', 'button', 'div', 'label'];
+  let candidates = [];
+  for (const tag of tags) {
+    const els = document.querySelectorAll(tag);
+    for (const el of els) {
+      if (el.children.length > 0 && tag === 'div') continue; // Evitar div contenedores grandes
+      const text = el.textContent ? el.textContent.trim() : '';
+      if (text === valStr || (valStr.length > 8 && text.includes(valStr))) {
+        candidates.push(el);
+      }
+    }
+  }
+
+  if (candidates.length > 0) {
+    // Escoger el que tenga la menor longitud total de texto (el más específico)
+    candidates.sort((a, b) => (a.textContent || '').length - (b.textContent || '').length);
+    return candidates[0];
+  }
+  return null;
+}
+
+// Re-aplica el resaltado tras una actualización del DOM reactivo
+function reapplyHighlight() {
+  if (!window.activeHighlightKey) return;
+  document.querySelectorAll('.customizer-highlighted').forEach(el => el.classList.remove('customizer-highlighted'));
+  const el = findElementByKey(window.activeHighlightKey);
+  if (el) {
+    el.classList.add('customizer-highlighted');
+  }
+}
+
+// Oyente de mensajes para el WordPress-Style Live Visual Customizer
+window.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'content-update') {
+    const { key, value, lang } = event.data;
+    const targetLang = lang || 'es';
+    
+    if (!i18n.siteContent[targetLang]) {
+      i18n.siteContent[targetLang] = {};
+    }
+    
+    // Actualizar el valor localmente
+    i18n.siteContent[targetLang][key] = value;
+    
+    // Actualizar el objeto global por retrocompatibilidad
+    if (targetLang === i18n.currentLanguage) {
+      window.siteContent = i18n.siteContent[targetLang];
+    }
+    
+    // Re-render reactivo e instantáneo
+    const appContainer = document.getElementById('app');
+    if (appContainer) {
+      render(App(), appContainer);
+      reapplyHighlight();
+    }
+  } else if (event.data && event.data.type === 'tab-change') {
+    const { tabId } = event.data;
+    document.dispatchEvent(new CustomEvent('tab-change', { detail: tabId }));
+  } else if (event.data && event.data.type === 'highlight-element') {
+    const { key } = event.data;
+    window.activeHighlightKey = key;
+    
+    // Limpiar cualquier resaltado previo
+    document.querySelectorAll('.customizer-highlighted').forEach(el => el.classList.remove('customizer-highlighted'));
+    
+    const el = findElementByKey(key);
+    if (el) {
+      el.classList.add('customizer-highlighted');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  } else if (event.data && event.data.type === 'clear-highlight') {
+    window.activeHighlightKey = null;
+    document.querySelectorAll('.customizer-highlighted').forEach(el => el.classList.remove('customizer-highlighted'));
+  }
 });
 

@@ -311,9 +311,10 @@ function SalaCard(sala) {
       )
     ),
     h('div', { className: 'sala-info' },
-      h('h3', {}, i18n.t(roomKey + '_nombre') || sala.nombre),
+      h('h3', {}, (i18n.currentLanguage === 'es' ? sala.nombre : null) || i18n.t(roomKey + '_nombre') || sala.nombre),
       h('p', { className: 'sala-capacity' }, 
-        (i18n.t(roomKey + '_capacidad') || sala.capacidad) + ' | ' + (i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
+        ((i18n.currentLanguage === 'es' ? sala.capacidad : null) || i18n.t(roomKey + '_capacidad') || sala.capacidad) + ' | ' + 
+        ((i18n.currentLanguage === 'es' ? sala.dimensiones : null) || i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
       ),
       h('div', { className: 'card-footer' },
         h('span', { className: 'learn-more' }, i18n.t('salas_more')),
@@ -381,15 +382,24 @@ function SalaModal(sala) {
       h('div', { className: 'sala-modal-content' },
         h('div', { className: 'sala-modal-info' },
           h('div', { className: 'modal-header-text' },
-            h('h2', {}, i18n.t(roomKey + '_nombre') || sala.nombre),
-            h('p', { className: 'modal-dims' }, i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
+            h('h2', {}, (i18n.currentLanguage === 'es' ? sala.nombre : null) || i18n.t(roomKey + '_nombre') || sala.nombre),
+            h('p', { className: 'modal-dims' }, (i18n.currentLanguage === 'es' ? sala.dimensiones : null) || i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
           ),
-          h('p', { className: 'modal-desc' }, i18n.t(roomKey + '_desc') || sala.descripcionLarga || i18n.t('salas_no_desc')),
+          h('p', { className: 'modal-desc' }, 
+            (i18n.currentLanguage === 'es' ? sala.descripcionLarga : null) || 
+            i18n.t(roomKey + '_desc') || 
+            sala.descripcionLarga || 
+            i18n.t('salas_no_desc')
+          ),
           
           h('div', { className: 'sala-features' },
             h('h4', { style: { marginBottom: '1rem', color: 'hsl(var(--color-primary))'} }, i18n.t('salas_equip_title')),
             h('ul', { className: 'features-list' },
-              (i18n.t(roomKey + '_equipo') || (sala.equipamiento && sala.equipamiento.join(', ')) || '').split(',').map(f => f.trim()).filter(Boolean).map(f => h('li', {}, f))
+              ((i18n.currentLanguage === 'es' ? (sala.equipamiento && sala.equipamiento.join(', ')) : null) || i18n.t(roomKey + '_equipo') || (sala.equipamiento && sala.equipamiento.join(', ')) || '')
+                .split(',')
+                .map(f => f.trim())
+                .filter(Boolean)
+                .map(f => h('li', {}, f))
             )
           )
         ),

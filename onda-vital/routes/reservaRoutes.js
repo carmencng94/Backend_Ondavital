@@ -49,7 +49,7 @@ router.post('/webhook/calendar', async (req, res) => {
 });
 
 // Ruta para calcular disponibilidad global de un día
-router.get('/dia', bookingLimiter, async (req, res) => {
+router.get('/dia', async (req, res) => {
   try {
     const { fecha } = req.query;
     if (!fecha) {
@@ -63,7 +63,7 @@ router.get('/dia', bookingLimiter, async (req, res) => {
 });
 
 // Ruta para calcular disponibilidad en slots PropTech
-router.get('/disponibilidad', bookingLimiter, async (req, res) => {
+router.get('/disponibilidad', async (req, res) => {
   try {
     const { salaId, fecha } = req.query;
     if (!salaId || !fecha) {

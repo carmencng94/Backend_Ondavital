@@ -38,6 +38,8 @@ const staticTranslations = {
     home_hero_sub: 'Tu evento o terapia en el mejor entorno de Onda Vital',
     home_glass_1: 'Alquiler de salas equipadas y gestionadas para tu éxito.',
     home_glass_2: 'Encuentra el lugar perfecto para tu propósito.',
+    home_glass_p1: 'Tu cuerpo tiene una capacidad innata de mantenerse sano',
+    home_glass_p2: 'Estamos aquí para ayudarte a recuperarla.',
     home_ai_title: 'Reserva Directa con IA',
     home_ai_desc: 'Indica qué sala necesitas y cuándo, yo me encargo del resto.',
     home_ai_placeholder: 'Ej: Quiero reservar la Sala Jardín para el lunes...',
@@ -219,6 +221,8 @@ const staticTranslations = {
     home_hero_sub: 'Your event or therapy in the best Onda Vital setting',
     home_glass_1: 'Equipped and managed room rental for your success.',
     home_glass_2: 'Find the perfect place for your purpose.',
+    home_glass_p1: 'Your body has an innate ability to stay healthy',
+    home_glass_p2: 'We are here to help you regain it.',
     home_ai_title: 'Direct AI Booking',
     home_ai_desc: 'Tell me which room you need and when — I\'ll handle the rest.',
     home_ai_placeholder: 'E.g.: I want to book the Garden Room for Monday...',
@@ -400,6 +404,8 @@ const staticTranslations = {
     home_hero_sub: 'Ihre Veranstaltung oder Therapie im besten Ambiente von Onda Vital',
     home_glass_1: 'Ausgestattete und verwaltete Raumvermietung für Ihren Erfolg.',
     home_glass_2: 'Finden Sie den perfekten Ort für Ihr Vorhaben.',
+    home_glass_p1: 'Ihr Körper hat eine angeborene Fähigkeit, gesund zu bleiben',
+    home_glass_p2: 'Wir sind hier, um Ihnen zu helfen, sie wiederzuerlangen.',
     home_ai_title: 'Direkte KI-Buchung',
     home_ai_desc: 'Sagen Sie mir, welchen Raum Sie brauchen und wann — ich erledige den Rest.',
     home_ai_placeholder: 'z.B.: Ich möchte den Gartensaal für Montag buchen...',
@@ -581,6 +587,8 @@ const staticTranslations = {
     home_hero_sub: 'El teu event o teràpia en el millor entorn d\'Onda Vital',
     home_glass_1: 'Lloguer de sales equipades i gestionades per al teu èxit.',
     home_glass_2: 'Troba el lloc perfecte per al teu propòsit.',
+    home_glass_p1: 'El teu cos té una capacitat innata de mantenir-se sa',
+    home_glass_p2: 'Som aquí para ajudar-te a recuperar-la.',
     home_ai_title: 'Reserva Directa amb IA',
     home_ai_desc: 'Indica quina sala necessites i quan, jo m\'encarrego de la resta.',
     home_ai_placeholder: 'Ex: Vull reservar la Sala Jardí per dilluns...',
@@ -778,13 +786,13 @@ class I18nManager {
   }
 
   t(key) {
-    // 1. Prioritize static current language (Hardcoded fixes)
-    if (staticTranslations[this.currentLanguage] && staticTranslations[this.currentLanguage][key]) {
-      return staticTranslations[this.currentLanguage][key];
-    }
-    // 2. Exact current language match dynamically (DB)
+    // 1. Exact current language match dynamically (DB) [PRIORITIZED]
     if (this.siteContent[this.currentLanguage] && this.siteContent[this.currentLanguage][key]) {
       return this.siteContent[this.currentLanguage][key];
+    }
+    // 2. Prioritize static current language (Hardcoded fixes - Fallback)
+    if (staticTranslations[this.currentLanguage] && staticTranslations[this.currentLanguage][key]) {
+      return staticTranslations[this.currentLanguage][key];
     }
     // 3. Fallback to original DB (ES)
     if (this.siteContent[DEFAULT_LANGUAGE] && this.siteContent[DEFAULT_LANGUAGE][key]) {

@@ -6,7 +6,7 @@ const router = express.Router();
 const SalaModel = require('../models/SalaModel');
 
 router.get('/', (req, res) => {
-  // Función pura
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   const salas = SalaModel.obtenerTodas();
   res.json({ success: true, salas });
 });

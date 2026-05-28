@@ -173,7 +173,7 @@ const planesStyles = `
   justify-content: center;
   gap: 12px;
   padding: 16px 40px;
-  background: linear-gradient(135deg, hsl(var(--color-primary)) 0%, hsl(var(--color-primary-dark)) 100%);
+  background: linear-gradient(135deg, hsl(var(--color-primary)) 0%, hsl(var(--color-primary-hover)) 100%);
   color: white;
   border: none;
   border-radius: var(--radius-full);
@@ -188,7 +188,7 @@ const planesStyles = `
 .btn-planes-cta:hover {
   transform: translateY(-3px) scale(1.02);
   box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-  background: linear-gradient(135deg, hsl(var(--color-primary-dark)) 0%, hsl(var(--color-primary)) 100%);
+  background: linear-gradient(135deg, hsl(var(--color-primary-hover)) 0%, hsl(var(--color-primary)) 100%);
 }
 
 .btn-planes-cta svg {
