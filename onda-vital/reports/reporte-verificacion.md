@@ -1,16 +1,16 @@
 # Reporte de Verificación Lingüística y Traducciones
-Generado el **26/5/2026** por el Agente de Verificación de Onda Vital.
+Generado el **1/6/2026** por el Agente de Verificación de Onda Vital.
 
 ### Resumen Ejecutivo
-- **Claves en Base de Datos:** 133 (Faltan EN: 107, DE: 107, CA: 107)
-- **Etiquetas Estáticas en i18n.js:** 163 (Faltan EN: 0, DE: 0, CA: 0)
-- **Total Inconsistencias de Diccionario:** 348
+- **Claves en Base de Datos:** 137 (Faltan EN: 0, DE: 0, CA: 0)
+- **Etiquetas Estáticas en i18n.js:** 168 (Faltan EN: 0, DE: 0, CA: 0)
+- **Total Inconsistencias de Diccionario:** 27
 
 ### Cobertura en Navegador Real (Playwright)
-- **[ES]**: **55%** cobertura (565/1025 textos correctos). Fugas: 0, Hardcodeados: 38
-- **[EN]**: **54%** cobertura (550/1025 textos correctos). Fugas: 0, Hardcodeados: 42
-- **[DE]**: **55%** cobertura (565/1025 textos correctos). Fugas: 0, Hardcodeados: 39
-- **[CA]**: **49%** cobertura (505/1025 textos correctos). Fugas: 0, Hardcodeados: 50
+- **[ES]**: **59%** cobertura (665/1125 textos correctos). Fugas: 0, Hardcodeados: 38
+- **[EN]**: **59%** cobertura (660/1125 textos correctos). Fugas: 0, Hardcodeados: 39
+- **[DE]**: **59%** cobertura (665/1125 textos correctos). Fugas: 0, Hardcodeados: 38
+- **[CA]**: **57%** cobertura (640/1125 textos correctos). Fugas: 0, Hardcodeados: 42
 
 ### Textos Hardcodeados Detectados
 | Idioma | Texto | Elemento Selector |
@@ -58,11 +58,8 @@ Generado el **26/5/2026** por el Agente de Verificación de Onda Vital.
 | EN | "10 people (floor) / 25 people (chairs) | 8.5 x 4.5 m (32 m²)" | `p.sala-capacity` |
 | EN | "Up to 10 massage tables / 30 seated people | 6.5 x 5 m (32 m²)" | `p.sala-capacity` |
 | EN | "Individual consultations / Up to 8 people for talks | 4.1 x 3.2 m" | `p.sala-capacity` |
-| EN | "Capacity 1-3 people (1 stretcher) | 3 X 2.5 meters" | `p.sala-capacity` |
-| EN | "Capacity 1-3 people (1 stretcher) | 7.5 square meters" | `p.sala-capacity` |
-| EN | "Common area with terrace | Networking and rest" | `p.sala-capacity` |
-| EN | "You don't have to be unwell to get better!" | `p.subtitle` |
-| EN | "Chiropractic is a recognized healthcare profession in most developed countries in the world. It is about improving the body's ability to heal itself and stay healthy." | `p` |
+| EN | "1-3 people | 3×2.5 m (7.5 m²)" | `p.sala-capacity` |
+| EN | "Rest and networking | Common area with terrace" | `p.sala-capacity` |
 | EN | "Sobre Nosotros" | `a` |
 | EN | "EN" | `span.lang-flag-fallback` |
 | EN | "ES" | `span.lang-flag-fallback` |
@@ -99,9 +96,8 @@ Generado el **26/5/2026** por el Agente de Verificación de Onda Vital.
 | DE | "10 Personen (Boden) / 25 Personen (Stühle) | 8.5 x 4.5 m (32 m²)" | `p.sala-capacity` |
 | DE | "Bis zu 10 Behandlungstische / 30 sitzende Personen | 6.5 x 5 m (32 m²)" | `p.sala-capacity` |
 | DE | "Einzelberatungen / Bis zu 8 Personen für Vorträge | 4.1 x 3.2 m" | `p.sala-capacity` |
-| DE | "Kapazität 1-3 Personen (1 Liege) | 3 X 2,5 Meter" | `p.sala-capacity` |
-| DE | "Kapazität 1-3 Personen (1 Liege) | 7,5 Quadratmeter" | `p.sala-capacity` |
-| DE | "Gemeinschaftsbereich mit Terasse | Networking und Erholung" | `p.sala-capacity` |
+| DE | "1-3 Personen | 3×2.5 m (7.5 m²)" | `p.sala-capacity` |
+| DE | "Ruhe und Networking | Gemeinschaftsbereich mit Terrasse" | `p.sala-capacity` |
 | DE | "Sobre Nosotros" | `a` |
 | DE | "DE" | `span.lang-flag-fallback` |
 | DE | "ES" | `span.lang-flag-fallback` |
@@ -138,19 +134,12 @@ Generado el **26/5/2026** por el Agente de Verificación de Onda Vital.
 | CA | "Contacta'ns" | `h2` |
 | CA | "⚠️ Condicions Importants" | `h4` |
 | CA | "Horari d'informació:" | `h4` |
-| CA | "El teu event o teràpia en el millor entorn d'Onda Vital" | `p.hero-subtitle` |
 | CA | "Indica quina sala necessites i quan, jo m'encarrego de la resta." | `p` |
-| CA | "La vida diària està plena de fonts d'estrès que interfereixen amb el teu benestar:" | `p` |
 | CA | "10 persones (terra) / 25 persones (cadires) | 8.5 x 4.5 m (32 m²)" | `p.sala-capacity` |
 | CA | "Fins a 10 camilles / 30 persones assegudes | 6.5 x 5 m (32 m²)" | `p.sala-capacity` |
 | CA | "Consultes individuals / Fins a 8 persones per a xerrades | 4.1 x 3.2 m" | `p.sala-capacity` |
-| CA | "Capacitat 1-3 persones (1 llitera) | 3 X 2,5 metres" | `p.sala-capacity` |
-| CA | "Capacitat 1-3 persones (1 llitera) | 7,5 metres quadrats" | `p.sala-capacity` |
-| CA | "Àrea comuna amb terrassa | Networking i descans" | `p.sala-capacity` |
-| CA | "La Quiropràctica Integral que utilitzem a Onda Vital es basa en un conjunt de mètodes. Combina tècniques físiques/energètiques amb l'ensenyament de pràctiques personals que empoderen el client a prendre un paper més actiu en la seva pròpia millora." | `p` |
-| CA | "Per començar amb nosaltres, fem una avaluació inicial en dues visites. Així podem entendre bé tant els problemes com les metes de cada client per maximitzar l'èxit del seu tractament." | `p` |
-| CA | "Truca'ns per concertar una cita d'avaluació" | `p` |
-| CA | "David - Coordinador d'Espais" | `p` |
+| CA | "1-3 persones | 3×2.5 m (7.5 m²)" | `p.sala-capacity` |
+| CA | "Descans i networking | Zona comuna amb terrassa" | `p.sala-capacity` |
 | CA | "Sobre Nosotros" | `a` |
 | CA | "CA" | `span.lang-flag-fallback` |
 | CA | "ES" | `span.lang-flag-fallback` |
@@ -183,4 +172,3 @@ Generado el **26/5/2026** por el Agente de Verificación de Onda Vital.
 | CA | "165 €/mes" | `span.plan-amount` |
 | CA | "Escribir a David por WhatsApp" | `span` |
 | CA | "WhatsApp David" | `span` |
-| CA | "Alleujar el dolor, nerviosisme i símptomes d'estrès" | `li` |

@@ -309,11 +309,11 @@ export function HomeSection() {
     h('div', { className: 'hero-sea' },
       h('div', { className: 'hero-overlay' }),
       h('div', { className: 'hero-content container' },
-        h('h1', { className: 'hero-main-title' }, i18n.t('home_hero_main')),
-        h('p', { className: 'hero-subtitle' }, i18n.t('home_hero_sub')),
+        h('h1', { className: 'hero-main-title', 'data-i18n-key': 'home_hero_main' }, i18n.t('home_hero_main')),
+        h('p', { className: 'hero-subtitle', 'data-i18n-key': 'home_hero_sub' }, i18n.t('home_hero_sub')),
         h('div', { className: 'hero-glass-card' },
-          h('p', {}, i18n.t('home_glass_1')),
-          h('p', { style: { marginTop: '10px' } }, i18n.t('home_glass_2'))
+          h('p', { 'data-i18n-key': 'home_glass_1' }, i18n.t('home_glass_1')),
+          h('p', { style: { marginTop: '10px' }, 'data-i18n-key': 'home_glass_2' }, i18n.t('home_glass_2'))
         )
       )
     ),
@@ -371,14 +371,14 @@ export function HomeSection() {
     h('div', { className: 'container mission-focus' },
       h('div', { className: 'mission-grid' },
         h('div', { className: 'mission-text' },
-          h('h2', {}, i18n.t('home_intro_title')),
-          h('p', {}, i18n.t('home_intro_desc')),
+          h('h2', { 'data-i18n-key': 'home_intro_title' }, i18n.t('home_intro_title')),
+          h('p', { 'data-i18n-key': 'home_intro_desc' }, i18n.t('home_intro_desc')),
           h('ul', { className: 'stress-list' },
-            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_1')),
-            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_2')),
-            h('li', {}, h('span', { className: 'dot' }), i18n.t('home_stress_3'))
+            h('li', { 'data-i18n-key': 'home_stress_1' }, h('span', { className: 'dot' }), i18n.t('home_stress_1')),
+            h('li', { 'data-i18n-key': 'home_stress_2' }, h('span', { className: 'dot' }), i18n.t('home_stress_2')),
+            h('li', { 'data-i18n-key': 'home_stress_3' }, h('span', { className: 'dot' }), i18n.t('home_stress_3'))
           ),
-          h('p', { className: 'consequence' }, i18n.t('home_stress_conc'))
+          h('p', { className: 'consequence', 'data-i18n-key': 'home_stress_conc' }, i18n.t('home_stress_conc'))
         ),
         h('div', { className: 'mission-visual' },
           h('div', { className: 'focus-circle' },
@@ -399,14 +399,15 @@ export function HomeSection() {
     h('div', { className: 'full-cta-section' },
       h('div', { className: 'container' },
         h('div', { className: 'cta-inner' },
-          h('h2', {}, i18n.t('home_cta_title_alt')),
-          h('p', {}, i18n.t('home_cta_desc_alt')),
+          h('h2', { 'data-i18n-key': 'home_cta_title_alt' }, i18n.t('home_cta_title_alt')),
+          h('p', { 'data-i18n-key': 'home_cta_desc_alt' }, i18n.t('home_cta_desc_alt')),
           h('div', { className: 'line-divider' }),
           h('a', { 
             href: siteConfig.urls.deawakening, 
             target: '_blank',
             className: 'final-tagline',
-            style: { textDecoration: 'none', display: 'block', cursor: 'pointer' }
+            style: { textDecoration: 'none', display: 'block', cursor: 'pointer' },
+            'data-i18n-key': 'home_cta_deawakening'
           }, i18n.t('home_cta_deawakening'))
         )
       )

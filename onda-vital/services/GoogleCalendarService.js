@@ -23,7 +23,7 @@ class GoogleCalendarService {
 
   /**
    * Crea un evento en Google Calendar basado en una reserva.
-   * @param {Object} reserva - { nombre, sala, fecha, horario }
+   * @param {Object} reserva - { id, nombre, sala, fecha, horario }
    */
   async crearEvento(reserva) {
     try {
@@ -59,6 +59,12 @@ class GoogleCalendarService {
           dateTime: endTime,
           timeZone: 'Europe/Madrid',
         },
+        extendedProperties: {
+          private: {
+            origin: 'ondavital',
+            reservaId: reserva.id || ''
+          }
+        }
       };
 
       const response = await this.calendar.events.insert({
@@ -72,6 +78,95 @@ class GoogleCalendarService {
       console.error('Error al crear evento en Google Calendar:', error.message);
       // No lanzamos el error para no bloquear la reserva local si falla Google
       return null;
+    }
+  }
+
+  /**
+   * Actualiza un evento existente en Google Calendar.
+   * @param {string} eventId - ID del evento a actualizar
+   * @param {Object} reserva - { id, nombre, sala, fecha, horario }
+   */
+  async actualizarEvento(eventId, reserva) {
+    try {
+      if (!this.calendarId) {
+        console.warn('Google Calendar ID no configurado en .env. Saltando actualización.');
+        return null;
+      }
+      if (!eventId) {
+        console.warn('No se proporcionó un eventId para actualizar en Google Calendar.');
+        return null;
+      }
+
+      const slots = reserva.horario.split(',').map(s => s.trim()).sort((a, b) => {
+        return parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]);
+      });
+      const firstSlot = slots[0];
+      const lastSlot = slots[slots.length - 1];
+
+      const startTime = `${reserva.fecha}T${firstSlot.padStart(5, '0')}:00`;
+      const [horas, minutos] = lastSlot.split(':').map(Number);
+      const finHoras = (horas + 1).toString().padStart(2, '0');
+      const endTime = `${reserva.fecha}T${finHoras}:${minutos.toString().padStart(2, '0')}:00`;
+
+      const event = {
+        summary: `Reserva: ${reserva.sala} - ${reserva.nombre}`,
+        location: `Onda Vital - ${reserva.sala}`,
+        description: `Reserva creada automáticamente para ${reserva.nombre}.\nContacto: ${reserva.contacto_real || 'No especificado (o encriptado localmente)'}`,
+        start: {
+          dateTime: startTime,
+          timeZone: 'Europe/Madrid', 
+        },
+        end: {
+          dateTime: endTime,
+          timeZone: 'Europe/Madrid',
+        },
+        extendedProperties: {
+          private: {
+            origin: 'ondavital',
+            reservaId: reserva.id || ''
+          }
+        }
+      };
+
+      const response = await this.calendar.events.update({
+        calendarId: this.calendarId,
+        eventId: eventId,
+        resource: event,
+      });
+
+      console.log(`Evento ${eventId} actualizado en Google Calendar con éxito.`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error al actualizar evento ${eventId} en Google Calendar:`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Elimina un evento de Google Calendar.
+   * @param {string} eventId - ID del evento a eliminar
+   */
+  async eliminarEvento(eventId) {
+    try {
+      if (!this.calendarId) {
+        console.warn('Google Calendar ID no configurado en .env. Saltando eliminación.');
+        return false;
+      }
+      if (!eventId) {
+        console.warn('No se proporcionó un eventId para eliminar de Google Calendar.');
+        return false;
+      }
+
+      await this.calendar.events.delete({
+        calendarId: this.calendarId,
+        eventId: eventId,
+      });
+
+      console.log(`Evento ${eventId} de Google Calendar eliminado con éxito.`);
+      return true;
+    } catch (error) {
+      console.error(`Error al eliminar evento ${eventId} de Google Calendar:`, error.message);
+      return false;
     }
   }
 

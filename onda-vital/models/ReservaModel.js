@@ -27,13 +27,32 @@ db.exec(`
   )
 `);
 
-// Migración: Asegurarse de que la columna 'estado' existe para bases de datos ya creadas
+// Migración: Asegurarse de que las columnas necesarias existen para bases de datos ya creadas
 try {
   const tableInfo = db.pragma('table_info(reservas)');
+  
   const hasEstado = tableInfo.some(col => col.name === 'estado');
   if (!hasEstado) {
     db.exec("ALTER TABLE reservas ADD COLUMN estado TEXT NOT NULL DEFAULT 'pendiente'");
     console.log("Migración: Columna 'estado' añadida a la tabla 'reservas'.");
+  }
+
+  const hasGoogleEventId = tableInfo.some(col => col.name === 'google_event_id');
+  if (!hasGoogleEventId) {
+    db.exec("ALTER TABLE reservas ADD COLUMN google_event_id TEXT");
+    console.log("Migración: Columna 'google_event_id' añadida a la tabla 'reservas'.");
+  }
+
+  const hasSyncStatus = tableInfo.some(col => col.name === 'sync_status');
+  if (!hasSyncStatus) {
+    db.exec("ALTER TABLE reservas ADD COLUMN sync_status TEXT NOT NULL DEFAULT 'local'");
+    console.log("Migración: Columna 'sync_status' añadida a la tabla 'reservas'.");
+  }
+
+  const hasPrecio = tableInfo.some(col => col.name === 'precio');
+  if (!hasPrecio) {
+    db.exec("ALTER TABLE reservas ADD COLUMN precio REAL DEFAULT 0");
+    console.log("Migración: Columna 'precio' añadida a la tabla 'reservas'.");
   }
 } catch (error) {
   console.error("Error durante la migración de la base de datos:", error.message);
@@ -61,7 +80,8 @@ class ReservaModel {
       horario: reservaData.horario,
       contacto: encryptData(reservaData.contacto || ''),
       estado: 'pendiente',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      precio: reservaData.precio || 0
     };
     
     // Primero verificamos si la columna contacto existe (migración rápida si no)
@@ -71,7 +91,7 @@ class ReservaModel {
       // Ignorar si ya existe
     }
 
-    const stmt = db.prepare('INSERT INTO reservas (id, nombre, sala, fecha, horario, contacto, estado, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    const stmt = db.prepare('INSERT INTO reservas (id, nombre, sala, fecha, horario, contacto, estado, createdAt, precio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
     stmt.run(
       nuevaReserva.id, 
       nuevaReserva.nombre, 
@@ -80,7 +100,8 @@ class ReservaModel {
       nuevaReserva.horario, 
       nuevaReserva.contacto,
       nuevaReserva.estado,
-      nuevaReserva.createdAt
+      nuevaReserva.createdAt,
+      nuevaReserva.precio
     );
     
     return nuevaReserva;
@@ -92,6 +113,22 @@ class ReservaModel {
   static actualizarEstado(id, nuevoEstado) {
     const stmt = db.prepare('UPDATE reservas SET estado = ? WHERE id = ?');
     return stmt.run(nuevoEstado, id);
+  }
+
+  /**
+   * Vincula una reserva local con su evento creado en Google Calendar.
+   */
+  static vincularEventoCalendar(id, eventId, syncStatus = 'synced') {
+    const stmt = db.prepare('UPDATE reservas SET google_event_id = ?, sync_status = ? WHERE id = ?');
+    return stmt.run(eventId, syncStatus, id);
+  }
+
+  /**
+   * Actualiza la fecha y el horario de una reserva a partir de los datos del calendario.
+   */
+  static reprogramarReserva(id, nuevaFecha, nuevoHorario) {
+    const stmt = db.prepare('UPDATE reservas SET fecha = ?, horario = ?, sync_status = ? WHERE id = ?');
+    return stmt.run(nuevaFecha, nuevoHorario, 'synced', id);
   }
 
   /**
@@ -108,6 +145,27 @@ class ReservaModel {
   static obtenerTodas() {
     const stmt = db.prepare('SELECT * FROM reservas ORDER BY createdAt DESC');
     return stmt.all();
+  }
+
+  /**
+   * Obtiene las reservas asociadas a un conjunto específico de fechas.
+   * @param {string[]} fechasArray - Array de fechas en formato AAAA-MM-DD
+   */
+  static obtenerPorFechas(fechasArray) {
+    if (!fechasArray || fechasArray.length === 0) return [];
+    const placeholders = fechasArray.map(() => '?').join(',');
+    const stmt = db.prepare(`SELECT * FROM reservas WHERE fecha IN (${placeholders}) ORDER BY createdAt DESC`);
+    return stmt.all(...fechasArray);
+  }
+
+  /**
+   * Obtiene las reservas en un rango de fechas inclusive.
+   * @param {string} fechaInicio - Fecha de inicio en formato AAAA-MM-DD
+   * @param {string} fechaFin - Fecha de fin en formato AAAA-MM-DD
+   */
+  static obtenerPorRangoFechas(fechaInicio, fechaFin) {
+    const stmt = db.prepare('SELECT * FROM reservas WHERE fecha >= ? AND fecha <= ? ORDER BY createdAt DESC');
+    return stmt.all(fechaInicio, fechaFin);
   }
 
   /**

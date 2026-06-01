@@ -1480,6 +1480,9 @@ body.admin-body {
   border-radius: var(--radius-xl);
   width: 92%;
   max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
   padding: 32px;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
   transform: translateY(30px) scale(0.96);
@@ -1611,6 +1614,7 @@ body.admin-body {
 .admin-main::-webkit-scrollbar,
 .customizer-panel::-webkit-scrollbar,
 .admin-chat-messages::-webkit-scrollbar,
+.booking-form-card::-webkit-scrollbar,
 body.admin-body::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -1619,6 +1623,7 @@ body.admin-body::-webkit-scrollbar {
 .admin-main::-webkit-scrollbar-track,
 .customizer-panel::-webkit-scrollbar-track,
 .admin-chat-messages::-webkit-scrollbar-track,
+.booking-form-card::-webkit-scrollbar-track,
 body.admin-body::-webkit-scrollbar-track {
   background: var(--bg-dark);
 }
@@ -1626,6 +1631,7 @@ body.admin-body::-webkit-scrollbar-track {
 .admin-main::-webkit-scrollbar-thumb,
 .customizer-panel::-webkit-scrollbar-thumb,
 .admin-chat-messages::-webkit-scrollbar-thumb,
+.booking-form-card::-webkit-scrollbar-thumb,
 body.admin-body::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 9999px;
@@ -1636,6 +1642,7 @@ body.admin-body::-webkit-scrollbar-thumb {
 .admin-main::-webkit-scrollbar-thumb:hover,
 .customizer-panel::-webkit-scrollbar-thumb:hover,
 .admin-chat-messages::-webkit-scrollbar-thumb:hover,
+.booking-form-card::-webkit-scrollbar-thumb:hover,
 body.admin-body::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
   border: 2px solid var(--bg-dark);
@@ -1680,4 +1687,54 @@ body.admin-body::-webkit-scrollbar-thumb:hover {
   content: '✦';
   color: var(--warning);
   font-size: 1.1rem;
+}
+
+/* Slots Grid inside booking form */
+.admin-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-time-slot {
+  padding: 10px 6px;
+  text-align: center;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-family: monospace;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.admin-time-slot.free {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.admin-time-slot.free:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: var(--success);
+  transform: translateY(-1px);
+}
+
+.admin-time-slot.busy {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+  border-color: var(--border-color);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.admin-time-slot.selected {
+  background: var(--accent) !important;
+  color: white !important;
+  border-color: var(--accent-light) !important;
+  transform: scale(1.04);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
 }

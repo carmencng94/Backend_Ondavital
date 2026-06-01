@@ -101,9 +101,13 @@ try {
       'reso_training_prof': 'También existen formaciones profesionales para terapeutas interesados en compartir Resosense con sus clientes.',
       'reso_banner_text': 'Descubre la frecuencia fundamental de tu bienestar.',
 
-      // --- SOBRE NOSOTROS (ABOUT) ---
-      'about_title': 'Mereces disfrutar de tu vida',
-      'about_desc': 'Venir a Onda Vital es regalarte un tiempo para ti. Un espacio para sentir y tomar la mejor decisión para tu salud y tu vida.',
+      'about_title': 'Tu bienestar es el camino de vuelta a ti',
+      'about_desc': 'Onda Vital nace como un santuario de calma en plena ciudad, un espacio dedicado a recordarte que mereces vivir con plenitud. A través de la quiropráctica suave (NSA), talleres conscientes y terapias integrativas, te acompañamos a restaurar tu equilibrio natural y reconectar con la sabiduría de tu cuerpo. Además, abrimos nuestras puertas a la comunidad ofreciendo el alquiler de salas polivalentes inspiradoras, ideales para terapeutas y facilitadores que deseen compartir sus clases, talleres o eventos de crecimiento personal en un entorno armónico. Regálate el tiempo para respirar, sentir y florecer.',
+      'about_desc_1': 'A través de la quiropráctica suave (NSA), te acompañamos a liberar la tensión acumulada, restaurar tu equilibrio natural y reconectar con la sabiduría profunda de tu cuerpo. Un espacio idóneo para recuperar tu energía y vitalidad.',
+      'about_desc_2': 'Abrimos nuestras puertas a la comunidad ofreciendo el alquiler de salas polivalentes inspiradoras, ideales para terapeutas y facilitadores que deseen compartir sus clases, talleres o eventos de crecimiento personal en un entorno armónico. Diseñados con luz natural y suelo de madera para tu total comodidad.',
+      'about_img_label_1': 'Sala Jardín 🌿',
+      'about_img_label_2': 'Quiropráctica Suave ✨',
+      'about_img_label_3': 'Sala Azul 🧘',
       'about_quiro_title': 'Horario de Quiropráctica',
       'about_salas_title': 'Contacto Salas',
       'about_salas_coordinator': 'David - Coordinador de Espacios',

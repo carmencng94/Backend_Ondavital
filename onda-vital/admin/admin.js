@@ -172,9 +172,9 @@ function renderContentManager(container) {
         <div class="language-selector-bar" style="display:flex; gap:8px; margin-bottom:16px; align-items:center; background:#f3f4f6; padding:8px 12px; border-radius:8px; border:1px solid rgba(0,0,0,0.1);">
           <span style="font-size:12px; font-weight:700; color:#4b5563; margin-right:8px; text-transform:uppercase; letter-spacing:0.5px;">Idioma de edición:</span>
           <button class="btn-lang-selector" data-lang="es" style="background:var(--accent); color:white; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Español 🇪🇸</button>
-          <button class="btn-lang-selector" data-lang="en" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Inglés 🇬🇧</button>
-          <button class="btn-lang-selector" data-lang="de" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Alemán 🇩🇪</button>
-          <button class="btn-lang-selector" data-lang="ca" style="background:transparent; color:var(--text-main); border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Catalán 🇦🇩</button>
+          <button class="btn-lang-selector" data-lang="en" style="background:transparent; color:#374151; border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Inglés 🇬🇧</button>
+          <button class="btn-lang-selector" data-lang="de" style="background:transparent; color:#374151; border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Alemán 🇩🇪</button>
+          <button class="btn-lang-selector" data-lang="ca" style="background:transparent; color:#374151; border:1px solid rgba(0,0,0,0.1); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">Catalán 🇦🇩</button>
         </div>
         <div id="content-tools" style="display:flex; gap:12px; margin-bottom:24px; align-items:center;">
           <div class="search-box" style="flex:1; display:flex;">
@@ -367,7 +367,7 @@ function renderContentManager(container) {
         b.style.border = 'none';
       } else {
         b.style.background = 'transparent';
-        b.style.color = 'var(--text-main)';
+        b.style.color = '#374151';
         b.style.border = '1px solid rgba(0,0,0,0.1)';
       }
     });
@@ -514,7 +514,7 @@ async function renderDashboardHome(container) {
           if (r.estado === 'rechazada') badgeCls = 'danger';
           if (r.estado === 'pendiente') badgeCls = 'warning';
 
-          const num = parseInt(Math.random() * 100) + 50;
+          const num = r.precio !== undefined && r.precio !== null ? r.precio : 0;
 
           t += `<tr>
               <td style="color:var(--text-muted)">#${(r.id || '').split('-')[2] || (r.id || 'N/A').substring(0, 6)}</td>
@@ -1658,24 +1658,59 @@ function initAdminChat() {
           <div class="form-row-2">
             <div class="form-group">
               <label>Fecha</label>
-              <input type="date" id="b-date" value="2026-05-23" required>
+              <input type="date" id="b-date" value="2026-06-01" required>
             </div>
             <div class="form-group">
-              <label>Horario</label>
-              <input type="text" id="b-time" placeholder="Ej: 11:00 o 11:00, 12:00" value="11:00" required>
+              <label>Tipo de Sala</label>
+              <select id="b-room-type" required>
+                <option value="Sala Jardín (G1)" selected>Sala Jardín (G1)</option>
+                <option value="Sala Azul (G2)">Sala Azul (G2)</option>
+                <option value="Despacho+">Despacho+</option>
+                <option value="Sala Terapia A">Sala Terapia A</option>
+                <option value="Sala Terapia B">Sala Terapia B</option>
+                <option value="Sala Comunitaria">Sala Comunitaria</option>
+              </select>
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Tipo de Sala</label>
-            <select id="b-room-type" required>
-              <option value="Sala Jardín (G1)" selected>Sala Jardín (G1)</option>
-              <option value="Sala Azul (G2)">Sala Azul (G2)</option>
-              <option value="Despacho+">Despacho+</option>
-              <option value="Sala Terapia A">Sala Terapia A</option>
-              <option value="Sala Terapia B">Sala Terapia B</option>
-              <option value="Sala Comunitaria">Sala Comunitaria</option>
-            </select>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Tipo de Alquiler / Plan</label>
+              <select id="b-rent-type" required>
+                <option value="hourly" selected>Por Horas</option>
+                <option value="daily">Por Días Completos</option>
+                <option value="prepago">Bono Prepago (Horas sueltas)</option>
+                <option value="fijo">Plan Fijo Semanal (Cuota Mensual)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label id="b-qty-label">Cantidad (Horas)</label>
+              <div id="b-qty-container">
+                <input type="number" id="b-rent-qty" value="1" min="1" step="1" required style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              </div>
+            </div>
+          </div>
+
+          <div id="b-schedule-section" class="form-group">
+            <!-- Renders dynamically: live slots grid OR custom schedule text input -->
+          </div>
+
+          <div class="form-group" style="background: rgba(99, 102, 241, 0.08); padding: 14px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">Total Calculado:</span>
+              <span id="b-price-display" style="font-weight: 700; font-size: 1.25rem; color: var(--accent);">0.00€</span>
+            </div>
+            <div id="b-price-details" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Tarifa base: 0€</div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; user-select: none; color: var(--text-main);">
+              <input type="checkbox" id="b-price-override-toggle" style="width:auto;">
+              <span>Establecer Precio Personalizado</span>
+            </label>
+            <div id="b-price-override-container" style="display: none; margin-top: 8px;">
+              <input type="number" id="b-price-override-val" placeholder="0.00" min="0" step="0.01" style="width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+            </div>
           </div>
 
           <div class="form-row-2">
@@ -1701,6 +1736,345 @@ function initAdminChat() {
     `;
     document.body.appendChild(nuevaReserva);
 
+    let selectedSlots = [];
+
+    const getSalaId = (roomName) => {
+      if (roomName.includes('G1') || roomName.includes('Jardín')) return 'jardin';
+      if (roomName.includes('G2') || roomName.includes('Azul')) return 'azul';
+      if (roomName.includes('Despacho+')) return 'despacho-plus';
+      if (roomName.includes('Terapia A')) return 'terapia-a';
+      if (roomName.includes('Terapia B')) return 'terapia-b';
+      if (roomName.includes('Comunitaria')) return 'comunitaria';
+      return roomName;
+    };
+
+    const recalculatePrice = () => {
+      const room = document.querySelector("#b-room-type").value;
+      const rentType = document.querySelector("#b-rent-type").value;
+      const qtyEl = document.querySelector("#b-rent-qty");
+      if (!qtyEl) return;
+      const qty = parseInt(qtyEl.value) || 0;
+
+      let category = '';
+      if (room.includes('G1') || room.includes('G2') || room.includes('Jardín') || room.includes('Azul')) {
+        category = 'g1_g2';
+      } else if (room.includes('Despacho+')) {
+        category = 'despacho';
+      } else if (room.includes('Terapia')) {
+        category = 'terapia';
+      }
+
+      if (!category) {
+        document.querySelector("#b-price-display").textContent = "0.00€";
+        document.querySelector("#b-price-details").textContent = "Sin tarifa aplicable para esta sala.";
+        return;
+      }
+
+      const rates = {
+        g1_g2: {
+          hourly: 20,
+          daily: { 1: 120, 2: 220, 3: 300 },
+          prepago: { 10: 150, 20: 260, 30: 330 },
+          fijo: { 1: 60, 2: 110, 3: 150, 4: 180, 5: 210, extra: 40 }
+        },
+        despacho: {
+          hourly: 16,
+          daily: { 1: 90, 2: 160 },
+          prepago: { 10: 140, 20: 240, 30: 300 },
+          fijo: { 1: 55, 2: 100, 3: 135, 4: 160, 5: 190, extra: 35 }
+        },
+        terapia: {
+          hourly: 12,
+          daily: { 1: 70, 2: 120 },
+          prepago: { 10: 110, 20: 200, 30: 270 },
+          fijo: { 1: 50, 2: 90, 3: 120, 4: 145, 5: 165, extra: 30 }
+        }
+      };
+
+      const c = rates[category];
+      let price = 0;
+      let details = '';
+
+      if (rentType === 'hourly') {
+        price = qty * c.hourly;
+        details = `${c.hourly}€ / hora × ${qty} horas`;
+      } else if (rentType === 'daily') {
+        if (c.daily[qty]) {
+          price = c.daily[qty];
+          details = `Paquete de ${qty} día(s) completo(s)`;
+        } else {
+          const maxDays = Object.keys(c.daily).length;
+          const basePrice = c.daily[maxDays];
+          const extraRate = category === 'g1_g2' ? 100 : (category === 'despacho' ? 80 : 60);
+          const extraDays = qty - maxDays;
+          price = basePrice + (extraDays * extraRate);
+          details = `Paquete ${maxDays}d (${basePrice}€) + ${extraDays}d extra a ${extraRate}€/d`;
+        }
+      } else if (rentType === 'prepago') {
+        price = c.prepago[qty] || 0;
+        details = `Bono prepago de ${qty} horas (no regulares)`;
+      } else if (rentType === 'fijo') {
+        if (qty < 6) {
+          price = c.fijo[qty] || 0;
+          details = `Plan regular de ${qty}h / semana (Cuota Mensual)`;
+        } else {
+          price = qty * c.fijo.extra;
+          details = `${qty}h/semana × ${c.fijo.extra}€ (Cuota Mensual reducida para ≥ 6h/sem)`;
+        }
+      }
+
+      document.querySelector("#b-price-display").textContent = `${price.toFixed(2)}€`;
+      document.querySelector("#b-price-details").textContent = details;
+    };
+
+    const fetchAvailabilitySlots = async () => {
+      const room = document.querySelector("#b-room-type").value;
+      const fecha = document.querySelector("#b-date").value;
+      const loader = document.querySelector("#b-slots-loader");
+      const container = document.querySelector("#b-slots-container");
+      
+      if (!room || !fecha || !loader || !container) return;
+
+      loader.style.display = "block";
+      container.innerHTML = "";
+      selectedSlots = [];
+
+      const salaId = getSalaId(room);
+
+      try {
+        const res = await fetch(`/api/reservas/disponibilidad?salaId=${salaId}&fecha=${fecha}`);
+        const data = await res.json();
+        
+        loader.style.display = "none";
+        container.innerHTML = "";
+
+        if (data.success && data.slots) {
+          data.slots.forEach(slot => {
+            const isSelected = selectedSlots.includes(slot.time);
+            const slotEl = document.createElement("div");
+            slotEl.className = `admin-time-slot admin-slot-${slot.status} ${isSelected ? 'selected' : slot.status === 'free' ? 'free' : 'busy'}`;
+            slotEl.textContent = slot.time;
+            
+            if (slot.status === 'free') {
+              slotEl.onclick = () => {
+                const idx = selectedSlots.indexOf(slot.time);
+                if (idx > -1) {
+                  selectedSlots.splice(idx, 1);
+                  slotEl.classList.remove("selected");
+                  slotEl.classList.add("free");
+                } else {
+                  selectedSlots.push(slot.time);
+                  slotEl.classList.remove("free");
+                  slotEl.classList.add("selected");
+                }
+                
+                // Si el alquiler es por horas, ajustar cantidad automáticamente
+                const rentType = document.querySelector("#b-rent-type").value;
+                if (rentType === 'hourly') {
+                  const qtyEl = document.querySelector("#b-rent-qty");
+                  if (qtyEl) {
+                    qtyEl.value = selectedSlots.length;
+                  }
+                }
+
+                recalculatePrice();
+              };
+            }
+
+            container.appendChild(slotEl);
+          });
+        } else {
+          container.innerHTML = `<div style="grid-column: span 4; color: var(--danger); font-size: 0.85rem;">Error al cargar disponibilidad de la sala.</div>`;
+        }
+      } catch (err) {
+        console.error(err);
+        loader.style.display = "none";
+        container.innerHTML = `<div style="grid-column: span 4; color: var(--danger); font-size: 0.85rem;">Error de red al cargar disponibilidad.</div>`;
+      }
+      recalculatePrice();
+    };
+
+    const updateQtyControl = () => {
+      const rentType = document.querySelector("#b-rent-type").value;
+      const qtyContainer = document.querySelector("#b-qty-container");
+      const qtyLabel = document.querySelector("#b-qty-label");
+      const scheduleSection = document.querySelector("#b-schedule-section");
+
+      if (!qtyContainer || !qtyLabel || !scheduleSection) return;
+
+      // 1. Configurar sección de horario / grid según plan
+      if (rentType === 'hourly') {
+        scheduleSection.innerHTML = `
+          <label>Horario (Selección interactiva en el grid)</label>
+          <div id="b-slots-loader" style="font-size: 0.85rem; color: var(--text-muted); display: none; margin-bottom: 8px;">Cargando horarios disponibles...</div>
+          <div id="b-slots-container" class="admin-slots-grid"></div>
+        `;
+        
+        qtyLabel.textContent = "Cantidad (Horas)";
+        qtyContainer.innerHTML = `<input type="number" id="b-rent-qty" value="${selectedSlots.length}" min="1" step="1" required readonly style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-muted); cursor: not-allowed;">`;
+        
+        fetchAvailabilitySlots();
+      } else {
+        selectedSlots = [];
+        
+        if (rentType === 'daily') {
+          qtyLabel.textContent = "Cantidad (Días)";
+          qtyContainer.innerHTML = `<input type="number" id="b-rent-qty" value="1" min="1" step="1" required style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">`;
+          
+          scheduleSection.innerHTML = `
+            <label>Detalles del Alquiler</label>
+            <select id="b-time-custom" style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              <option value="Todo el día (9:00 a 21:00)" selected>Todo el día (9:00 a 21:00)</option>
+              <option value="Media Jornada - Mañana (9:00 a 15:00)">Media Jornada - Mañana (9:00 a 15:00)</option>
+              <option value="Media Jornada - Tarde (15:00 a 21:00)">Media Jornada - Tarde (15:00 a 21:00)</option>
+            </select>
+          `;
+        } else if (rentType === 'prepago') {
+          qtyLabel.textContent = "Tipo de Bono";
+          qtyContainer.innerHTML = `
+            <select id="b-rent-qty" style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              <option value="10" selected>Bono 10 Horas</option>
+              <option value="20">Bono 20 Horas</option>
+              <option value="30">Bono 30 Horas</option>
+            </select>
+          `;
+          
+          scheduleSection.innerHTML = `
+            <label>Detalles del Bono</label>
+            <select id="b-time-custom" style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-muted); pointer-events: none;" readonly>
+              <option value="Bono Prepago - 10 Horas" selected>Bono Prepago - 10 Horas</option>
+              <option value="Bono Prepago - 20 Horas">Bono Prepago - 20 Horas</option>
+              <option value="Bono Prepago - 30 Horas">Bono Prepago - 30 Horas</option>
+            </select>
+          `;
+          
+          const syncPrepago = () => {
+            const qtyVal = document.querySelector("#b-rent-qty").value;
+            const customEl = document.querySelector("#b-time-custom");
+            if (customEl) {
+              customEl.value = `Bono Prepago - ${qtyVal} Horas`;
+            }
+          };
+          
+          qtyContainer.querySelector("#b-rent-qty").addEventListener("change", syncPrepago);
+          syncPrepago();
+        } else if (rentType === 'fijo') {
+          qtyLabel.textContent = "Horas por Semana";
+          qtyContainer.innerHTML = `
+            <select id="b-rent-qty" style="width:100%; box-sizing:border-box; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+              <option value="1" selected>1 hora / semana</option>
+              <option value="2">2 horas / semana</option>
+              <option value="3">3 horas / semana</option>
+              <option value="4">4 horas / semana</option>
+              <option value="5">5 horas / semana</option>
+              <option value="6">6 horas / semana</option>
+              <option value="7">7 horas / semana</option>
+              <option value="8">8 horas / semana</option>
+            </select>
+          `;
+          
+          scheduleSection.innerHTML = `
+            <label>Horario Fijo Semanal</label>
+            <div style="display: flex; gap: 8px; margin-top: 4px; align-items: center;">
+              <select id="b-fijo-day" style="flex: 1.2; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+                <option value="Lunes" selected>Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+              </select>
+              <select id="b-fijo-start" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main);">
+                <option value="9:00" selected>09:00</option>
+                <option value="10:00">10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+                <option value="18:00">18:00</option>
+                <option value="19:00">19:00</option>
+                <option value="20:00">20:00</option>
+              </select>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">a</span>
+              <select id="b-fijo-end" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-muted); pointer-events: none;" readonly>
+                <option value="10:00" selected>10:00</option>
+                <option value="11:00">11:00</option>
+                <option value="12:00">12:00</option>
+                <option value="13:00">13:00</option>
+                <option value="14:00">14:00</option>
+                <option value="15:00">15:00</option>
+                <option value="16:00">16:00</option>
+                <option value="17:00">17:00</option>
+                <option value="18:00">18:00</option>
+                <option value="19:00">19:00</option>
+                <option value="20:00">20:00</option>
+                <option value="21:00">21:00</option>
+              </select>
+            </div>
+          `;
+          
+          const syncFijoEnd = () => {
+            const qtyVal = parseInt(document.querySelector("#b-rent-qty").value) || 1;
+            const startVal = document.querySelector("#b-fijo-start").value;
+            const [startH] = startVal.split(':').map(Number);
+            let endH = startH + qtyVal;
+            if (endH > 21) endH = 21; // límite del centro
+            const endEl = document.querySelector("#b-fijo-end");
+            if (endEl) {
+              endEl.value = `${endH}:00`;
+            }
+          };
+          
+          qtyContainer.querySelector("#b-rent-qty").addEventListener("change", syncFijoEnd);
+          scheduleSection.querySelector("#b-fijo-start").addEventListener("change", syncFijoEnd);
+          syncFijoEnd();
+        }
+
+        const newQtyEl = document.querySelector("#b-rent-qty");
+        newQtyEl.addEventListener("change", recalculatePrice);
+        newQtyEl.addEventListener("input", recalculatePrice);
+        
+        recalculatePrice();
+      }
+    };
+
+    document.querySelector("#b-rent-type").addEventListener("change", updateQtyControl);
+    
+    // Escuchar cambios de fecha o sala para recargar el grid interactivo
+    document.querySelector("#b-date").addEventListener("change", () => {
+      const rentType = document.querySelector("#b-rent-type").value;
+      if (rentType === 'hourly') {
+        fetchAvailabilitySlots();
+      }
+    });
+
+    document.querySelector("#b-room-type").addEventListener("change", () => {
+      const rentType = document.querySelector("#b-rent-type").value;
+      if (rentType === 'hourly') {
+        fetchAvailabilitySlots();
+      } else {
+        recalculatePrice();
+      }
+    });
+
+    // Initial setup
+    updateQtyControl();
+
+    // Toggle override
+    const overrideToggle = document.querySelector("#b-price-override-toggle");
+    const overrideContainer = document.querySelector("#b-price-override-container");
+    overrideToggle.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        overrideContainer.style.display = "block";
+      } else {
+        overrideContainer.style.display = "none";
+      }
+    });
+
     const btn_close_looking = nuevaReserva.querySelector(".btn-close-booking");
     btn_close_looking.addEventListener("click", (e) => {
       e.preventDefault();
@@ -1712,11 +2086,51 @@ function initAdminChat() {
       e.preventDefault();
 
       const fecha = document.querySelector("#b-date").value;
-      const horario = document.querySelector("#b-time").value;
       const sala = document.querySelector("#b-room-type").value;
       const nombre = document.querySelector("#b-guest-name").value;
       const email = document.querySelector("#b-guest-email").value.trim();
       const telefono = document.querySelector("#b-guest-phone").value.trim();
+      const rentType = document.querySelector("#b-rent-type").value;
+
+      const errorMsgDiv = document.querySelector("#booking-error-msg");
+      errorMsgDiv.style.display = "none";
+
+      let horarioFinal = '';
+      if (rentType === 'hourly') {
+        if (selectedSlots.length === 0) {
+          errorMsgDiv.textContent = 'Por favor, selecciona al menos un horario en el grid.';
+          errorMsgDiv.style.display = "block";
+          return;
+        }
+        // Formatear array a string separado por comas
+        horarioFinal = selectedSlots.join(', ');
+      } else if (rentType === 'fijo') {
+        const dayEl = document.querySelector("#b-fijo-day");
+        const startEl = document.querySelector("#b-fijo-start");
+        const endEl = document.querySelector("#b-fijo-end");
+        if (dayEl && startEl && endEl) {
+          horarioFinal = `${dayEl.value} de ${startEl.value} a ${endEl.value}`;
+        } else {
+          horarioFinal = 'Plan Fijo Semanal';
+        }
+      } else {
+        const customTimeEl = document.querySelector("#b-time-custom");
+        horarioFinal = customTimeEl ? customTimeEl.value.trim() : '';
+        if (!horarioFinal) {
+          errorMsgDiv.textContent = 'Por favor, selecciona los detalles del horario o plan.';
+          errorMsgDiv.style.display = "block";
+          return;
+        }
+      }
+
+      // Determinar precio final
+      let precioFinal = 0;
+      if (overrideToggle.checked) {
+        precioFinal = parseFloat(document.querySelector("#b-price-override-val").value) || 0;
+      } else {
+        const priceStr = document.querySelector("#b-price-display").textContent;
+        precioFinal = parseFloat(priceStr.replace("€", "")) || 0;
+      }
 
       // Combinar email y telefono para guardarlos en "contacto"
       let contacto = '';
@@ -1727,10 +2141,6 @@ function initAdminChat() {
       } else if (telefono) {
         contacto = telefono;
       }
-
-      const errorMsgDiv = document.querySelector("#booking-error-msg");
-      errorMsgDiv.style.display = "none";
-      errorMsgDiv.textContent = "";
 
       const submitBtn = bookingForm.querySelector("button[type='submit']");
       submitBtn.disabled = true;
@@ -1746,9 +2156,10 @@ function initAdminChat() {
             nombre,
             sala,
             fecha,
-            horario,
+            horario: horarioFinal,
             contacto,
-            estado: 'pendiente'
+            estado: 'pendiente',
+            precio: precioFinal
           })
         });
 

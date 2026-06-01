@@ -7,6 +7,7 @@ const LocalChatProvider = require('../chat/providers/LocalChatProvider');
 const OpenRouterProvider = require('../chat/providers/OpenRouterProvider');
 const GrokProvider = require('../chat/providers/GrokProvider');
 const BookRetrievalService = require('../services/BookRetrievalService');
+const { extractDates } = require('../utils/dateParser');
 
 // Importamos los prompts desde el nuevo archivo de configuración
 const { SYSTEM_PROMPT, ADMIN_SYSTEM_PROMPT, BOOK_CONTEXT_TEMPLATE } = require('../config/PromptsConfig');
@@ -109,11 +110,34 @@ class ChatController {
   static _construirPromptCompleto(mensaje, idioma, context) {
     if (context === 'admin') return ADMIN_SYSTEM_PROMPT;
 
-    // 1. Obtener datos dinámicos (Reservas e Idioma)
-    const reservas = ReservaModel.obtenerTodas ? ReservaModel.obtenerTodas() : [];
+    // 1. Obtener datos dinámicos (Reservas filtradas por fecha o rango, e Idioma)
+    const fechasInteres = extractDates(mensaje);
+    let reservas = [];
+    let calendarWindowStr = "";
+
+    const today = new Date();
+    const format = (d) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    if (fechasInteres && fechasInteres.length > 0) {
+      reservas = ReservaModel.obtenerPorFechas ? ReservaModel.obtenerPorFechas(fechasInteres) : [];
+      calendarWindowStr = fechasInteres.join(', ');
+    } else {
+      const fechaInicio = format(today);
+      const targetEnd = new Date(today);
+      targetEnd.setDate(today.getDate() + 7);
+      const fechaFin = format(targetEnd);
+      reservas = ReservaModel.obtenerPorRangoFechas ? ReservaModel.obtenerPorRangoFechas(fechaInicio, fechaFin) : [];
+      calendarWindowStr = `${fechaInicio} a ${fechaFin}`;
+    }
+
     const reservasTexto = reservas.length > 0 
       ? reservas.map(r => `[OCUPADA] Sala: ${r.sala} | Fecha: ${r.fecha} | Horario: ${r.horario} | Estado: ${r.estado}`).join('\n')
-      : "No hay reservas registradas aún.";
+      : "No hay reservas registradas en este periodo.";
 
     const idiomaReal = IDIOMAS_MAPA[idioma] || 'Español';
     const fechaActualStr = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -124,6 +148,9 @@ class ChatController {
       .replace('{{RESERVAS_OCUPADAS}}', reservasTexto)
       .replace('{{ID_RESERVA}}', '[PENDIENTE_DE_GENERAR]')
       .replace('{{IDIOMA}}', idiomaReal);
+
+    // Inyectar anotación explícita de la ventana de reservas visible para la IA
+    promptBase += `\n\n[NOTA DE CONTEXTO - CALENDARIO]: Actualmente estás visualizando únicamente las reservas del periodo/fechas: [${calendarWindowStr}]. Si el cliente solicita reservar o consultar disponibilidad para una fecha que NO se encuentra explícitamente listada en este rango, pídele amablemente que te indique el día deseado para actualizar tu calendario.`;
 
     // 3. Inyectar contexto documental (RAG) si aplica
     if (context === 'public') {

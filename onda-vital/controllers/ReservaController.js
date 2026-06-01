@@ -15,12 +15,18 @@ class ReservaController {
     // Horario de operaciones: 9:00 a 21:00 (12 slots)
     const allSlots = Array.from({length: 12}).map((_, i) => `${i+9}:00`);
     
+    const cleanStr = (str) => {
+      if (!str) return '';
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+    };
+    const targetSalaClean = cleanStr(salaId);
+
     // Todas las reservas locales en esta fecha
-    const reservasDia = ReservaModel.obtenerTodas().filter(r => 
-      r.fecha === fechaDateStr && 
-      (r.sala === salaId || r.sala.includes(salaId)) &&
-      r.estado !== 'rechazada'
-    );
+    const reservasDia = ReservaModel.obtenerTodas().filter(r => {
+      if (r.fecha !== fechaDateStr || r.estado === 'rechazada') return false;
+      const resSalaClean = cleanStr(r.sala);
+      return resSalaClean.includes(targetSalaClean) || targetSalaClean.includes(resSalaClean);
+    });
 
     // Consulta Google Calendar para el día completo (Filtro de Privacidad)
     // Definimos el rango del día de 00:00 a 23:59
@@ -125,7 +131,7 @@ class ReservaController {
       throw new Error(error.details[0].message);
     }
 
-    const { nombre, sala, fecha, horario, contacto } = value;
+    const { nombre, sala, fecha, horario, contacto, precio } = value;
 
     // Validar si la sala está ocupada en ese horario
     const disponible = ReservaModel.verificarDisponibilidad(sala, fecha, horario);
@@ -134,7 +140,7 @@ class ReservaController {
     }
 
     // El Controller delega en el Model el almacenamiento de datos
-    const reservaGuardada = ReservaModel.guardar({ nombre, sala, fecha, horario, contacto });
+    const reservaGuardada = ReservaModel.guardar({ nombre, sala, fecha, horario, contacto, precio });
 
     // NOTA: No enviamos a Google Calendar todavía, porque está pendiente de David.
     console.log(`Nueva reserva pendiente de David: ${reservaGuardada.id}`);
@@ -159,6 +165,10 @@ class ReservaController {
     // Ahora sí, sincronizar con Google Calendar
     const googleEvent = await googleCalendarService.crearEvento(reservaConContacto);
     
+    if (googleEvent && googleEvent.id) {
+      ReservaModel.vincularEventoCalendar(id, googleEvent.id, 'synced');
+    }
+    
     return { 
       success: true, 
       id, 
@@ -170,11 +180,17 @@ class ReservaController {
   /**
    * David rechaza la reserva.
    */
-  static rechazarReserva(id) {
+  static async rechazarReserva(id) {
     const reserva = ReservaModel.obtenerPorId(id);
     if (!reserva) throw new Error("Reserva no encontrada");
     
     ReservaModel.actualizarEstado(id, 'rechazada');
+
+    if (reserva.google_event_id) {
+      await googleCalendarService.eliminarEvento(reserva.google_event_id);
+      ReservaModel.vincularEventoCalendar(id, null, 'cancelled');
+    }
+
     return { success: true, id, nuevoEstado: 'rechazada' };
   }
 
@@ -207,8 +223,87 @@ class ReservaController {
    */
   static async handleCalendarWebhook(req) {
     console.log("Webhook de Google Calendar recibido");
-    // La cabecera "x-goog-resource-state" tiene el valor (sync, exists, etc.)
-    // Aquí implementamos el pull de eventos actualizados (delta) y cancelamos reservas asociadas si fueron borradas en Google.
+    
+    // Si es un ping de sincronización inicial, lo aceptamos directamente
+    const resourceState = req.headers['x-goog-resource-state'];
+    if (resourceState === 'sync') {
+      return { success: true, status: "sync channel accepted" };
+    }
+
+    try {
+      if (!googleCalendarService.calendarId) {
+        return { success: false, error: "Calendar ID no configurado" };
+      }
+
+      // 1. Obtener los últimos eventos modificados para procesar la sincronización reactiva
+      const response = await googleCalendarService.calendar.events.list({
+        calendarId: googleCalendarService.calendarId,
+        orderBy: 'updated',
+        maxResults: 5,
+        singleEvents: true
+      });
+
+      const events = response.data.items || [];
+
+      for (const event of events) {
+        // 2. Loop Protection: Verificar si el evento fue creado por Onda Vital
+        const origin = event.extendedProperties?.private?.origin;
+        const localId = event.extendedProperties?.private?.reservaId;
+
+        if (origin === 'ondavital' && localId) {
+          const reservaLocal = ReservaModel.obtenerPorId(localId);
+
+          if (reservaLocal) {
+            // A. Caso: El evento fue cancelado en el Calendario
+            if (event.status === 'cancelled') {
+              if (reservaLocal.estado !== 'rechazada') {
+                console.log(`Webhook: Evento borrado en Google Calendar. Cancelando reserva local ${localId}`);
+                ReservaModel.actualizarEstado(localId, 'rechazada');
+                ReservaModel.vincularEventoCalendar(localId, null, 'cancelled');
+              }
+              continue;
+            }
+
+            // B. Caso: El evento fue modificado (reprogramado) en el Calendario
+            const startDateTime = event.start.dateTime;
+            const endDateTime = event.end.dateTime;
+
+            if (startDateTime && endDateTime) {
+              const startPart = startDateTime.split('T');
+              const newFecha = startPart[0]; // AAAA-MM-DD
+              
+              // Reconstruir slots basados en la diferencia de horas
+              const sHour = parseInt(startPart[1].split(':')[0], 10);
+              const eHour = parseInt(endDateTime.split('T')[1].split(':')[0], 10);
+
+              const slots = [];
+              for (let h = sHour; h < eHour; h++) {
+                slots.push(`${h}:00`);
+              }
+              const newHorario = slots.join(', ');
+
+              // Evitar sync-loop comparando valores reales
+              if (reservaLocal.fecha !== newFecha || reservaLocal.horario !== newHorario) {
+                // Verificar colisiones antes de reprogramar
+                const disponible = ReservaModel.verificarDisponibilidad(reservaLocal.sala, newFecha, newHorario);
+
+                if (disponible) {
+                  console.log(`Webhook: Reprogramando reserva local ${localId} a ${newFecha} (${newHorario})`);
+                  ReservaModel.reprogramarReserva(localId, newFecha, newHorario);
+                } else {
+                  console.warn(`Webhook: Conflicto de salas para mover ${localId}. Deshaciendo cambio en Google Calendar...`);
+                  const reservaConContacto = ReservaModel.obtenerContactoDesencriptado(localId);
+                  await googleCalendarService.actualizarEvento(reservaLocal.google_event_id, reservaConContacto);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error procesando webhook de Google Calendar:", err.message);
+    }
+
     return { success: true, status: "webhook accepted" };
   }
 }

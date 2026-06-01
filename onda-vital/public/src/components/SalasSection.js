@@ -253,8 +253,8 @@ export function SalasSection() {
   const container = h('section', { id: 'salas', className: 'tab-section' },
     h('div', { className: 'container' },
       h('div', { className: 'salas-header-wrapper', style: { textAlign: 'center', marginBottom: 'var(--space-2xl)' } },
-        h('h2', { className: 'section-title' }, i18n.t('salas_title')),
-        h('p', { className: 'section-subtitle', style: { maxWidth: '800px', margin: '0 auto var(--space-xl)' } },
+        h('h2', { className: 'section-title', 'data-i18n-key': 'salas_title' }, i18n.t('salas_title')),
+        h('p', { className: 'section-subtitle', style: { maxWidth: '800px', margin: '0 auto var(--space-xl)' }, 'data-i18n-key': 'salas_subtitle' },
           i18n.t('salas_subtitle')
         )
       ),

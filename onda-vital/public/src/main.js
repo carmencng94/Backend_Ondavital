@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.title = pageTitles[i18n.currentLanguage] || pageTitles.es;
   
   render(App(), document.getElementById('app'));
+  initInlineEditor();
 });
 
 // Estilo CSS para el resaltado animado del elemento editado (Forest Green & Gold premium cycle)
@@ -193,4 +194,143 @@ window.addEventListener('message', (event) => {
     document.querySelectorAll('.customizer-highlighted').forEach(el => el.classList.remove('customizer-highlighted'));
   }
 });
+
+function initInlineEditor() {
+  const hasAdminToken = document.cookie.split(';').some(item => item.trim().startsWith('adminToken='));
+  if (!hasAdminToken) return;
+
+  document.body.classList.add('editor-mode-active');
+
+  // Inyectar estilos para el Modo Editor Inline
+  const editorModeStyle = document.createElement('style');
+  editorModeStyle.textContent = `
+    body.editor-mode-active [data-i18n-key] {
+      position: relative !important;
+      cursor: text !important;
+    }
+    body.editor-mode-active [data-i18n-key]:hover {
+      outline: 2px dashed #f59e0b !important;
+      outline-offset: 2px !important;
+      background-color: rgba(245, 158, 11, 0.08) !important;
+    }
+  `;
+  document.head.appendChild(editorModeStyle);
+
+  document.addEventListener('click', (e) => {
+    // Si ya estamos editando o si el click fue dentro de un input/textarea activo de edición, ignorar
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('inline-editor-active')) {
+      return;
+    }
+
+    const editableEl = e.target.closest('[data-i18n-key]');
+    if (!editableEl) return;
+
+    // Evitar que el clic active enlaces u otros comportamientos
+    e.preventDefault();
+    e.stopPropagation();
+
+    const key = editableEl.getAttribute('data-i18n-key');
+    const originalText = editableEl.textContent || '';
+
+    // Decidir si usamos input o textarea basado en el tamaño del texto o si tiene saltos de línea
+    const isLongText = originalText.length > 60 || originalText.includes('\n');
+    const editor = document.createElement(isLongText ? 'textarea' : 'input');
+
+    editor.value = originalText.trim();
+    editor.classList.add('inline-editor-active');
+
+    // Copiar estilos tipográficos del elemento original
+    const computed = window.getComputedStyle(editableEl);
+    editor.style.font = computed.font;
+    editor.style.fontSize = computed.fontSize;
+    editor.style.fontWeight = computed.fontWeight;
+    editor.style.lineHeight = computed.lineHeight;
+    editor.style.color = computed.color || '#333';
+    editor.style.textAlign = computed.textAlign;
+    editor.style.width = '100%';
+    editor.style.border = '2px solid #f59e0b';
+    editor.style.borderRadius = '4px';
+    editor.style.padding = '4px 8px';
+    editor.style.background = 'white';
+    editor.style.boxSizing = 'border-box';
+
+    if (isLongText) {
+      editor.style.minHeight = '100px';
+      editor.style.resize = 'vertical';
+    }
+
+    const parent = editableEl.parentNode;
+    parent.replaceChild(editor, editableEl);
+    editor.focus();
+
+    let saved = false;
+
+    const saveChanges = async () => {
+      if (saved) return;
+      saved = true;
+
+      const newValue = editor.value.trim();
+
+      // Si el valor no cambió, re-renderizar para restaurar el estado original
+      if (newValue === originalText.trim()) {
+        render(App(), document.getElementById('app'));
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/content/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            key,
+            value: newValue,
+            lang: i18n.currentLanguage
+          })
+        });
+
+        if (response.ok) {
+          const lang = i18n.currentLanguage;
+          if (!i18n.siteContent[lang]) i18n.siteContent[lang] = {};
+          i18n.siteContent[lang][key] = newValue;
+          if (lang === i18n.currentLanguage) {
+            window.siteContent = i18n.siteContent[lang];
+          }
+
+          // Re-render reactivo instantáneo
+          render(App(), document.getElementById('app'));
+
+          // Notificar al iframe padre (Customizer) si existe
+          window.parent.postMessage({
+            type: 'content-update',
+            key,
+            value: newValue,
+            lang
+          }, '*');
+        } else {
+          alert('Error al guardar el texto. Asegúrate de tener una sesión activa.');
+          render(App(), document.getElementById('app'));
+        }
+      } catch (err) {
+        console.error('Error al guardar cambios inline:', err);
+        alert('Error de conexión al guardar los cambios.');
+        render(App(), document.getElementById('app'));
+      }
+    };
+
+    editor.addEventListener('blur', saveChanges);
+
+    editor.addEventListener('keydown', (evt) => {
+      if (evt.key === 'Enter' && (!isLongText || !evt.shiftKey)) {
+        evt.preventDefault();
+        editor.blur();
+      }
+      if (evt.key === 'Escape') {
+        saved = true;
+        render(App(), document.getElementById('app'));
+      }
+    });
+  });
+}
 
