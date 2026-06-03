@@ -24,57 +24,6 @@ async function authFetch(url, options = {}) {
   return fetch(url, requestOptions);
 }
 
-function renderLogin(wrapper, errorMsg = '') {
-  document.body.classList.add('admin-body');
-  wrapper.className = 'admin-app-container';
-
-  wrapper.innerHTML = `
-    <div class="login-card">
-      <img src="../assets/images/logo_onda_vital.png" alt="Onda Vital" style="width: 140px; margin-bottom: 20px;">
-      <h1>Panel Administrador</h1>
-      ${errorMsg ? `<div class="error-message">${errorMsg}</div>` : ''}
-      <form id="login-form">
-        <div class="input-group">
-          <label for="username">Usuario</label>
-          <input type="text" id="username" required autocomplete="username" placeholder="Tu usuario">
-        </div>
-        <div class="input-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
-        </div>
-        <button type="submit" class="btn-primary-admin">Aceder al Sistema</button>
-      </form>
-    </div>
-  `;
-
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.token) {
-        adminToken = data.token;
-        renderDashboard(wrapper);
-      } else {
-        renderLogin(wrapper, data.message || 'Error de autenticación');
-      }
-    } catch (err) {
-      console.error(err);
-      renderLogin(wrapper, 'Error de conexión con el servidor');
-    }
-  });
-}
-
 function renderDashboard(wrapper) {
   document.body.classList.remove('admin-body');
   wrapper.className = 'admin-layout';
@@ -406,95 +355,93 @@ function renderContentManager(container) {
   loadContentEditor('');
 }
 
+let currentWeekOffset = 0;
+let selectedDayStr = '';
+
 async function renderDashboardHome(container) {
+  // Reset selectedDayStr to today's date if empty
+  const todayObj = new Date();
+  const todayY = todayObj.getFullYear();
+  const todayM = String(todayObj.getMonth() + 1).padStart(2, '0');
+  const todayD = String(todayObj.getDate()).padStart(2, '0');
+  const todayStr = `${todayY}-${todayM}-${todayD}`;
+
+  if (!selectedDayStr) {
+    selectedDayStr = todayStr;
+  }
+
   container.innerHTML = `
+    <!-- Stats Cards -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-title">Reservas hoy</div>
-        <div class="stat-value">24</div>
-        <div class="stat-trend positive">↑ 12% vs ayer</div>
+        <div class="stat-title">Reservas de Hoy</div>
+        <div class="stat-value" id="stat-hoy">0</div>
+        <div class="stat-trend" style="color:var(--text-muted)">Hoy</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">Ingresos (mes)</div>
-        <div class="stat-value">4.820€</div>
-        <div class="stat-trend positive">↑ 8% vs anterior</div>
+        <div class="stat-title">Solicitudes Pendientes</div>
+        <div class="stat-value" id="stat-pendientes">0</div>
+        <div class="stat-trend" style="color:var(--warning)">Requieren atención</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">Usuarios activos</div>
-        <div class="stat-value">138</div>
-        <div class="stat-trend positive">↑ 3 nuevos</div>
+        <div class="stat-title">Ingresos Mensuales</div>
+        <div class="stat-value" id="stat-ingresos">0.00€</div>
+        <div class="stat-trend positive" style="color:var(--success)">Mes actual (Confirmadas)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-title">Tasa de cancelación</div>
-        <div class="stat-value">4,2%</div>
-        <div class="stat-trend negative">↑ 1,1%</div>
+        <div class="stat-title">Reservas esta Semana</div>
+        <div class="stat-value" id="stat-semana">0</div>
+        <div class="stat-trend" style="color:var(--text-muted)">Activas esta semana</div>
       </div>
     </div>
 
-    <div class="middle-grid">
-      <div class="chart-card">
-        <div class="card-header">
-          <h3 class="card-title">Reservas esta semana</h3>
-          <div class="chart-tabs">
-            <div class="chart-tab active">7d</div>
-            <div class="chart-tab">30d</div>
-            <div class="chart-tab">90d</div>
+    <!-- Main Layout Grid: spacious 60/40 layout -->
+    <div class="dashboard-grid-layout">
+      <!-- Left Column: Interactive Weekly Calendar Widget -->
+      <div class="chart-card" style="display:flex; flex-direction:column; gap:20px;">
+        <div class="card-header" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title">📅 Agenda Semanal</h3>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btn-prev-week" class="btn-new-reserva" style="padding:6px 12px; margin:0; font-size:0.8rem; height:32px; display:flex; align-items:center;">◀ Ant.</button>
+            <span id="agenda-date-range" style="font-size:0.85rem; font-weight:600; color:var(--text-main); white-space:nowrap;"></span>
+            <button id="btn-next-week" class="btn-new-reserva" style="padding:6px 12px; margin:0; font-size:0.8rem; height:32px; display:flex; align-items:center;">Sig. ▶</button>
           </div>
         </div>
-        <div style="height:150px; display:flex; align-items:flex-end; border-bottom:1px solid var(--border-color); gap:10px;">
-           <div style="flex:1; background:var(--accent); height:30%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:50%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:40%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:70%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:60%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:90%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
-           <div style="flex:1; background:var(--accent); height:80%; opacity:0.8; border-radius:4px 4px 0 0;"></div>
+        
+        <!-- Horizontal week selector -->
+        <div class="calendar-days-row" id="calendar-days-row">
+          <!-- 7 day cards will be drawn here -->
         </div>
-        <div style="display:flex; justify-content:space-between; margin-top:8px; color:var(--text-muted); font-size:0.7rem;">
-           <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+
+        <!-- Spacious Selected Day detailed view -->
+        <div class="agenda-detail-container">
+          <div class="agenda-header" id="agenda-selected-day-header">Reservas del día</div>
+          <div id="agenda-selected-day-list" style="display:flex; flex-direction:column; gap:12px;">
+            <!-- Detailed bookings for the selected day will go here -->
+          </div>
         </div>
       </div>
 
-      <div class="activity-card">
-        <div class="card-header">
-          <h3 class="card-title">Actividad reciente</h3>
+      <!-- Right Column: Pending Approvals list -->
+      <div class="activity-card" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card-header" style="margin-bottom:0; display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title">⏳ Solicitudes por Confirmar</h3>
+          <span class="sidebar-badge" id="pending-badge" style="display:none; background:var(--warning); color:black; font-weight:700; border-radius:10px; padding:2px 8px;">0</span>
         </div>
-        <div class="activity-list">
-          <div class="activity-item">
-            <div class="icon-box success">✓</div>
-            <div class="activity-info">
-              <div class="activity-title">Reserva confirmada</div>
-              <div class="activity-desc">Ana G. — Sala Zen</div>
-            </div>
-            <div class="activity-time">hace 1h</div>
-          </div>
-          <div class="activity-item">
-            <div class="icon-box info">👥</div>
-            <div class="activity-info">
-              <div class="activity-title">Nuevo usuario</div>
-              <div class="activity-desc">marcos@mail.com</div>
-            </div>
-            <div class="activity-time">hace 2h</div>
-          </div>
-          <div class="activity-item">
-            <div class="icon-box warning">!</div>
-            <div class="activity-info">
-              <div class="activity-title">Pago pendiente</div>
-              <div class="activity-desc">Reserva #R-0482</div>
-            </div>
-            <div class="activity-time">hace 4h</div>
-          </div>
+        <div id="pending-requests-container" style="display:flex; flex-direction:column; gap:12px; overflow-y:auto; max-height:520px; padding-right:4px;">
+          <div style="padding:20px; color:var(--text-muted);">Cargando solicitudes...</div>
         </div>
       </div>
     </div>
 
+    <!-- Bottom Section: History log table -->
     <div class="data-card">
       <div class="card-header" style="margin-bottom: 0;">
-        <h3 class="card-title">Últimas reservas</h3>
+        <h3 class="card-title">Historial de Últimas Reservas</h3>
         <button class="btn-new-reserva" style="background:transparent; border:1px solid var(--border-color); font-size:0.8rem; padding:6px 12px; color:var(--text-main);" onclick="document.getElementById('nav-reservas').click()">Ver todas →</button>
       </div>
       <div id="home-reservas-wrapper" style="margin-top:20px; overflow-x:auto;">
-         <div style="padding:20px; color:var(--text-muted);">Cargando reservas...</div>
+         <div style="padding:20px; color:var(--text-muted);">Cargando historial...</div>
       </div>
     </div>
   `;
@@ -502,35 +449,351 @@ async function renderDashboardHome(container) {
   try {
     const res = await authFetch('/api/admin/reservas');
     const data = await res.json();
-    if (data.success && data.reservas) {
-      const recents = data.reservas.slice(0, 5);
-      if (recents.length === 0) {
-        document.getElementById('home-reservas-wrapper').innerHTML = '<div style="color:var(--text-muted);">No hay reservas en el sistema.</div>';
-      } else {
-        let t = '<table class="table-dark"><thead><tr><th>ID</th><th>Cliente</th><th>Sala</th><th>Fecha</th><th>Importe</th><th>Estado</th></tr></thead><tbody>';
-        recents.forEach(r => {
-          let badgeCls = 'info';
-          if (r.estado === 'confirmada') badgeCls = 'success';
-          if (r.estado === 'rechazada') badgeCls = 'danger';
-          if (r.estado === 'pendiente') badgeCls = 'warning';
-
-          const num = r.precio !== undefined && r.precio !== null ? r.precio : 0;
-
-          t += `<tr>
-              <td style="color:var(--text-muted)">#${(r.id || '').split('-')[2] || (r.id || 'N/A').substring(0, 6)}</td>
-              <td style="font-weight:600;">${r.nombre}</td>
-              <td style="color:var(--text-muted)">${r.sala}</td>
-              <td>${r.fecha} <br><span style="font-size:0.8rem; color:var(--text-muted)">${r.horario}h</span></td>
-              <td style="font-weight:600;">${num}€</td>
-              <td><span class="badge ${badgeCls}">${r.estado.charAt(0).toUpperCase() + r.estado.slice(1)}</span></td>
-           </tr>`;
-        });
-        t += '</tbody></table>';
-        document.getElementById('home-reservas-wrapper').innerHTML = t;
-      }
+    if (!data.success || !data.reservas) {
+      throw new Error(data.error || 'No se pudieron obtener las reservas');
     }
-  } catch (e) {
-    document.getElementById('home-reservas-wrapper').innerHTML = '<div style="color:var(--danger)">Error cargando reservas.</div>';
+
+    const reservas = data.reservas;
+    const now = new Date();
+
+    // --- 1. Calcular Métricas Reales ---
+    const reservasHoy = reservas.filter(r => r.fecha === todayStr && r.estado !== 'rechazada');
+    document.getElementById('stat-hoy').textContent = reservasHoy.length;
+
+    const solicitudesPendientes = reservas.filter(r => r.estado === 'pendiente');
+    const countPendientes = solicitudesPendientes.length;
+    const pendingVal = document.getElementById('stat-pendientes');
+    pendingVal.textContent = countPendientes;
+    if (countPendientes > 0) {
+      pendingVal.style.color = 'var(--warning)';
+    } else {
+      pendingVal.style.color = 'var(--text-main)';
+    }
+
+    // Ingresos del mes actual
+    const currentMonthNum = now.getMonth();
+    const currentYearNum = now.getFullYear();
+    const ingresosMes = reservas.reduce((sum, r) => {
+      if (!r.fecha || r.estado !== 'confirmada') return sum;
+      const [y, m] = r.fecha.split('-').map(Number);
+      if (y === currentYearNum && (m - 1) === currentMonthNum) {
+        return sum + (parseFloat(r.precio) || 0);
+      }
+      return sum;
+    }, 0);
+    document.getElementById('stat-ingresos').textContent = `${ingresosMes.toFixed(2)}€`;
+
+    // Reservas de esta semana
+    const currentDayOfWeek = now.getDay(); // 0 es Domingo
+    const distToMon = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+    const mondayThisWeek = new Date(now);
+    mondayThisWeek.setDate(now.getDate() + distToMon);
+    mondayThisWeek.setHours(0,0,0,0);
+
+    const sundayThisWeek = new Date(mondayThisWeek);
+    sundayThisWeek.setDate(mondayThisWeek.getDate() + 6);
+    sundayThisWeek.setHours(23,59,59,999);
+
+    const reservasSemana = reservas.filter(r => {
+      if (!r.fecha || r.estado === 'rechazada') return false;
+      const d = new Date(r.fecha);
+      return d >= mondayThisWeek && d <= sundayThisWeek;
+    });
+    document.getElementById('stat-semana').textContent = reservasSemana.length;
+
+
+    // --- 2. Renderizar Historial de Últimas Reservas (Tabla inferior) ---
+    const recents = reservas.slice(0, 5);
+    if (recents.length === 0) {
+      document.getElementById('home-reservas-wrapper').innerHTML = '<div style="padding:20px; color:var(--text-muted);">No hay reservas en el sistema.</div>';
+    } else {
+      let t = '<table class="table-dark"><thead><tr><th>ID</th><th>Cliente</th><th>Sala</th><th>Fecha</th><th>Importe</th><th>Estado</th></tr></thead><tbody>';
+      recents.forEach(r => {
+        let badgeCls = 'info';
+        if (r.estado === 'confirmada') badgeCls = 'success';
+        if (r.estado === 'rechazada') badgeCls = 'danger';
+        if (r.estado === 'pendiente') badgeCls = 'warning';
+
+        const num = r.precio !== undefined && r.precio !== null ? r.precio : 0;
+
+        t += `<tr>
+            <td style="color:var(--text-muted)">#${(r.id || '').split('-')[2] || (r.id || 'N/A').substring(0, 6)}</td>
+            <td style="font-weight:600;">${r.nombre}</td>
+            <td style="color:var(--text-muted)">${r.sala}</td>
+            <td>${r.fecha} <br><span style="font-size:0.8rem; color:var(--text-muted)">${r.horario}h</span></td>
+            <td style="font-weight:600;">${num}€</td>
+            <td><span class="badge ${badgeCls}">${r.estado.charAt(0).toUpperCase() + r.estado.slice(1)}</span></td>
+         </tr>`;
+      });
+      t += '</tbody></table>';
+      document.getElementById('home-reservas-wrapper').innerHTML = t;
+    }
+
+
+    // --- 3. Renderizar Panel de Solicitudes Pendientes (Derecha) ---
+    const pendingContainer = document.getElementById('pending-requests-container');
+    const pendingBadge = document.getElementById('pending-badge');
+    
+    if (solicitudesPendientes.length === 0) {
+      pendingBadge.style.display = 'none';
+      pendingContainer.innerHTML = `
+        <div style="padding:40px 20px; text-align:center; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:8px; background:rgba(255,255,255,0.01); border-radius:12px; border:1px dashed var(--border-color);">
+          <span style="font-size:1.5rem;">🎉</span>
+          <span>¡Al día! No hay solicitudes pendientes de confirmar.</span>
+        </div>
+      `;
+    } else {
+      pendingBadge.textContent = countPendientes;
+      pendingBadge.style.display = 'inline-block';
+      pendingContainer.innerHTML = '';
+
+      solicitudesPendientes.forEach(r => {
+        const item = document.createElement('div');
+        item.style = 'background:var(--bg-surface); border:1px solid var(--border-color); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:12px; transition:all 0.2s;';
+        
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:600; font-size:0.95rem; color:var(--text-main);">${r.nombre}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">${r.contacto || 'Sin datos de contacto'}</div>
+            </div>
+            <span style="font-weight:700; font-size:0.95rem; color:var(--success);">${r.precio}€</span>
+          </div>
+
+          <div style="display:flex; gap:16px; font-size:0.8rem; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.03); padding-top:8px;">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span>📍</span> <strong>${r.sala}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span>📅</span> <span>${r.fecha}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span>⏰</span> <span>${r.horario}h</span>
+            </div>
+          </div>
+
+          ${r.actividad ? `
+            <div style="font-size:0.8rem; background:rgba(0,0,0,0.15); padding:6px 10px; border-radius:6px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <span>📋</span> <span>${r.actividad} ${r.es_ruidosa ? '<b style="color:var(--warning)">🔊 Ruidosa</b>' : ''}</span>
+            </div>
+          ` : ''}
+
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <button class="res-btn-confirm btn-approve" data-id="${r.id}" style="flex:1; background:var(--success-bg); color:var(--success); border:1px solid rgba(16, 185, 129, 0.3); padding:8px 12px; border-radius:8px; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+              <span>✓</span> Confirmar
+            </button>
+            <button class="res-btn-reject btn-reject" data-id="${r.id}" style="flex:1; background:var(--danger-bg); color:var(--danger); border:1px solid rgba(239, 68, 68, 0.3); padding:8px 12px; border-radius:8px; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+              <span>✕</span> Rechazar
+            </button>
+          </div>
+        `;
+
+        item.querySelector('.btn-approve').onclick = async () => {
+          if (!confirm(`¿Confirmar la reserva de ${r.nombre} en ${r.sala}? Se sincronizará con Google Calendar.`)) return;
+          try {
+            const res = await authFetch(`/api/admin/reservas/${r.id}/confirmar`, { method: 'PATCH' });
+            const d = await res.json();
+            if (d.success) {
+              renderDashboardHome(container);
+            } else {
+              alert('Error: ' + (d.error || 'No se pudo confirmar'));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        };
+
+        item.querySelector('.btn-reject').onclick = async () => {
+          if (!confirm(`¿Rechazar la reserva de ${r.nombre}? Se enviará notificación.`)) return;
+          try {
+            const res = await authFetch(`/api/admin/reservas/${r.id}/rechazar`, { method: 'PATCH' });
+            const d = await res.json();
+            if (d.success) {
+              renderDashboardHome(container);
+            } else {
+              alert('Error: ' + (d.error || 'No se pudo rechazar'));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        };
+
+        pendingContainer.appendChild(item);
+      });
+    }
+
+
+    // --- 4. Renderizar Agenda Semanal Interactiva (Izquierda) ---
+    const daysRow = document.getElementById('calendar-days-row');
+    const rangeSpan = document.getElementById('agenda-date-range');
+    const detailList = document.getElementById('agenda-selected-day-list');
+    const detailHeader = document.getElementById('agenda-selected-day-header');
+
+    const updateCalendarWidget = () => {
+      const mondayTarget = new Date(mondayThisWeek);
+      mondayTarget.setDate(mondayThisWeek.getDate() + (currentWeekOffset * 7));
+      
+      const sundayTarget = new Date(mondayTarget);
+      sundayTarget.setDate(mondayTarget.getDate() + 6);
+
+      const formatMinDate = (date) => {
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        return `${date.getDate()} ${months[date.getMonth()]}`;
+      };
+      rangeSpan.textContent = `${formatMinDate(mondayTarget)} - ${formatMinDate(sundayTarget)}`;
+
+      daysRow.innerHTML = '';
+      const dayNamesMin = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+      for (let i = 0; i < 7; i++) {
+        const loopDay = new Date(mondayTarget);
+        loopDay.setDate(mondayTarget.getDate() + i);
+
+        const ly = loopDay.getFullYear();
+        const lm = String(loopDay.getMonth() + 1).padStart(2, '0');
+        const ld = String(loopDay.getDate()).padStart(2, '0');
+        const loopDayStr = `${ly}-${lm}-${ld}`;
+
+        const dayReservations = reservas.filter(r => r.fecha === loopDayStr && r.estado !== 'rechazada');
+        const hasPending = dayReservations.some(r => r.estado === 'pendiente');
+        const hasConfirmed = dayReservations.some(r => r.estado === 'confirmada');
+
+        const card = document.createElement('div');
+        let cardCls = 'calendar-day-card';
+        if (loopDayStr === todayStr) cardCls += ' today';
+        if (loopDayStr === selectedDayStr) cardCls += ' active';
+        card.className = cardCls;
+        card.dataset.date = loopDayStr;
+
+        let dotsHTML = '<div class="day-dots-container">';
+        if (hasPending) dotsHTML += '<span class="day-dot pending"></span>';
+        if (hasConfirmed) dotsHTML += '<span class="day-dot confirmed"></span>';
+        if (!hasPending && !hasConfirmed) dotsHTML += '<span class="day-dot" style="background:transparent;"></span>';
+        dotsHTML += '</div>';
+
+        card.innerHTML = `
+          <span class="day-name">${dayNamesMin[i]}</span>
+          <span class="day-num">${loopDay.getDate()}</span>
+          ${dotsHTML}
+        `;
+
+        card.onclick = () => {
+          selectedDayStr = loopDayStr;
+          document.querySelectorAll('.calendar-day-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          renderSelectedDayAgenda();
+        };
+
+        daysRow.appendChild(card);
+      }
+
+      renderSelectedDayAgenda();
+    };
+
+    const renderSelectedDayAgenda = () => {
+      const dayReservations = reservas.filter(r => r.fecha === selectedDayStr && r.estado !== 'rechazada');
+      
+      const getStartHour = (horario) => {
+        if (!horario) return '24:00';
+        const match = horario.match(/(\d{2}):(\d{2})/);
+        return match ? match[0] : '24:00';
+      };
+      dayReservations.sort((a, b) => getStartHour(a.horario).localeCompare(getStartHour(b.horario)));
+
+      const [y, m, d] = selectedDayStr.split('-').map(Number);
+      const selDateObj = new Date(y, m - 1, d);
+      const formatLongDate = (date) => {
+        const daysLong = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const monthsLong = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        return `${daysLong[date.getDay()]}, ${date.getDate()} de ${monthsLong[date.getMonth()]} ${date.getFullYear()}`;
+      };
+      
+      detailHeader.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <span>📅 Reservas para: <strong style="color:var(--text-main); font-size:0.95rem;">${formatLongDate(selDateObj)}</strong></span>
+          <span style="font-size:0.8rem; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:12px;">${dayReservations.length} ${dayReservations.length === 1 ? 'reserva' : 'reservas'}</span>
+        </div>
+      `;
+
+      detailList.innerHTML = '';
+
+      if (dayReservations.length === 0) {
+        detailList.innerHTML = `
+          <div style="padding:60px 20px; text-align:center; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:8px; border:1px dashed var(--border-color); border-radius:12px; background:rgba(255,255,255,0.005);">
+            <span style="font-size:1.5rem;">☕</span>
+            <span>No hay reservas programadas para este día. ¡Todo despejado!</span>
+          </div>
+        `;
+      } else {
+        dayReservations.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'agenda-item-card';
+
+          let statusBadgeHTML = '';
+          if (r.estado === 'pendiente') {
+            statusBadgeHTML = `<span class="badge warning" style="font-size:0.7rem; border-radius:4px; padding:3px 8px;">Pendiente</span>`;
+          } else {
+            statusBadgeHTML = `<span class="badge success" style="font-size:0.7rem; border-radius:4px; padding:3px 8px;">Confirmada</span>`;
+          }
+
+          card.innerHTML = `
+            <div class="agenda-item-left">
+              <div class="agenda-time-badge">${getStartHour(r.horario)}h</div>
+              <div class="agenda-item-details">
+                <div class="agenda-client-name">${r.nombre}</div>
+                <div class="agenda-meta-info">
+                  <span>📍 <strong>${r.sala}</strong></span>
+                  <span>⏰ Horario: ${r.horario}</span>
+                  ${r.actividad ? `<span>📋 Actividad: ${r.actividad}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0;">
+              <span style="font-weight:700; font-size:1rem; color:var(--text-main);">${r.precio}€</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                ${r.es_ruidosa ? '<span title="Evento ruidoso (música)" style="font-size:0.85rem; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:4px; padding:2px 4px; display:inline-flex; align-items:center; gap:3px; color:var(--warning); font-size:0.68rem; font-weight:700;">🔊 RUIDOSA</span>' : ''}
+                ${statusBadgeHTML}
+              </div>
+            </div>
+          `;
+
+          detailList.appendChild(card);
+        });
+      }
+    };
+
+    updateCalendarWidget();
+
+    document.getElementById('btn-prev-week').onclick = (e) => {
+      e.preventDefault();
+      currentWeekOffset--;
+      const mondayTarget = new Date(mondayThisWeek);
+      mondayTarget.setDate(mondayThisWeek.getDate() + (currentWeekOffset * 7));
+      const ly = mondayTarget.getFullYear();
+      const lm = String(mondayTarget.getMonth() + 1).padStart(2, '0');
+      const ld = String(mondayTarget.getDate()).padStart(2, '0');
+      selectedDayStr = `${ly}-${lm}-${ld}`;
+
+      updateCalendarWidget();
+    };
+
+    document.getElementById('btn-next-week').onclick = (e) => {
+      e.preventDefault();
+      currentWeekOffset++;
+      const mondayTarget = new Date(mondayThisWeek);
+      mondayTarget.setDate(mondayThisWeek.getDate() + (currentWeekOffset * 7));
+      const ly = mondayTarget.getFullYear();
+      const lm = String(mondayTarget.getMonth() + 1).padStart(2, '0');
+      const ld = String(mondayTarget.getDate()).padStart(2, '0');
+      selectedDayStr = `${ly}-${lm}-${ld}`;
+
+      updateCalendarWidget();
+    };
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('home-reservas-wrapper').innerHTML = `<div style="color:var(--danger); padding:20px;">Error al conectar: ${err.message}</div>`;
   }
 }
 
@@ -1117,8 +1380,10 @@ async function loadContentEditor(searchTerm = '') {
           // Campos correspondientes
           for (const key of subKeys) {
             const val = content[activeEditLanguage][key] || '';
-            const isUrl = val && (val.startsWith('/uploads/') || val.startsWith('http'));
-            const itemDiv = doItemDiv(key, val, isUrl);
+            const spanishVal = content.es[key] || '';
+            const isUrl = (val && (val.startsWith('/uploads/') || val.startsWith('http'))) || 
+                          (spanishVal && (spanishVal.startsWith('/uploads/') || spanishVal.startsWith('http')));
+            const itemDiv = doItemDiv(key, val, isUrl, spanishVal);
             container.appendChild(itemDiv);
           }
         }
@@ -1146,7 +1411,7 @@ async function loadContentEditor(searchTerm = '') {
 }
 
 // Función auxiliar para pintar un campo individual
-function doItemDiv(key, val, isUrl) {
+function doItemDiv(key, val, isUrl, spanishVal) {
   const itemDiv = document.createElement('div');
   itemDiv.className = 'item-editor-card';
 
@@ -1196,7 +1461,7 @@ function doItemDiv(key, val, isUrl) {
 
     previewWrapper.innerHTML = `
       <div class="inline-image-preview-wrapper">
-        <img class="inline-image-preview" src="${currentVal}" id="img-preview-${key}">
+        <img class="inline-image-preview" src="${currentVal || spanishVal}" id="img-preview-${key}">
         <div class="inline-image-upload-controls">
           <label class="btn-upload-trigger">
             <span>📁</span> Seleccionar Imagen
@@ -1330,9 +1595,27 @@ function doItemDiv(key, val, isUrl) {
     }, 0);
 
   } else {
-    // Si el texto es cortito usar input, si es largo textarea
-    const inputType = val.length > 60 || val.includes('\\n') ? 'textarea' : 'input';
+    // Determinar si usar input o textarea basado en el largo del texto español (como referencia) o el actual
+    const refText = spanishVal || '';
+    const inputType = (refText.length > 60 || refText.includes('\n') || refText.includes('\\n') || val.length > 60 || val.includes('\n') || val.includes('\\n')) ? 'textarea' : 'input';
     const field = document.createElement(inputType);
+    field.placeholder = activeEditLanguage !== 'es' ? `Traducción al ${activeEditLanguage.toUpperCase()}...` : 'Escribe el texto en español...';
+    
+    // Si estamos editando un idioma diferente al español, mostramos una pequeña referencia del texto original en español
+    if (activeEditLanguage !== 'es' && refText) {
+      const refDiv = document.createElement('div');
+      refDiv.style.fontSize = '12px';
+      refDiv.style.color = 'var(--text-muted)';
+      refDiv.style.marginBottom = '8px';
+      refDiv.style.padding = '8px 12px';
+      refDiv.style.background = 'rgba(255, 255, 255, 0.03)';
+      refDiv.style.borderRadius = '6px';
+      refDiv.style.borderLeft = '3px solid var(--accent-light)';
+      refDiv.style.whiteSpace = 'pre-wrap';
+      refDiv.innerHTML = `<span style="font-weight: 700; color: var(--accent-light); font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 2px;">Texto Original (Español)</span>${refText}`;
+      
+      itemDiv.appendChild(refDiv);
+    }
     if (inputType === 'textarea') {
       field.value = currentVal;
       field.style.minHeight = '90px';
@@ -1551,7 +1834,7 @@ async function init() {
     console.error(error);
   }
 
-  renderLogin(wrapper);
+  window.location.href = '/';
 }
 
 let adminChatHistorial = [];

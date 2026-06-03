@@ -54,7 +54,11 @@ class GrokProvider {
       }
 
       const data = await response.json();
-      const respuesta = data.choices?.[0]?.message?.content || 'Sin respuesta';
+      const respuesta = data.choices?.[0]?.message?.content;
+
+      if (!respuesta || respuesta.trim() === '') {
+        throw new Error('El modelo retornó una respuesta vacía');
+      }
 
       return {
         respuesta: respuesta,

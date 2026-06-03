@@ -22,6 +22,115 @@ class GoogleCalendarService {
   }
 
   /**
+   * Parsea un string de horario (con soporte para rangos, slots individuales y listas separadas por comas)
+   * y retorna las horas de inicio y fin en formato HH:MM
+   * @private
+   */
+  parseHorario(horarioStr) {
+    if (!horarioStr) return { start: '09:00', end: '10:00' };
+    
+    const cleanStr = horarioStr.trim();
+    
+    if (cleanStr.includes(',')) {
+      const slots = cleanStr.split(',').map(s => s.trim()).sort((a, b) => {
+        return parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]);
+      });
+      const first = slots[0];
+      const last = slots[slots.length - 1];
+      
+      const [h, m] = last.split(':').map(Number);
+      let endH = h + 1;
+      let endM = m || 0;
+      
+      const result = {
+        start: first.padStart(5, '0'),
+        end: `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`
+      };
+      
+      if (endH >= 24) {
+        result.end = '23:59';
+      }
+      return result;
+    }
+    
+    const timeRegex = /\b(\d{1,2}):(\d{2})\b/g;
+    const matches = [...cleanStr.matchAll(timeRegex)].map(m => m[0]);
+    
+    if (matches.length >= 2) {
+      const start = matches[0].padStart(5, '0');
+      const end = matches[matches.length - 1].padStart(5, '0');
+      const [endH] = end.split(':').map(Number);
+      
+      const result = { start, end };
+      if (endH >= 24) {
+        result.end = '23:59';
+      }
+      return result;
+    } else if (matches.length === 1) {
+      const start = matches[0];
+      const [h, m] = start.split(':').map(Number);
+      let endH = h + 1;
+      let endM = m || 0;
+      
+      const result = {
+        start: start.padStart(5, '0'),
+        end: `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`
+      };
+      
+      if (endH >= 24) {
+        result.end = '23:59';
+      }
+      return result;
+    }
+    
+    const hourMatches = [...cleanStr.matchAll(/\b(\d{1,2})\b/g)].map(m => parseInt(m[1], 10));
+    if (hourMatches.length >= 2) {
+      const startH = hourMatches[0].toString().padStart(2, '0');
+      const endH = hourMatches[hourMatches.length - 1].toString().padStart(2, '0');
+      const result = {
+        start: `${startH}:00`,
+        end: `${endH}:00`
+      };
+      if (parseInt(endH, 10) >= 24) {
+        result.end = '23:59';
+      }
+      return result;
+    } else if (hourMatches.length === 1) {
+      const startH = hourMatches[0].toString().padStart(2, '0');
+      const endH = (hourMatches[0] + 1).toString().padStart(2, '0');
+      const result = {
+        start: `${startH}:00`,
+        end: `${endH}:00`
+      };
+      if (parseInt(endH, 10) >= 24) {
+        result.end = '23:59';
+      }
+      return result;
+    }
+
+    return { start: '09:00', end: '10:00' };
+  }
+
+  /**
+   * Normaliza una fecha a formato YYYY-MM-DD
+   * @private
+   */
+  parseFecha(fechaStr) {
+    if (!fechaStr) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
+      return fechaStr;
+    }
+    const match = fechaStr.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
+    if (match) {
+      const day = match[1].padStart(2, '0');
+      const month = match[2].padStart(2, '0');
+      const year = match[3];
+      return `${year}-${month}-${day}`;
+    }
+    return fechaStr;
+  }
+
+  /**
    * Crea un evento en Google Calendar basado en una reserva.
    * @param {Object} reserva - { id, nombre, sala, fecha, horario }
    */
@@ -32,20 +141,11 @@ class GoogleCalendarService {
         return null;
       }
 
-      // Si el usuario seleccionó varias horas (ej: "9:00, 10:00")
-      const slots = reserva.horario.split(',').map(s => s.trim()).sort((a, b) => {
-        return parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]);
-      });
-      const firstSlot = slots[0];
-      const lastSlot = slots[slots.length - 1];
+      const { start, end } = this.parseHorario(reserva.horario);
+      const fechaParsed = this.parseFecha(reserva.fecha);
 
-      // Combinar fecha y hora para el inicio (slot más temprano)
-      const startTime = `${reserva.fecha}T${firstSlot.padStart(5, '0')}:00`;
-      
-      // Calcular hora de fin (sumar 1 hora a la última seleccionada)
-      const [horas, minutos] = lastSlot.split(':').map(Number);
-      const finHoras = (horas + 1).toString().padStart(2, '0');
-      const endTime = `${reserva.fecha}T${finHoras}:${minutos.toString().padStart(2, '0')}:00`;
+      const startTime = `${fechaParsed}T${start}:00`;
+      const endTime = `${fechaParsed}T${end}:00`;
 
       const event = {
         summary: `Reserva: ${reserva.sala} - ${reserva.nombre}`,
@@ -97,16 +197,11 @@ class GoogleCalendarService {
         return null;
       }
 
-      const slots = reserva.horario.split(',').map(s => s.trim()).sort((a, b) => {
-        return parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]);
-      });
-      const firstSlot = slots[0];
-      const lastSlot = slots[slots.length - 1];
+      const { start, end } = this.parseHorario(reserva.horario);
+      const fechaParsed = this.parseFecha(reserva.fecha);
 
-      const startTime = `${reserva.fecha}T${firstSlot.padStart(5, '0')}:00`;
-      const [horas, minutos] = lastSlot.split(':').map(Number);
-      const finHoras = (horas + 1).toString().padStart(2, '0');
-      const endTime = `${reserva.fecha}T${finHoras}:${minutos.toString().padStart(2, '0')}:00`;
+      const startTime = `${fechaParsed}T${start}:00`;
+      const endTime = `${fechaParsed}T${end}:00`;
 
       const event = {
         summary: `Reserva: ${reserva.sala} - ${reserva.nombre}`,

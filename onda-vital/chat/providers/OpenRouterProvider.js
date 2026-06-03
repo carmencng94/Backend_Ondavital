@@ -9,7 +9,7 @@ class OpenRouterProvider {
     this.apiKey = process.env.OPENROUTER_API_KEY || '';
     
     // Soporte para múltiples modelos separados por comas
-    const modelEnv = process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash-lite,meta-llama/llama-3.3-70b-instruct,deepseek/deepseek-chat';
+    const modelEnv = process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash-lite,meta-llama/llama-3.3-70b-instruct,deepseek/deepseek-chat,openrouter/free';
     this.modelos = modelEnv.split(',').map(m => m.trim()).filter(Boolean);
     
     this.baseUrl = 'https://openrouter.ai/api/v1';
@@ -78,7 +78,11 @@ class OpenRouterProvider {
           }
 
           const data = await response.json();
-          const respuesta = data.choices?.[0]?.message?.content || 'Sin respuesta';
+          const respuesta = data.choices?.[0]?.message?.content;
+
+          if (!respuesta || respuesta.trim() === '') {
+            throw new Error('El modelo retornó una respuesta vacía');
+          }
 
           console.log(`[OpenRouterProvider] ¡Éxito usando el modelo: ${modelo}!`);
           return {

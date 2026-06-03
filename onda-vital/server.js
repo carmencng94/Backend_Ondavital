@@ -50,6 +50,12 @@ app.use(express.json({ limit: '10kb' })); // Limitar el tamaño del body para ev
 
 const authMiddleware = require('./middleware/authMiddleware');
 
+// Servir la página de inicio de sesión secreta del admin (configurable en .env, por defecto /acceso)
+const adminLoginPath = process.env.ADMIN_LOGIN_PATH || '/acceso';
+app.get(adminLoginPath, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin', 'login.html'));
+});
+
 // Servir la carpeta de administración de forma protegida (debe ir antes del static público)
 app.use('/admin', authMiddleware.verifyAdminPage, express.static(path.join(__dirname, 'admin')));
 
