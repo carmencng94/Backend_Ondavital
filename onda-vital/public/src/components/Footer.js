@@ -252,7 +252,27 @@ export function Footer() {
       // Columna 4: Formulario
       h('div', { className: 'footer-col' },
         h('h4', { className: 'mini-title' }, i18n.t('footer_form_title')),
-        h('form', { className: 'footer-form' },
+        h('form', { 
+          className: 'footer-form',
+          onsubmit: (e) => {
+            e.preventDefault();
+            const nameInput = e.target.querySelector('input[type="text"]');
+            const emailInput = e.target.querySelector('input[type="email"]');
+            const msgInput = e.target.querySelector('textarea');
+
+            const name = nameInput ? nameInput.value : '';
+            const email = emailInput ? emailInput.value : '';
+            const message = msgInput ? msgInput.value : '';
+
+            const subject = encodeURIComponent(`Contacto Footer Onda Vital - ${name}`);
+            const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nMensaje:\n${message}`);
+
+            window.location.href = `mailto:ondavitaloffice@gmail.com?subject=${subject}&body=${body}`;
+
+            alert(i18n.t('contacto_form_ok') || 'Mensaje enviado. ¡Gracias!');
+            e.target.reset();
+          }
+        },
           h('div', { className: 'footer-form-group' },
             h('label', {}, i18n.t('footer_form_nombre')),
             h('input', { type: 'text', placeholder: i18n.t('footer_form_nombre_ph') })
@@ -265,7 +285,7 @@ export function Footer() {
             h('label', {}, i18n.t('footer_form_asunto')),
             h('textarea', { placeholder: i18n.t('footer_form_asunto_ph') })
           ),
-          h('button', { type: 'button', className: 'btn-footer-submit' }, i18n.t('footer_form_submit'))
+          h('button', { type: 'submit', className: 'btn-footer-submit' }, i18n.t('footer_form_submit'))
         )
       )
     ),

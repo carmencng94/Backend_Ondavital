@@ -56,7 +56,7 @@ try {
 
       // --- CONTACTO ---
       'contacto_telefono': '601 39 21 61',
-      'contacto_email': 'info@ondavitalholistic.com',
+      'contacto_email': 'ondavitaloffice@gmail.com',
       'contacto_direccion': 'c/ Martí Boneo, 31 bajos, 07013 Palma de Mallorca (Son Dameto)',
       'contacto_horarios_q1': 'Lunes y Miércoles: 17:30 - 20h',
       'contacto_horarios_q2': 'Martes y Jueves: 10:30 - 13h',
@@ -206,6 +206,8 @@ try {
     for (const [key, value] of Object.entries(defaults)) {
       insertStmt.run(key, value, 'text', new Date().toISOString());
     }
+    // Migración automática para actualizar al nuevo correo oficial
+    db.prepare("UPDATE content_blocks SET value = 'ondavitaloffice@gmail.com' WHERE key = 'contacto_email' AND value = 'info@ondavitalholistic.com'").run();
   } catch (error) {
   console.error("Error sincronizando content_blocks inicial:", error.message);
 }

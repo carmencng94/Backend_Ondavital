@@ -401,6 +401,20 @@ function SalaModal(sala) {
                 .filter(Boolean)
                 .map(f => h('li', {}, f))
             )
+          ),
+
+          h('div', { className: 'sala-conditions', style: { marginTop: 'var(--space-xl)' } },
+            h('h4', { style: { marginBottom: '1rem', color: 'hsl(var(--color-accent))'} }, i18n.t('salas_conditions_title')),
+            h('ul', { className: 'conditions-list', style: { paddingLeft: 'var(--space-md)', listStyleType: 'disc', color: 'var(--color-text-muted)', fontSize: '0.9rem', lineHeight: '1.6' } },
+              h('li', {}, i18n.t('salas_cond_prep')),
+              h('li', {}, i18n.t('salas_cond_bonos')),
+              h('li', {}, i18n.t('salas_cond_deposit')),
+              h('li', {}, i18n.t('salas_cond_cancel')),
+              h('li', {}, i18n.t('salas_cond_promo')),
+              h('li', {}, i18n.t('salas_cond_iva')),
+              (roomKey === 'sala_azul') ? h('li', { style: { fontWeight: 'bold', color: 'hsl(var(--color-accent))' } }, i18n.t('salas_cond_g2_limit')) : null,
+              (roomKey === 'sala_terapia_a' || roomKey === 'sala_terapia_b') ? h('li', { style: { fontWeight: 'bold', color: 'hsl(var(--color-accent))' } }, i18n.t('salas_cond_terapia_limit')) : null
+            )
           )
         ),
 

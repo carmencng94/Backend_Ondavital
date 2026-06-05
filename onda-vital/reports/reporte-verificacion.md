@@ -1,10 +1,10 @@
 # Reporte de Verificación Lingüística y Traducciones
-Generado el **1/6/2026** por el Agente de Verificación de Onda Vital.
+Generado el **5/6/2026** por el Agente de Verificación de Onda Vital.
 
 ### Resumen Ejecutivo
 - **Claves en Base de Datos:** 137 (Faltan EN: 0, DE: 0, CA: 0)
-- **Etiquetas Estáticas en i18n.js:** 168 (Faltan EN: 0, DE: 0, CA: 0)
-- **Total Inconsistencias de Diccionario:** 27
+- **Etiquetas Estáticas en i18n.js:** 177 (Faltan EN: 0, DE: 0, CA: 0)
+- **Total Inconsistencias de Diccionario:** 30
 
 ### Cobertura en Navegador Real (Playwright)
 - **[ES]**: **59%** cobertura (665/1125 textos correctos). Fugas: 0, Hardcodeados: 38

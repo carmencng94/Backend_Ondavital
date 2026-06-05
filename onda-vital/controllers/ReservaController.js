@@ -133,6 +133,22 @@ class ReservaController {
 
     const { nombre, sala, fecha, horario, contacto, precio } = value;
 
+    // Validar restricciones de días para Sala G2 y Terapia
+    const [year, month, day] = fecha.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const dayOfWeek = dateObj.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+
+    const cleanSala = (sala || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+    if (cleanSala.includes('azul') || cleanSala.includes('g2')) {
+      if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+        throw new Error('La Sala G2 (Azul) solo se puede reservar de viernes a sábado.');
+      }
+    } else if (cleanSala.includes('terapia')) {
+      if (dayOfWeek < 1 || dayOfWeek > 5) {
+        throw new Error('Las salas de terapia solo se pueden reservar de lunes a viernes.');
+      }
+    }
+
     // Validar si la sala está ocupada en ese horario
     const disponible = ReservaModel.verificarDisponibilidad(sala, fecha, horario);
     if (!disponible) {

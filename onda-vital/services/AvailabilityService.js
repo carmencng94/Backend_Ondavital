@@ -25,6 +25,22 @@ class AvailabilityService {
       return { status: 'Error', message: 'La reserva debe realizarse con al menos 2 horas de antelación.' };
     }
 
+    // 1.5. Restricciones de días según la sala
+    const tzOffset = parsedDate.getTimezoneOffset() * 60000;
+    const localDateObj = new Date(parsedDate.getTime() - tzOffset);
+    const dayOfWeek = localDateObj.getUTCDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+
+    const cleanRoom = (roomID || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+    if (cleanRoom.includes('azul') || cleanRoom.includes('g2')) {
+      if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+        return { status: 'Error', message: 'La Sala G2 (Azul) solo se puede reservar de viernes a sábado.' };
+      }
+    } else if (cleanRoom.includes('terapia')) {
+      if (dayOfWeek < 1 || dayOfWeek > 5) {
+        return { status: 'Error', message: 'Las salas de terapia solo se pueden reservar de lunes a viernes.' };
+      }
+    }
+
     // 2. Lógica del Semáforo
     const slotStart = parsedDate;
     const slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000); // 1 hr session
@@ -45,7 +61,6 @@ class AvailabilityService {
     if (busyPeriods && busyPeriods.length > 0) isRed = true;
 
     // Formatear fechas para BD local
-    const tzOffset = parsedDate.getTimezoneOffset() * 60000;
     const localISOTime = new Date(parsedDate.getTime() - tzOffset).toISOString().slice(0, -1);
     const fechaYYYYMMDD = localISOTime.split('T')[0];
 

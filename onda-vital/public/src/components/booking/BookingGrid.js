@@ -183,6 +183,28 @@ export function BookingGrid({ sala: initSala, onReserve }) {
 
   const formatearFecha = (d) => d.toISOString().split('T')[0];
 
+  const isDateValidForRoom = (date, roomId) => {
+    const day = date.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+    const id = (roomId || '').toLowerCase();
+    if (id.includes('azul') || id.includes('g2')) {
+      return day === 5 || day === 6; // Viernes y Sábado
+    }
+    if (id.includes('terapia')) {
+      return day >= 1 && day <= 5; // Lunes a Viernes
+    }
+    return true;
+  };
+
+  const checkAndFixSelectedDate = (roomId) => {
+    if (!isDateValidForRoom(state.selectedDate, roomId)) {
+      const dates = generateDates();
+      const firstValid = dates.find(d => isDateValidForRoom(d, roomId));
+      if (firstValid) {
+        state.selectedDate = firstValid;
+      }
+    }
+  };
+
   const loadInitialData = async () => {
     try {
         const res = await fetch('/api/salas');
@@ -195,6 +217,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             }
         }
     } catch(e) { console.error('Error fetching salas', e); }
+    checkAndFixSelectedDate(state.selectedSalaId);
     await refreshDate(state.selectedDate);
   };
 
@@ -305,9 +328,16 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         const dateCardsContainer = h('div', { className: 'booking-date-picker' });
         generateDates().forEach(d => {
             const isSelected = d.toDateString() === state.selectedDate.toDateString();
+            const isValid = isDateValidForRoom(d, state.selectedSalaId);
+            
             dateCardsContainer.appendChild(h('div', { 
-                className: `date-card ${isSelected ? 'active' : ''}`,
-                onclick: () => refreshDate(d)
+                className: `date-card ${isSelected ? 'active' : ''} ${!isValid ? 'disabled' : ''}`,
+                style: !isValid ? { opacity: '0.4', cursor: 'not-allowed', pointerEvents: 'none' } : {},
+                onclick: () => {
+                    if (isValid) {
+                        refreshDate(d);
+                    }
+                }
             },
                 h('div', { className: 'date-day' }, d.toLocaleDateString(i18n.currentLanguage === 'ca' ? 'ca-ES' : i18n.currentLanguage === 'de' ? 'de-DE' : i18n.currentLanguage === 'en' ? 'en-GB' : 'es-ES', { weekday: 'short' })),
                 h('div', { className: 'date-num' }, d.getDate())
@@ -335,6 +365,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
               onchange: (e) => {
                   state.selectedSalaId = e.target.value;
                   state.selectedSalaObj = state.salasTotales.find(s => s.id === state.selectedSalaId);
+                  checkAndFixSelectedDate(state.selectedSalaId);
                   refreshDate(state.selectedDate);
               }
           });

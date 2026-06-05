@@ -173,6 +173,19 @@ export function ContactoSection() {
             className: 'contact-form',
             onsubmit: (e) => {
               e.preventDefault();
+              const nameInput = e.target.querySelector('input[type="text"]');
+              const emailInput = e.target.querySelector('input[type="email"]');
+              const msgInput = e.target.querySelector('textarea');
+
+              const name = nameInput ? nameInput.value : '';
+              const email = emailInput ? emailInput.value : '';
+              const message = msgInput ? msgInput.value : '';
+
+              const subject = encodeURIComponent(`Contacto Web Onda Vital - ${name}`);
+              const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nMensaje:\n${message}`);
+
+              window.location.href = `mailto:ondavitaloffice@gmail.com?subject=${subject}&body=${body}`;
+
               alert(i18n.t('contacto_form_ok'));
               e.target.reset();
             }

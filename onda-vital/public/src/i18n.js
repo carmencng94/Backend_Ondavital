@@ -111,6 +111,16 @@ const staticTranslations = {
     planes_cond_1: 'Pago inicial: 2 meses por adelantado (primer y último mes).',
     planes_cond_2: 'Gestión del tiempo: Contempla el tiempo de preparación y recogida.',
     planes_cond_3: 'Impuestos: Precios sin IVA incluido.',
+    // Nuevas condiciones y políticas de reserva
+    salas_conditions_title: 'Condiciones de Reserva',
+    salas_cond_prep: 'Deben incluir el tiempo requerido para preparar la sala y dejarla como se encontró al terminar.',
+    salas_cond_bonos: 'Reservas de Bonos se hacen en incrementos de 15 min.',
+    salas_cond_deposit: 'Reservas de más de 2 horas requieren un depósito no retornable del 50%.',
+    salas_cond_cancel: 'En caso de cancelación, el depósito se puede aplicar a otro evento, reservando con el pago del 50%. En caso de una segunda cancelación, el primer depósito se pierde y la segunda se aplica al siguiente.',
+    salas_cond_promo: 'Añadiremos tu publicidad a los soportes de promoción del centro y las redes sociales de forma gratuita.',
+    salas_cond_iva: 'Todos los precios son sin IVA.',
+    salas_cond_g2_limit: 'Atención: Esta sala (G2) solo se puede reservar de viernes a sábado.',
+    salas_cond_terapia_limit: 'Atención: Esta sala de terapia solo se puede reservar de lunes a viernes.',
     planes_cta: 'Consultar Plan con David',
     // --- BOOKING GRID ---
     booking_step1: '¿Qué día quieres venir?',
@@ -138,7 +148,7 @@ const staticTranslations = {
     contacto_horarios_q1: 'Lunes y Miércoles: 17:30 - 20h',
     contacto_horarios_q2: 'Martes y Jueves: 10:30 - 13h',
     contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
-    contacto_email: 'info@ondavitalholistic.com',
+    contacto_email: 'ondavitaloffice@gmail.com',
     // --- FOOTER EXTRAS ---
     footer_link_contrato: 'Contrato de Formación',
     footer_link_privacidad: 'Política de Privacidad',
@@ -299,6 +309,16 @@ const staticTranslations = {
     planes_cond_1: 'Initial payment: 2 months in advance (first and last month).',
     planes_cond_2: 'Time management: Consider preparation and cleanup time.',
     planes_cond_3: 'Taxes: Prices do not include VAT.',
+    // New booking conditions and policies
+    salas_conditions_title: 'Booking Conditions',
+    salas_cond_prep: 'Must include the time required to prepare the room and leave it as found upon completion.',
+    salas_cond_bonos: 'Voucher bookings are made in 15-minute increments.',
+    salas_cond_deposit: 'Bookings of more than 2 hours require a non-refundable 50% deposit.',
+    salas_cond_cancel: 'In case of cancellation, the deposit can be applied to another event, booking with a 50% payment. In case of a second cancellation, the first deposit is lost and the second applies to the next.',
+    salas_cond_promo: 'We will add your advertising to the center\'s promotional media and social networks for free.',
+    salas_cond_iva: 'All prices exclude VAT.',
+    salas_cond_g2_limit: 'Notice: This room (G2) can only be booked from Friday to Saturday.',
+    salas_cond_terapia_limit: 'Notice: This room can only be booked from Monday to Friday.',
     planes_cta: 'Consult Plan with David',
     // --- BOOKING GRID ---
     booking_step1: 'What day would you like to come?',
@@ -326,7 +346,7 @@ const staticTranslations = {
     contacto_horarios_q1: 'Monday & Wednesday: 17:30 - 20h',
     contacto_horarios_q2: 'Tuesday & Thursday: 10:30 - 13h',
     contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
-    contacto_email: 'info@ondavitalholistic.com',
+    contacto_email: 'ondavitaloffice@gmail.com',
     // --- FOOTER EXTRAS ---
     footer_link_contrato: 'Training Contract',
     footer_link_privacidad: 'Privacy Policy',
@@ -487,6 +507,16 @@ const staticTranslations = {
     planes_cond_1: 'Anzahlung: 2 Monate im Voraus (erster und letzter Monat).',
     planes_cond_2: 'Zeitmanagement: Planen Sie Vorbereitungs- und Aufräumzeit ein.',
     planes_cond_3: 'Steuern: Preise verstehen sich ohne MwSt.',
+    // Neue Buchungsbedingungen und Richtlinien
+    salas_conditions_title: 'Buchungsbedingungen',
+    salas_cond_prep: 'Muss die Zeit einschließen, die benötigt wird, um den Raum vorzubereiten und ihn nach Beendigung so zu hinterlassen, wie er vorgefunden wurde.',
+    salas_cond_bonos: 'Gutscheinbuchungen erfolgen in Schritten von 15 Minuten.',
+    salas_cond_deposit: 'Buchungen von mehr als 2 Stunden erfordern eine nicht erstattungsfähige Anzahlung von 50 %.',
+    salas_cond_cancel: 'Im Falle einer Stornierung kann die Anzahlung auf eine andere Veranstaltung angerechnet werden, wobei die Buchung mit einer Zahlung von 50 % erfolgt. Bei einer zweiten Stornierung verfällt die erste Anzahlung und die zweite wird auf die nächste angerechnet.',
+    salas_cond_promo: 'Wir bewerben Ihre Aktivität kostenlos auf den Werbeträgern des Zentrums und in den sozialen Netzwerken.',
+    salas_cond_iva: 'Alle Preise verstehen sich zuzüglich Mehrwertsteuer.',
+    salas_cond_g2_limit: 'Hinweis: Dieser Raum (G2) kann nur von Freitag bis Samstag gebucht werden.',
+    salas_cond_terapia_limit: 'Hinweis: Dieser Raum kann nur von Montag bis Freitag gebucht werden.',
     planes_cta: 'Plan mit David abfragen',
     // --- BOOKING GRID ---
     booking_step1: 'An welchem Tag möchten Sie kommen?',
@@ -514,7 +544,7 @@ const staticTranslations = {
     contacto_horarios_q1: 'Montag & Mittwoch: 17:30 - 20h',
     contacto_horarios_q2: 'Dienstag & Donnerstag: 10:30 - 13h',
     contacto_direccion: 'c/ Martí Boneo, 31 bajos, 07013 Palma',
-    contacto_email: 'info@ondavitalholistic.com',
+    contacto_email: 'ondavitaloffice@gmail.com',
     // --- FOOTER EXTRAS ---
     footer_link_contrato: 'Ausbildungsvertrag',
     footer_link_privacidad: 'Datenschutzrichtlinie',
@@ -675,6 +705,16 @@ const staticTranslations = {
     planes_cond_1: 'Pagament inicial: 2 mesos per avançat (primer i últim mes).',
     planes_cond_2: 'Gestió del temps: Contempla el temps de preparació i recollida.',
     planes_cond_3: 'Impostos: Preus sense IVA inclòs.',
+    // Noves condicions i polítiques de reserva
+    salas_conditions_title: 'Condicions de Reserva',
+    salas_cond_prep: 'Han d\'incloure el temps requerit per preparar la sala i deixar-la com es va trobar al acabar.',
+    salas_cond_bonos: 'Les reserves de Bons es fan en increments de 15 min.',
+    salas_cond_deposit: 'Les reserves de més de 2 hores requereixen un dipòsit no retornable del 50%.',
+    salas_cond_cancel: 'En cas de cancel·lació, el dipòsit es pot aplicar a un altre esdeveniment, reservant amb el pagament del 50%. En cas d\'una segona cancel·lació, el primer dipòsit es perd i la segona s\'aplica al següent.',
+    salas_cond_promo: 'Afegirem la teva publicitat als suports de promoció del centre i a les xarxes socials de forma gratuïta.',
+    salas_cond_iva: 'Tots els preus són sense IVA.',
+    salas_cond_g2_limit: 'Atenció: Aquesta sala (G2) només es pot reservar de divendres a dissabte.',
+    salas_cond_terapia_limit: 'Atenció: Aquesta sala de teràpia només es pot reservar de dilluns a divendres.',
     planes_cta: 'Consultar Pla amb David',
     // --- BOOKING GRID ---
     booking_step1: 'Quin dia vols venir?',
@@ -702,7 +742,7 @@ const staticTranslations = {
     contacto_horarios_q1: 'Dilluns i Dimecres: 17:30 - 20h',
     contacto_horarios_q2: 'Dimarts i Dijous: 10:30 - 13h',
     contacto_direccion: 'c/ Martí Boneo, 31 baixos, 07013 Palma',
-    contacto_email: 'info@ondavitalholistic.com',
+    contacto_email: 'ondavitaloffice@gmail.com',
     // --- FOOTER EXTRAS ---
     footer_link_contrato: 'Contracte de Formació',
     footer_link_privacidad: 'Política de Privacitat',
