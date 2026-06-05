@@ -275,7 +275,9 @@ export function SalasSection() {
       if (data.success && data.salas) {
         grid.innerHTML = '';
         data.salas.forEach(sala => {
-          grid.appendChild(SalaCard(sala));
+          if (sala.id !== 'comunitaria') {
+            grid.appendChild(SalaCard(sala));
+          }
         });
       }
     } catch (error) {
