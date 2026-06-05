@@ -77,31 +77,46 @@ const salasStyles = `
 
 .card-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: var(--space-xs);
   margin-top: auto;
 }
 
-.learn-more {
-  font-size: var(--text-sm);
-  color: hsl(var(--color-primary));
-  font-weight: var(--font-medium);
-  opacity: 0.8;
-  transition: opacity var(--transition-fast);
-}
-
 .btn-check-availability {
-  background: transparent;
+  background: hsl(var(--color-primary));
   border: 1.5px solid hsl(var(--color-primary));
-  color: hsl(var(--color-primary));
-  padding: 8px 16px;
+  color: white;
+  padding: 8px 12px;
   border-radius: var(--radius-full);
   font-weight: var(--font-semibold);
   cursor: pointer;
   transition: all var(--transition-fast);
+  flex: 1;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  text-align: center;
 }
 
 .btn-check-availability:hover {
+  background: hsl(var(--color-primary-dark), hsl(var(--color-primary)));
+  filter: brightness(0.9);
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1.5px solid hsl(var(--color-primary));
+  color: hsl(var(--color-primary));
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex: 1;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.secondary-btn:hover {
   background: hsl(var(--color-primary));
   color: white;
 }
@@ -504,14 +519,20 @@ function SalaCard(sala) {
         ((i18n.currentLanguage === 'es' ? sala.dimensiones : null) || i18n.t(roomKey + '_dimensiones') || sala.dimensiones)
       ),
       h('div', { className: 'card-footer' },
-        h('span', { className: 'learn-more' }, i18n.t('salas_more')),
+        h('button', {
+          className: 'secondary-btn',
+          onclick: (e) => {
+            e.stopPropagation();
+            document.body.appendChild(SalaModal(sala));
+          }
+        }, i18n.t('salas_more_info_reserve')),
         h('button', {
           className: 'btn-check-availability',
           onclick: (e) => {
             e.stopPropagation();
             document.dispatchEvent(new CustomEvent('consultar-sala', { detail: sala.nombre }));
           }
-        }, i18n.t('salas_availability'))
+        }, i18n.t('salas_ask_vitalis'))
       )
     )
   );
@@ -566,7 +587,7 @@ function SalaComunitariaCard(sala) {
       h('div', { className: 'comunitaria-hero-footer' },
         h('span', { className: 'learn-more' }, i18n.t('salas_more')),
         h('button', {
-          className: 'btn-check-availability',
+          className: 'secondary-btn',
           style: { borderStyle: 'dashed' },
           onclick: (e) => {
             e.stopPropagation();

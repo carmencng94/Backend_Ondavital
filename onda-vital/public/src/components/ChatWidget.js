@@ -377,9 +377,18 @@ export function ChatWidget() {
 
   // Event Listeners Globales
   document.addEventListener('consultar-sala', (e) => {
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      if (!modal.closest('#chat-root')) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 400);
+      }
+    });
+
     const win = document.getElementById('chat-window');
     if (win && win.classList.contains('hidden')) toggleChat();
-    enviarMensaje(`Quiero consultar disponibilidad para la ${e.detail}`);
+    
+    const prefix = i18n.t('chat_consult_room') || 'Quiero consultar disponibilidad para la';
+    enviarMensaje(`${prefix} ${e.detail}`);
   });
 
   document.addEventListener('abrir-chat-asistente', (e) => {

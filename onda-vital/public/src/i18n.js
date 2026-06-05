@@ -87,6 +87,8 @@ const staticTranslations = {
     // --- QUIRO ---
     quiro_visit_dea: 'Visitar la web oficial de DEAwakening ↗',
     // --- SALAS ---
+    salas_ask_vitalis: 'Preguntar a Vitalis',
+    salas_more_info_reserve: 'Reservar (Calendario)',
     salas_loading: 'Cargando salas...',
     salas_error: 'Error al cargar el catálogo.',
     salas_more: 'Más detalles +',
@@ -288,6 +290,8 @@ const staticTranslations = {
     // --- QUIRO ---
     quiro_visit_dea: 'Visit the official DEAwakening website ↗',
     // --- SALAS ---
+    salas_ask_vitalis: 'Ask Vitalis',
+    salas_more_info_reserve: 'Book (Calendar)',
     salas_loading: 'Loading rooms...',
     salas_error: 'Error loading the catalogue.',
     salas_more: 'More details +',
@@ -489,6 +493,8 @@ const staticTranslations = {
     // --- QUIRO ---
     quiro_visit_dea: 'Offizielle DEAwakening-Website besuchen ↗',
     // --- SALAS ---
+    salas_ask_vitalis: 'Vitalis fragen',
+    salas_more_info_reserve: 'Buchen (Kalender)',
     salas_loading: 'Räume werden geladen...',
     salas_error: 'Fehler beim Laden des Katalogs.',
     salas_more: 'Mehr Details +',
@@ -690,6 +696,8 @@ const staticTranslations = {
     // --- QUIRO ---
     quiro_visit_dea: 'Visita el web oficial de DEAwakening ↗',
     // --- SALAS ---
+    salas_ask_vitalis: 'Preguntar a Vitalis',
+    salas_more_info_reserve: 'Reservar (Calendari)',
     salas_loading: 'Carregant sales...',
     salas_error: 'Error en carregar el catàleg.',
     salas_more: 'Més detalls +',
