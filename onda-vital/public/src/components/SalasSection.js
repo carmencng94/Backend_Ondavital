@@ -91,9 +91,10 @@ const salasStyles = `
   cursor: pointer;
   transition: all var(--transition-fast);
   flex: 1;
-  white-space: nowrap;
+  white-space: normal;
   font-size: 0.8rem;
   text-align: center;
+  line-height: 1.2;
 }
 
 .btn-check-availability:hover {
@@ -111,9 +112,10 @@ const salasStyles = `
   cursor: pointer;
   transition: all var(--transition-fast);
   flex: 1;
-  white-space: nowrap;
+  white-space: normal;
   font-size: 0.8rem;
   text-align: center;
+  line-height: 1.2;
 }
 
 .secondary-btn:hover {
@@ -140,6 +142,7 @@ const salasStyles = `
 
 .sala-modal {
   width: min(900px, 100%);
+  max-width: 100vw;
   max-height: 90vh;
   background: white;
   border-radius: var(--radius-2xl);
@@ -148,6 +151,10 @@ const salasStyles = `
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.sala-modal-info, .sala-modal-side {
+  min-width: 0;
 }
 
 .modal-close {
@@ -364,6 +371,8 @@ const salasStyles = `
   align-items: center;
   cursor: pointer;
   transition: background 0.2s ease;
+  text-align: left;
+  gap: var(--space-md);
 }
 .collapsible-trigger:hover {
   background: hsl(var(--color-primary-light) / 0.25);
@@ -422,9 +431,13 @@ const salasStyles = `
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 480px) {
   .conditions-cajitas-grid {
     grid-template-columns: 1fr;
+  }
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 `;

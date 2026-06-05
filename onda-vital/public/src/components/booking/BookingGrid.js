@@ -13,6 +13,8 @@ const bookingStyles = `
   flex-direction: column;
   gap: var(--space-md);
   max-width: 500px; /* Limitar ancho en PC */
+  width: 100%;
+  min-width: 0;
   margin-left: auto;
   margin-right: auto;
   box-shadow: var(--shadow-sm);
