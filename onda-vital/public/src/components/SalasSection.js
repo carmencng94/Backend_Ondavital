@@ -245,6 +245,85 @@ const salasStyles = `
   color: white;
   font-size: 1.1rem;
 }
+
+/* Sala Comunitaria Hero Card */
+.sala-comunitaria-hero-card {
+  grid-column: 1 / -1;
+  margin: var(--space-xl) auto;
+  max-width: 80%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  background: hsl(var(--color-primary-light) / 0.08);
+  border: 2px dashed hsl(var(--color-primary) / 0.3);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  cursor: pointer;
+}
+
+.sala-comunitaria-hero-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.comunitaria-hero-img {
+  width: 45%;
+  min-height: 280px;
+  background-size: cover;
+  background-position: center;
+  background-color: hsl(var(--color-primary-light));
+}
+
+.comunitaria-hero-info {
+  padding: var(--space-xl);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.comunitaria-hero-info h3 {
+  color: hsl(var(--color-primary));
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: var(--space-xs);
+}
+
+.comunitaria-hero-subtitle {
+  font-size: var(--text-md);
+  color: var(--color-text-main);
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+}
+
+.comunitaria-hero-text {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-md);
+}
+
+.comunitaria-hero-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .sala-comunitaria-hero-card {
+    flex-direction: column;
+    max-width: 100%;
+    margin: var(--space-lg) var(--space-md);
+  }
+  .comunitaria-hero-img {
+    width: 100%;
+    height: 220px;
+  }
+}
 `;
 
 export function SalasSection() {
@@ -274,11 +353,25 @@ export function SalasSection() {
       const data = await response.json();
       if (data.success && data.salas) {
         grid.innerHTML = '';
+        
+        // Buscar la sala comunitaria
+        const comunitaria = data.salas.find(s => s.id === 'comunitaria');
+        
+        // Renderizar las otras salas en el grid
         data.salas.forEach(sala => {
           if (sala.id !== 'comunitaria') {
             grid.appendChild(SalaCard(sala));
           }
         });
+        
+        // Renderizar la sala comunitaria debajo, centrada al 80%
+        if (comunitaria) {
+          const existingHero = container.querySelector('.sala-comunitaria-hero-card');
+          if (existingHero) existingHero.remove();
+          
+          const heroCard = SalaComunitariaCard(comunitaria);
+          grid.parentNode.insertBefore(heroCard, grid.nextSibling);
+        }
       }
     } catch (error) {
       grid.innerHTML = `<p class="salas-error">${i18n.t('salas_error')}</p>`;
@@ -327,6 +420,72 @@ function SalaCard(sala) {
             document.dispatchEvent(new CustomEvent('consultar-sala', { detail: sala.nombre }));
           }
         }, i18n.t('salas_availability'))
+      )
+    )
+  );
+}
+
+function SalaComunitariaCard(sala) {
+  const mainImage = sala.imagenes && sala.imagenes[0] ? sala.imagenes[0] : '/assets/images/placeholder.png';
+  const roomKey = sala.dbKey || ('sala_' + sala.id.replace(/-/g, '_'));
+
+  return h('div', {
+    className: 'sala-comunitaria-hero-card',
+    onclick: () => {
+      document.body.appendChild(SalaModal(sala));
+    }
+  },
+    h('div', {
+      className: 'comunitaria-hero-img',
+      style: { backgroundImage: `url('${mainImage}')` }
+    }),
+    h('div', { className: 'comunitaria-hero-info' },
+      h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' } },
+        h('h3', {}, (i18n.currentLanguage === 'es' ? sala.nombre : null) || i18n.t(roomKey + '_nombre') || sala.nombre),
+        h('span', {
+          style: {
+            background: 'hsl(var(--color-primary))',
+            color: 'white',
+            padding: '4px 10px',
+            borderRadius: 'var(--radius-full)',
+            fontSize: 'var(--text-xs)',
+            fontWeight: '700',
+            boxShadow: 'var(--shadow-sm)'
+          }
+        }, 
+          i18n.currentLanguage === 'es' ? 'Uso Común' :
+          i18n.currentLanguage === 'ca' ? 'Ús Comú' :
+          i18n.currentLanguage === 'de' ? 'Gemeinsame Nutzung' :
+          'Common Use'
+        )
+      ),
+      h('p', { className: 'comunitaria-hero-subtitle' },
+        i18n.currentLanguage === 'es' ? 'Espacio libre con terraza exterior para todos los usuarios' :
+        i18n.currentLanguage === 'ca' ? 'Espai lliure amb terrassa exterior per a tots els usuaris' :
+        i18n.currentLanguage === 'de' ? 'Freiraum mit Außenterrasse für alle Nutzer' :
+        'Free space with outdoor terrace for all users'
+      ),
+      h('p', { className: 'comunitaria-hero-text' },
+        i18n.currentLanguage === 'es' ? 'Nuestra sala comunitaria es el corazón social de Onda Vital. Cuenta con cocina equipada, nevera, microondas, tetera y vajilla. Está incluida en el alquiler de cualquier otra sala, ofreciendo un área idónea de descanso y networking para tus alumnos o clientes.' :
+        i18n.currentLanguage === 'ca' ? 'La nostra sala comunitària és el cor social de Onda Vital. Disposa de cuina equipada, nevera, microones, tetera i vaixella. Està inclosa en el lloguer de qualsevol altra sala, oferint una àrea idònia de descans i networking per als teus alumnes o clients.' :
+        i18n.currentLanguage === 'de' ? 'Unser Gemeinschaftsraum ist das soziale Herzstück von Onda Vital. Er verfügt über eine ausgestattete Küche, einen Kühlschrank, eine Mikrowelle, einen Wasserkocher und Geschirr. Er ist im Mietpreis jedes anderen Raums inbegriffen und bietet einen idealen Bereich für Entspannung und Networking für Ihre Schüler oder Kunden.' :
+        'Our community room is the social heart of Onda Vital. It features an equipped kitchen, fridge, microwave, kettle, and tableware. It is included in the rental of any other room, offering an ideal area for relaxation and networking for your students or clients.'
+      ),
+      h('div', { className: 'comunitaria-hero-footer' },
+        h('span', { className: 'learn-more' }, i18n.t('salas_more')),
+        h('button', {
+          className: 'btn-check-availability',
+          style: { borderStyle: 'dashed' },
+          onclick: (e) => {
+            e.stopPropagation();
+            document.body.appendChild(SalaModal(sala));
+          }
+        }, 
+          i18n.currentLanguage === 'es' ? 'Ver condiciones de uso' :
+          i18n.currentLanguage === 'ca' ? 'Veure condicions d\'ús' :
+          i18n.currentLanguage === 'de' ? 'Nutzungsbedingungen anzeigen' :
+          'View terms of use'
+        )
       )
     )
   );
@@ -421,22 +580,99 @@ function SalaModal(sala) {
         ),
 
         h('div', { className: 'sala-modal-side' },
-          BookingGrid({
-            sala,
-            onReserve: (reservaDetails) => {
-              const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
-              const translatedSalaName = i18n.t(roomKey + '_nombre') || sala.nombre;
+          sala.id === 'comunitaria'
+            ? h('div', {
+                className: 'sala-comunitaria-info-card',
+                style: {
+                  background: 'hsl(var(--color-primary-light) / 0.1)',
+                  padding: 'var(--space-lg)',
+                  borderRadius: 'var(--radius-xl)',
+                  border: '1.5px solid hsl(var(--color-primary) / 0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--space-md)',
+                  textAlign: 'left'
+                }
+              },
+                h('h4', { style: { color: 'hsl(var(--color-primary))', margin: 0, fontSize: '1.1rem', fontWeight: 'bold' } }, 
+                  i18n.currentLanguage === 'es' ? 'Condiciones de la Sala Comunitaria' :
+                  i18n.currentLanguage === 'ca' ? 'Condicions de la Sala Comunitària' :
+                  i18n.currentLanguage === 'de' ? 'Bedingungen für den Gemeinschaftsraum' :
+                  'Community Room Conditions'
+                ),
+                h('p', { style: { fontSize: '0.88rem', color: 'var(--color-text-main)', lineHeight: '1.5', margin: 0 } },
+                  i18n.currentLanguage === 'es' ? 'Este espacio común y la terraza están disponibles libremente para el relax y descanso de los usuarios de todas las salas.' :
+                  i18n.currentLanguage === 'ca' ? 'Aquest espai comú i la terrassa estan disponibles lliurement per al relax i descans dels usuaris de totes les sales.' :
+                  i18n.currentLanguage === 'de' ? 'Dieser Gemeinschaftsbereich und die Terrasse stehen allen Nutzern aller Räume zur Entspannung und Erholung frei zur Verfügung.' :
+                  'This common area and terrace are freely available for relaxation and rest for users of all rooms.'
+                ),
+                h('div', {
+                  style: {
+                    background: 'hsl(35deg 100% 96%)',
+                    borderLeft: '4px solid hsl(35deg 90% 50%)',
+                    padding: 'var(--space-sm) var(--space-md)',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.85rem',
+                    color: 'hsl(35deg 70% 25%)',
+                    lineHeight: '1.4'
+                  }
+                },
+                  h('strong', {}, 
+                    i18n.currentLanguage === 'es' ? 'Exclusividad con Sala G1/Jardín:' :
+                    i18n.currentLanguage === 'ca' ? 'Exclusivitat amb Sala G1/Jardí:' :
+                    i18n.currentLanguage === 'de' ? 'Exklusivität mit Raum G1/Garten:' :
+                    'Exclusivity with Room G1/Garden:'
+                  ),
+                  h('p', { style: { margin: '4px 0 0 0' } },
+                    i18n.currentLanguage === 'es' ? 'Cuando la Sala Jardín (G1) está reservada, la sala comunitaria y la terraza quedan bloqueadas para su uso exclusivo, por lo que no estarán disponibles para usuarios de otras salas durante ese horario.' :
+                    i18n.currentLanguage === 'ca' ? 'Quan la Sala Jardí (G1) està reservada, la sala comunitària i la terrassa queden bloquejades per al seu ús exclusiu, per la qual cosa no estaran disponibles per a usuaris d\'altres sales durant aquest horari.' :
+                    i18n.currentLanguage === 'de' ? 'Wenn der Gartenraum (G1) reserviert ist, sind der Gemeinschaftsraum und die Terrasse für dessen exklusive Nutzung gesperrt und stehen den Nutzern anderer Räume während dieser Zeiten nicht zur Verfügung.' :
+                    'When the Garden Room (G1) is reserved, the community room and terrace are blocked for its exclusive use, so they will not be available to users of other rooms during those hours.'
+                  )
+                ),
+                h('button', {
+                  className: 'btn-check-availability primary',
+                  style: { marginTop: 'var(--space-md)' },
+                  onclick: () => {
+                    closeModal();
+                    // Buscar la Sala Jardín y abrir su modal para que el usuario consulte disponibilidad
+                    fetch('/api/salas').then(r => r.json()).then(data => {
+                      if (data.success && data.salas) {
+                        const jardin = data.salas.find(s => s.id === 'jardin');
+                        if (jardin) {
+                          document.body.appendChild(SalaModal(jardin));
+                        }
+                      }
+                    });
+                  }
+                },
+                  i18n.currentLanguage === 'es' ? 'Consultar disponibilidad de Sala G1' :
+                  i18n.currentLanguage === 'ca' ? 'Consultar disponibilitat de Sala G1' :
+                  i18n.currentLanguage === 'de' ? 'Verfügbarkeit von Raum G1 prüfen' :
+                  'Check Room G1 Availability'
+                )
+              )
+            : BookingGrid({
+                sala,
+                onReserve: (reservaDetails) => {
+                  const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
+                  const translatedSalaName = i18n.t(roomKey + '_nombre') || sala.nombre;
 
-              const texto = i18n.t('wa_message')
-                .replace('{nombre}', reservaDetails.nombre || '')
-                .replace('{sala}', `${translatedSalaName} (${rateType})`)
-                .replace('{fecha}', reservaDetails.fecha)
-                .replace('{horario}', reservaDetails.slots.join(', ') + 'h')
-                .replace('{contacto}', reservaDetails.contacto || '');
-                
-              window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
-            }
-          })
+                  let textActividad = reservaDetails.actividad ? `\nActividad: ${reservaDetails.actividad}` : '';
+                  if (reservaDetails.es_ruidosa) {
+                    textActividad += ' (Implica música/ruido) 🔊';
+                  }
+
+                  const texto = (i18n.t('wa_message')
+                    .replace('{nombre}', reservaDetails.nombre || '')
+                    .replace('{sala}', `${translatedSalaName} (${rateType})`)
+                    .replace('{fecha}', reservaDetails.fecha)
+                    .replace('{horario}', reservaDetails.slots.join(', ') + 'h')
+                    .replace('{contacto}', reservaDetails.contacto || '')) + textActividad;
+
+                  window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
+                }
+              })
         )
       )
     )
