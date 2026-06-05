@@ -324,6 +324,94 @@ const salasStyles = `
     height: 220px;
   }
 }
+
+/* Collapsible Conditions */
+.salas-conditions-collapsible {
+  max-width: 1200px;
+  margin: 0 auto var(--space-xl) auto;
+  border: 1px solid hsl(var(--color-border));
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: white;
+  box-shadow: var(--shadow-sm);
+}
+.collapsible-trigger {
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  background: hsl(var(--color-primary-light) / 0.15);
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--color-primary-dark));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.collapsible-trigger:hover {
+  background: hsl(var(--color-primary-light) / 0.25);
+}
+.collapsible-trigger .arrow {
+  transition: transform 0.3s ease;
+  font-size: 0.8rem;
+}
+.collapsible-trigger .arrow.rotated {
+  transform: rotate(180deg);
+}
+.conditions-cajitas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+.condition-cajita {
+  background: white;
+  border: 1px solid hsl(var(--color-border) / 0.6);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  text-align: left;
+}
+.condition-cajita .bullet {
+  color: hsl(var(--color-accent));
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.condition-cajita .text {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .carousel-container {
+    height: 220px;
+  }
+  .sala-modal-content {
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+  .features-list {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .comunitaria-hero-info {
+    padding: var(--space-md);
+  }
+  .sala-comunitaria-hero-card {
+    margin: var(--space-md) 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .conditions-cajitas-grid {
+    grid-template-columns: 1fr;
+  }
+}
 `;
 
 export function SalasSection() {
@@ -337,6 +425,10 @@ export function SalasSection() {
           i18n.t('salas_subtitle')
         )
       ),
+
+      // Condiciones Generales de Alquiler de Salas
+      CondicionesCollapsibleWidget(),
+
       h('div', { id: 'salas-grid', className: 'salas-grid' },
         h('p', { className: 'salas-loading' }, i18n.t('salas_loading'))
       ),
@@ -565,17 +657,7 @@ function SalaModal(sala) {
           ),
 
           h('div', { className: 'sala-conditions', style: { marginTop: 'var(--space-xl)' } },
-            h('h4', { style: { marginBottom: '1rem', color: 'hsl(var(--color-accent))'} }, i18n.t('salas_conditions_title')),
-            h('ul', { className: 'conditions-list', style: { paddingLeft: 'var(--space-md)', listStyleType: 'disc', color: 'var(--color-text-muted)', fontSize: '0.9rem', lineHeight: '1.6' } },
-              h('li', {}, i18n.t('salas_cond_prep')),
-              h('li', {}, i18n.t('salas_cond_bonos')),
-              h('li', {}, i18n.t('salas_cond_deposit')),
-              h('li', {}, i18n.t('salas_cond_cancel')),
-              h('li', {}, i18n.t('salas_cond_promo')),
-              h('li', {}, i18n.t('salas_cond_iva')),
-              (roomKey === 'sala_azul') ? h('li', { style: { fontWeight: 'bold', color: 'hsl(var(--color-accent))' } }, i18n.t('salas_cond_g2_limit')) : null,
-              (roomKey === 'sala_terapia_a' || roomKey === 'sala_terapia_b') ? h('li', { style: { fontWeight: 'bold', color: 'hsl(var(--color-accent))' } }, i18n.t('salas_cond_terapia_limit')) : null
-            )
+            CondicionesCollapsibleWidget(roomKey)
           )
         ),
 
@@ -685,4 +767,66 @@ function SalaModal(sala) {
   });
 
   return modalOverlay;
+}
+
+function CondicionesCollapsibleWidget(roomKey = null) {
+  const conds = [
+    i18n.t('salas_cond_prep'),
+    i18n.t('salas_cond_bonos'),
+    i18n.t('salas_cond_deposit'),
+    i18n.t('salas_cond_cancel'),
+    i18n.t('salas_cond_mensual'),
+    i18n.t('salas_cond_promo'),
+    i18n.t('salas_cond_iva')
+  ];
+
+  if (roomKey === 'sala_jardin') {
+    conds.push(i18n.t('salas_cond_g1_limit'));
+  } else if (roomKey === 'sala_azul') {
+    conds.push(i18n.t('salas_cond_g2_limit'));
+  } else if (roomKey === 'sala_despacho_plus') {
+    conds.push(i18n.t('salas_cond_despacho_limit'));
+  } else if (roomKey === 'sala_terapia_a' || roomKey === 'sala_terapia_b') {
+    conds.push(i18n.t('salas_cond_terapia_limit'));
+  }
+
+  const triggerText = i18n.currentLanguage === 'es' ? '⚠️ Ver Condiciones y Políticas de Reserva (Click para desplegar)' :
+                      i18n.currentLanguage === 'ca' ? '⚠️ Veure Condicions i Polítiques de Reserva (Clic per desplegar)' :
+                      i18n.currentLanguage === 'de' ? '⚠️ Buchungsbedingungen und Richtlinien anzeigen (Klicken zum Ausklappen)' :
+                      '⚠️ View Booking Conditions & Policies (Click to expand)';
+
+  return h('div', { className: 'salas-conditions-collapsible' },
+    h('button', {
+      className: 'collapsible-trigger',
+      onclick: (e) => {
+        const btn = e.currentTarget;
+        const content = btn.nextElementSibling;
+        const arrow = btn.querySelector('.arrow');
+        const isActive = content.classList.toggle('active');
+        arrow.classList.toggle('rotated', isActive);
+        if (isActive) {
+          content.style.maxHeight = content.scrollHeight + 'px';
+        } else {
+          content.style.maxHeight = '0px';
+        }
+      }
+    },
+      h('span', {}, triggerText),
+      h('span', { className: 'arrow' }, '▼')
+    ),
+    h('div', { className: 'collapsible-content', style: { maxHeight: '0px', overflow: 'hidden', transition: 'max-height 0.3s ease-out' } },
+      h('div', { className: 'conditions-cajitas-grid', style: { padding: 'var(--space-md) 0' } },
+        ...conds.map((cond, idx) => {
+          const isHighlight = idx >= 7; // Las restricciones específicas de sala
+          return h('div', { 
+            className: 'condition-cajita',
+            style: isHighlight ? { borderLeft: '3px solid hsl(var(--color-accent))', background: 'hsl(var(--color-accent) / 0.04)' } : {}
+          },
+            h('span', { className: 'bullet' }, '✦'),
+            h('span', { className: 'text' }, cond)
+          );
+        })
+      )
+    )
+  );
 }

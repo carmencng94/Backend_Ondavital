@@ -222,6 +222,28 @@ const aboutStyles = `
 .about-row:hover .about-image-block img {
   transform: scale(1.03);
 }
+
+.about-info-grid {
+  margin-top: var(--space-2xl);
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .about-carousel-container {
+    height: 300px;
+  }
+  .slide-info-card {
+    padding: var(--space-sm) var(--space-md);
+    max-width: 90%;
+  }
+  .about-info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+}
 `;
 
 export function AboutSection() {
@@ -322,7 +344,7 @@ export function AboutSection() {
       ),
 
       // 3. Bloque de Horarios y Contacto
-      h('div', { className: 'info-grid', style: { marginTop: 'var(--space-2xl)', textAlign: 'left', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' } },
+      h('div', { className: 'about-info-grid' },
         h('div', {},
           h('h3', { 'data-i18n-key': 'about_quiro_title' }, i18n.t('about_quiro_title')),
           h('p', { 'data-i18n-key': 'contacto_horarios_q1' }, i18n.t('contacto_horarios_q1')),

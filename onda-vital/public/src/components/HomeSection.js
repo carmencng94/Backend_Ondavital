@@ -298,6 +298,42 @@ const homeStyles = `
   background: hsl(var(--color-primary-light) / 0.1);
   color: hsl(var(--color-primary));
 }
+
+@media (max-width: 600px) {
+  .ai-booking-home {
+    margin-top: -30px;
+  }
+  .ai-card {
+    padding: var(--space-md);
+  }
+  .ai-card-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hero-glass-card {
+    padding: var(--space-md) var(--space-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-input-group {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  .ai-input-group input {
+    background: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-xs);
+    width: 100%;
+  }
+  .ai-search-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
 `;
 
 export function HomeSection() {

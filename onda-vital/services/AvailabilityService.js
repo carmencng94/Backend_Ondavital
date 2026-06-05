@@ -32,8 +32,8 @@ class AvailabilityService {
 
     const cleanRoom = (roomID || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
     if (cleanRoom.includes('azul') || cleanRoom.includes('g2')) {
-      if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-        return { status: 'Error', message: 'La Sala G2 (Azul) solo se puede reservar de viernes a sábado.' };
+      if (dayOfWeek !== 5 && dayOfWeek !== 6 && dayOfWeek !== 0) {
+        return { status: 'Error', message: 'La Sala G2 (Azul) solo se puede reservar de viernes a domingo.' };
       }
     } else if (cleanRoom.includes('terapia')) {
       if (dayOfWeek < 1 || dayOfWeek > 5) {

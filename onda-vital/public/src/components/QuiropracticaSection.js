@@ -123,6 +123,23 @@ const quiroStyles = `
   cursor: pointer;
 }
 .cta-phone:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .quiro-cta {
+    padding: var(--space-xl) var(--space-md);
+    margin-top: var(--space-xl);
+  }
+  .cta-phone {
+    font-size: var(--text-2xl);
+  }
+  .quiro-technique {
+    padding: var(--space-lg);
+    margin: var(--space-xl) 0;
+  }
+  .quiro-images {
+    grid-template-columns: 1fr;
+  }
+}
 `;
 
 export function QuiropracticaSection() {

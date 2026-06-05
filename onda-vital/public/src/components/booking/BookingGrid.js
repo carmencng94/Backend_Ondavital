@@ -149,6 +149,19 @@ const bookingStyles = `
 .rate-card.active { border-color: hsl(var(--color-primary)); background: hsl(var(--color-primary-light) / 0.3); box-shadow: var(--shadow-sm); }
 .rate-card span { font-size: var(--text-xs); color: var(--color-text-muted); }
 .rate-card strong { font-size: var(--text-lg); color: hsl(var(--color-primary)); }
+
+@media (max-width: 480px) {
+  .booking-engine {
+    padding: var(--space-md);
+  }
+  .rates-grid {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .slots-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 `;
 
 export function BookingGrid({ sala: initSala, onReserve }) {
@@ -187,7 +200,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     const day = date.getDay(); // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
     const id = (roomId || '').toLowerCase();
     if (id.includes('azul') || id.includes('g2')) {
-      return day === 5 || day === 6; // Viernes y Sábado
+      return day === 5 || day === 6 || day === 0; // Viernes, Sábado y Domingo
     }
     if (id.includes('terapia')) {
       return day >= 1 && day <= 5; // Lunes a Viernes
@@ -389,7 +402,11 @@ export function BookingGrid({ sala: initSala, onReserve }) {
           const ratesGrid = h('div', { className: 'rates-grid' },
             h('div', { 
               className: `rate-card ${!state.isDayRate ? 'active' : ''}`,
-              onclick: () => { state.isDayRate = false; render(); }
+              onclick: () => { 
+                state.isDayRate = false; 
+                state.selectedSlots = [];
+                render(); 
+              }
             }, h('span', {}, i18n.t('salas_rate_hour')), h('strong', {}, 
               (state.selectedSalaObj.tarifas.hora || '')
                 .replace(/hora/gi, i18n.t('salas_rate_hour'))
@@ -413,6 +430,35 @@ export function BookingGrid({ sala: initSala, onReserve }) {
           rateSelectionDiv.appendChild(ratesGrid);
         }
         container.appendChild(rateSelectionDiv);
+
+        // Mostrar restricciones de la sala seleccionada
+        let restrictionText = '';
+        const lowerId = (state.selectedSalaId || '').toLowerCase();
+        if (lowerId.includes('jardin') || lowerId.includes('g1')) {
+          restrictionText = i18n.t('salas_cond_g1_limit');
+        } else if (lowerId.includes('azul') || lowerId.includes('g2')) {
+          restrictionText = i18n.t('salas_cond_g2_limit');
+        } else if (lowerId.includes('despacho')) {
+          restrictionText = i18n.t('salas_cond_despacho_limit');
+        } else if (lowerId.includes('terapia')) {
+          restrictionText = i18n.t('salas_cond_terapia_limit');
+        }
+
+        if (restrictionText) {
+          container.appendChild(h('div', { 
+            className: 'room-restriction-note',
+            style: { 
+              fontSize: '0.82rem', 
+              color: 'hsl(var(--color-primary-dark))', 
+              background: 'hsl(var(--color-primary-light) / 0.08)',
+              borderLeft: '3px solid hsl(var(--color-accent))',
+              padding: '6px 10px', 
+              borderRadius: 'var(--radius-sm)',
+              marginBottom: 'var(--space-md)',
+              textAlign: 'left'
+            }
+          }, restrictionText));
+        }
 
         const slotsContainer = h('div', { className: 'slots-container' });
         state.slotsData.forEach(slot => {
@@ -530,6 +576,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
 
   container.addEventListener('select-hour-rate', () => {
     state.isDayRate = false;
+    state.selectedSlots = [];
     render();
   });
 

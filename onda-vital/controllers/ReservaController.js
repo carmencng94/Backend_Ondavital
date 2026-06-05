@@ -12,8 +12,8 @@ class ReservaController {
    * Inspirado en la lógica PropTech
    */
   static async getDisponibilidadSlots(salaId, fechaDateStr) {
-    // Horario de operaciones: 9:00 a 21:00 (12 slots)
-    const allSlots = Array.from({length: 12}).map((_, i) => `${i+9}:00`);
+    // Horario de operaciones: 9:30 a 20:30 (11 slots de 1h)
+    const allSlots = Array.from({length: 11}).map((_, i) => `${i+9}:30`);
     
     const cleanStr = (str) => {
       if (!str) return '';
@@ -140,8 +140,8 @@ class ReservaController {
 
     const cleanSala = (sala || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
     if (cleanSala.includes('azul') || cleanSala.includes('g2')) {
-      if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-        throw new Error('La Sala G2 (Azul) solo se puede reservar de viernes a sábado.');
+      if (dayOfWeek !== 5 && dayOfWeek !== 6 && dayOfWeek !== 0) {
+        throw new Error('La Sala G2 (Azul) solo se puede reservar de viernes a domingo.');
       }
     } else if (cleanSala.includes('terapia')) {
       if (dayOfWeek < 1 || dayOfWeek > 5) {
@@ -288,13 +288,15 @@ class ReservaController {
               const startPart = startDateTime.split('T');
               const newFecha = startPart[0]; // AAAA-MM-DD
               
-              // Reconstruir slots basados en la diferencia de horas
-              const sHour = parseInt(startPart[1].split(':')[0], 10);
+              // Reconstruir slots basados en la diferencia de horas y minutos
+              const sTimeParts = startPart[1].split(':');
+              const sHour = parseInt(sTimeParts[0], 10);
+              const sMin = sTimeParts[1] || '00';
               const eHour = parseInt(endDateTime.split('T')[1].split(':')[0], 10);
 
               const slots = [];
               for (let h = sHour; h < eHour; h++) {
-                slots.push(`${h}:00`);
+                slots.push(`${h}:${sMin}`);
               }
               const newHorario = slots.join(', ');
 
