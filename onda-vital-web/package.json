@@ -1,0 +1,11 @@
+{
+  "name": "onda-vital-web",
+  "version": "1.0.0",
+  "description": "Frontend estático para Onda Vital",
+  "scripts": {
+    "start": "serve -s ."
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
