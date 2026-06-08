@@ -234,15 +234,16 @@ const chatStyles = `
 /* Responsividad Chat */
 @media (max-width: 500px) {
   .chat-window {
-    width: 100vw;
-    height: 100vh; /* fallback */
-    height: 100dvh;
-    top: 0;
-    left: 0;
-    bottom: auto;
-    right: auto;
-    border-radius: 0;
-    z-index: 2147483647; /* Máximo z-index posible */
+    width: auto;
+    height: 80dvh;
+    max-height: 600px;
+    top: auto;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    border-radius: var(--radius-xl);
+    z-index: 2147483647;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
   }
   .chat-widget-btn {
     bottom: 1rem;
