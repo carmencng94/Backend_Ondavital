@@ -6,7 +6,7 @@ import { AboutSection } from './components/AboutSection.js';
 import { ResosenseSection } from './components/ResosenseSection.js';
 import { SalasSection } from './components/SalasSection.js';
 import { ContactoSection } from './components/ContactoSection.js';
-import { ChatWidget } from './components/ChatWidget.js';
+import { ChatWidget } from './components/ChatWidget.js?v=2';
 import { Footer } from './components/Footer.js';
 import { siteConfig } from './config.js';
 import { i18n } from './i18n.js';

@@ -171,23 +171,46 @@ export function ContactoSection() {
         h('div', { className: 'contacto-form-container' },
           h('form', { 
             className: 'contact-form',
-            onsubmit: (e) => {
+            onsubmit: async (e) => {
               e.preventDefault();
               const nameInput = e.target.querySelector('input[type="text"]');
               const emailInput = e.target.querySelector('input[type="email"]');
               const msgInput = e.target.querySelector('textarea');
+              const btn = e.target.querySelector('button[type="submit"]');
 
               const name = nameInput ? nameInput.value : '';
               const email = emailInput ? emailInput.value : '';
               const message = msgInput ? msgInput.value : '';
 
-              const subject = encodeURIComponent(`Contacto Web Onda Vital - ${name}`);
-              const body = encodeURIComponent(`Nombre: ${name}\nEmail: ${email}\nMensaje:\n${message}`);
+              try {
+                btn.disabled = true;
+                const originalText = btn.textContent;
+                btn.textContent = 'Enviando...';
 
-              window.location.href = `mailto:ondavitaloffice@gmail.com?subject=${subject}&body=${body}`;
+                const response = await fetch('/api/contact', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ name, email, message })
+                });
 
-              alert(i18n.t('contacto_form_ok'));
-              e.target.reset();
+                const data = await response.json();
+
+                if (data.success) {
+                  alert(i18n.t('contacto_form_ok') || 'Mensaje enviado correctamente.');
+                  e.target.reset();
+                } else {
+                  alert(data.error || 'Hubo un error al enviar el mensaje.');
+                }
+                btn.textContent = originalText;
+              } catch (err) {
+                console.error(err);
+                alert('Hubo un error al conectar con el servidor.');
+                btn.textContent = i18n.t('contacto_form_submit') || 'Enviar Mensaje';
+              } finally {
+                btn.disabled = false;
+              }
             }
           },
             h('div', { className: 'form-group' },

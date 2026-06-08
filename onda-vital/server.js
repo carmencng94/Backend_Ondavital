@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminLogsRoutes = require('./routes/adminLogsRoutes');
 const adminReservaRoutes = require('./routes/adminReservaRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3051;
@@ -76,6 +77,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/reservas', reservaRoutes);
 app.use('/api/salas', salaRoutes); // Endpoint opcional para consultar el catálogo
 app.use('/api/content', contentRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Ruta por defecto que sirve el frontend
 app.get('/', (req, res) => {

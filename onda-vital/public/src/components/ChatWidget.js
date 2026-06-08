@@ -109,6 +109,8 @@ const chatStyles = `
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
 }
 
 .chat-header-user {
@@ -133,9 +135,15 @@ const chatStyles = `
   background: none;
   border: none;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  padding: 10px;
+  margin: -10px;
   cursor: pointer;
   opacity: 0.8;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-messages {
@@ -174,10 +182,12 @@ const chatStyles = `
 
 .chat-input-area {
   padding: var(--space-md);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
   display: flex;
   gap: var(--space-sm);
   background: white;
   border-top: 1px solid #eee;
+  flex-shrink: 0;
 }
 
 .chat-input {
@@ -225,10 +235,14 @@ const chatStyles = `
 @media (max-width: 500px) {
   .chat-window {
     width: 100vw;
-    height: 100vh;
-    bottom: 0;
-    right: 0;
+    height: 100vh; /* fallback */
+    height: 100dvh;
+    top: 0;
+    left: 0;
+    bottom: auto;
+    right: auto;
     border-radius: 0;
+    z-index: 2147483647; /* Máximo z-index posible */
   }
   .chat-widget-btn {
     bottom: 1rem;
