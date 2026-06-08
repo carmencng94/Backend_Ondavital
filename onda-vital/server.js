@@ -40,8 +40,19 @@ const corsOptions = {
 
 // Middlewares de Seguridad 🛡️
 app.use(helmet({
-  contentSecurityPolicy: false
-})); // Cabeceras HTTP de seguridad (desactivando CSP para inyección dinámica de estilos en SPA)
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'", "https:", "wss:"],
+      fontSrc: ["'self'", "https:", "data:", "fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  }
+})); // Cabeceras HTTP de seguridad (activando CSP restrictiva)
 app.disable('x-powered-by'); // No indicar qué tecnología usamos para no dar pistas a atacantes
 
 // CORS restringido para permitir cookies de sesión del admin sin abrir la API a cualquier origen.

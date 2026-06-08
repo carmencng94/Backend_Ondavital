@@ -1,0 +1,44 @@
+# Plan de Implementación: Edición de Textos e Imágenes (Fase 3)
+
+Este plan detalla cómo daremos vida al Dashboard para que el administrador pueda editar textos y reemplazar imágenes.
+
+## User Review Required
+No hay decisiones bloqueantes. Todo seguirá usando tu stack actual (`multer` y `sharp` ya están instalados en tu proyecto para procesar imágenes).
+
+## Proposed Changes
+
+### Backend (Node.js/Express)
+Crearemos los endpoints protegidos para que solo el admin logueado pueda modificar la BD y subir archivos.
+
+#### [MODIFY] [routes/contentRoutes.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/routes/contentRoutes.js)(file:///c:/Users/Usuario/backend_ondavital/onda-vital/routes/contentRoutes.js)
+Añadiremos una ruta `PUT /:key` para guardar cambios de texto. Utilizará el middleware `authMiddleware.verifyToken`.
+
+#### [MODIFY] [controllers/contentController.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/controllers/contentController.js)(file:///c:/Users/Usuario/backend_ondavital/onda-vital/controllers/contentController.js)
+Implementaremos la función `updateContent` que recibe un valor nuevo y llama a `ContentModel.actualizarValor(key, value)`.
+
+#### [NEW] `routes/uploadRoutes.js`(file:///c:/Users/Usuario/backend_ondavital/onda-vital/routes/uploadRoutes.js)
+Crearemos una ruta específica para manejar subida de imágenes (`POST /`).
+
+#### [NEW] `controllers/uploadController.js`(file:///c:/Users/Usuario/backend_ondavital/onda-vital/controllers/uploadController.js)
+Controlador usando `multer` para guardar el archivo físicamente en `public/uploads/` y `sharp` para optimizar su peso si es necesario. Actualizará la base de datos (clave de imagen) con la nueva ruta estática.
+
+#### [MODIFY] [server.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/server.js)(file:///c:/Users/Usuario/backend_ondavital/onda-vital/server.js)
+Montaremos `uploadRoutes` en `app.use('/api/upload', uploadRoutes)`. Configuraremos `express.static` adicional o validaremos que `public/uploads/` es servido correctamente.
+
+---
+### Frontend (Vanilla JS)
+Transformaremos el Dashboard estático en un gestor de contenido (CMS) ligero.
+
+#### [MODIFY] [public/admin/admin.js](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.js)(file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.js)
+1. **Listar:** En [renderDashboard](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.js#52-74), haremos una petición a `GET /api/content` y pintaremos una lista de formularios (campos de texto para modificar).
+2. **Textos:** Por cada campo de texto, existirá un botón "Guardar". Al pulsarlo, hará `PUT /api/content/nombre_del_campo` adjuntando el JWT.
+3. **Imágenes:** Añadiremos una sección estática (por ahora) o dinámica para subir la imagen del Hero. Cuando se pulse "Subir Imagen", hará POST a `/api/upload` adjuntando el archivo FormData y el JWT.
+
+#### [MODIFY] [public/admin/admin.css](file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.css)(file:///c:/Users/Usuario/backend_ondavital/onda-vital/public/admin/admin.css)
+Añadiremos algunos estilos (grid simple) para separar los campos de texto editable de forma amigable visualmente.
+
+## Verification Plan
+1. Iniciar sesión en `/admin`.
+2. Ver la cuadrícula con el texto actual del "Hero Title" (que ya está leyendo desde SQLite).
+3. Escribir un nuevo título y dar a Guardar. Verificar en otra pestaña (`localhost:3000/`) que el cambio en la web principal es instantáneo (F5).
+4. Usar la sección de subida de imágenes para elegir un nuevo archivo, validar que se sube, se comprime si es inmenso y se dibuja correctamente en la web.

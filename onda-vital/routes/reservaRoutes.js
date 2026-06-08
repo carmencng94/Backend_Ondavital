@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const ReservaController = require('../controllers/ReservaController');
+const { body, validationResult } = require('express-validator');
 
 // 🛡️ Limitador de reservas para evitar SPAM y abusos en base de datos
 const bookingLimiter = rateLimit({
@@ -19,7 +20,19 @@ const bookingLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/', bookingLimiter, async (req, res) => {
+const validateReservaRequest = [
+  body('nombre').notEmpty().withMessage('Nombre es requerido').trim().escape(),
+  body('sala').notEmpty().withMessage('Sala es requerida').trim().escape(),
+  body('fecha').notEmpty().withMessage('Fecha es requerida').trim().escape(),
+  body('horario').notEmpty().withMessage('Horario es requerido').trim().escape()
+];
+
+router.post('/', bookingLimiter, validateReservaRequest, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, error: errors.array()[0].msg });
+  }
+
   try {
     // Delegar lógica al controlador
     const reserva = await ReservaController.crearReserva(req.body);

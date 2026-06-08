@@ -1,0 +1,362 @@
+:root {
+  /* Identidad Visual Onda Vital — Nuevos Tokens HSL */
+  --color-primary:        158 25% 30%;   /* Verde Bosque */
+  --color-primary-light:  158 25% 92%;   /* Verde muy suave */
+  --color-primary-hover:  158 25% 20%;   /* Verde Bosque profundo */
+
+  --color-surface:        36 33% 97%;    /* Crema Suave */
+  --color-surface-elevated: 36 25% 94%; 
+  --color-surface-chat:   0 0% 100%;
+
+  --color-text:           210 10% 23%;  /* Gris Pizarra */
+  --color-text-muted:     210 8% 45%;
+  --color-text-inverse:   0 0% 100%;
+
+  --color-accent:         28 60% 55%;
+  --color-border:         158 15% 85%;
+  --color-border-chat:    210 10% 90%;
+
+  /* Espaciado */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2.5rem;
+  --space-2xl: 4rem;
+  
+  /* Tipografía */
+  --font-sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+  --text-xs:      0.75rem;
+  --text-sm:      0.875rem;
+  --text-base:    1rem;
+  --text-lg:      1.125rem;
+  --text-xl:      1.25rem;
+  --text-2xl:     1.5rem;
+  --text-3xl:     1.875rem;
+  --text-4xl:     3.5rem;
+  --font-light:   300;
+  --font-regular: 400;
+  --font-medium:  500;
+  --font-semibold: 600;
+  --font-bold:    700;
+
+  /* Sombras */
+  --shadow-sm:     0 2px 4px hsl(158 20% 10% / 0.04);
+  --shadow-md:     0 4px 12px hsl(158 20% 10% / 0.06);
+  --shadow-lg:     0 20px 48px hsl(158 20% 10% / 0.12);
+  --shadow-widget: 0 8px 32px hsl(158 20% 10% / 0.15);
+
+  /* Bordes */
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-xl:   32px;
+  --radius-full: 9999px;
+  --radius-bubble: 20px 20px 4px 20px;
+  --radius-bubble-bot: 20px 20px 20px 4px;
+
+  /* Transiciones */
+  --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background-color: hsl(var(--color-surface));
+  color: hsl(var(--color-text));
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Nav Pestañas */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-2xl);
+  background: hsl(var(--color-surface) / 0.85);
+  backdrop-filter: blur(12px);
+  position: fixed;
+  top: 0; width: 100%;
+  z-index: 1000;
+  border-bottom: 1px solid hsl(var(--color-border));
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-xl);
+  list-style: none;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: hsl(var(--color-text));
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  color: hsl(var(--color-primary));
+}
+
+/* Efecto Parallax Inicio */
+.parallax-wrapper {
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  perspective: 10px;
+}
+
+.parallax-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  transform-style: preserve-3d;
+  z-index: -1;
+}
+
+.parallax-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('hero_parallax_wellness.png');
+  background-size: cover;
+  background-position: center;
+  transform: translateZ(-10px) scale(2.1);
+  z-index: -2;
+}
+
+.parallax-title {
+  text-align: center;
+  color: white;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transform: translateZ(2px) scale(0.8);
+}
+
+/* Secciones */
+.section-content {
+  background: hsl(var(--color-surface));
+  padding: var(--space-2xl) 0;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-section {
+  display: none;
+  animation: fadeIn var(--transition-base);
+}
+
+.tab-section.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Grid de Salas */
+.salas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-xl);
+  padding: var(--space-xl) var(--space-2xl);
+}
+
+.sala-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  border: 1px solid hsl(var(--color-border));
+  display: flex;
+  flex-direction: column;
+}
+
+.sala-card:hover { 
+  transform: translateY(-8px); 
+  box-shadow: var(--shadow-lg);
+}
+
+.sala-img {
+  width: 100%;
+  height: 200px;
+  background-color: hsl(var(--color-primary-light));
+  background-size: cover;
+  background-position: center;
+}
+
+.sala-info {
+  padding: var(--space-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sala-info h3 { color: hsl(var(--color-primary)); margin-bottom: var(--space-xs); }
+.sala-capacity { font-size: var(--text-sm); color: var(--color-text-muted); margin-bottom: var(--space-md); }
+
+.btn-check-availability {
+  margin-top: auto;
+  background: transparent;
+  border: 1.5px solid hsl(var(--color-primary));
+  color: hsl(var(--color-primary));
+  padding: 10px;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-check-availability:hover {
+  background: hsl(var(--color-primary));
+  color: white;
+}
+
+/* Terapias */
+.terapias-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-2xl);
+  padding: var(--space-2xl);
+  text-align: center;
+}
+
+.terapia-item {
+  padding: var(--space-lg);
+}
+
+.terapia-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-md);
+  border-radius: 50%;
+  background: hsl(var(--color-primary-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--color-primary));
+}
+
+.terapia-item h3 { margin-bottom: var(--space-sm); }
+.terapia-item p { color: hsl(var(--color-text-muted)); font-size: var(--text-sm); }
+
+/* Contacto y Mapa */
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  padding: var(--space-xl) var(--space-2xl);
+  align-items: center;
+}
+
+.map-container {
+  height: 400px;
+  background-image: url('map_placeholder_styled.png');
+  background-size: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid hsl(var(--color-border));
+}
+
+.contacto-info h2 { font-size: var(--text-3xl); margin-bottom: var(--space-md); }
+.contacto-info p { margin-bottom: var(--space-lg); }
+
+.btn-contact-bot {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: hsl(var(--color-primary));
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-weight: var(--font-semibold);
+  transition: background var(--transition-fast);
+}
+
+
+.brand {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: hsl(var(--color-primary));
+}
+
+.hero {
+  text-align: center;
+  padding: 6rem var(--space-lg);
+  background: linear-gradient(180deg, hsl(var(--color-surface-elevated)) 0%, hsl(var(--color-surface)) 100%);
+}
+
+.hero p {
+  color: hsl(var(--color-text-muted));
+  max-width: 600px;
+  margin: 0 auto var(--space-lg) auto;
+  font-size: var(--text-lg);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+/* Loading/Error states in DOM */
+.salas-loading { text-align: center; color: hsl(var(--color-text-muted)); }
+.salas-error { text-align: center; color: hsl(var(--color-error)); }
+
+/* Salas Grid */
+.salas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.sala-card {
+  background: hsl(var(--color-surface-chat));
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  border: 1px solid hsl(var(--color-border));
+}
+
+.sala-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.sala-card h3 {
+  color: hsl(var(--color-primary));
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-sm);
+}
+
+.sala-meta p {
+  font-size: var(--text-sm);
+  color: hsl(var(--color-text-muted));
+  margin-bottom: var(--space-xs);
+}
+
+.sala-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+}
+
+.tag {
+  background: hsl(var(--color-primary-light));
+  color: hsl(var(--color-primary-hover));
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}
+
+/* Fin del archivo */
+
