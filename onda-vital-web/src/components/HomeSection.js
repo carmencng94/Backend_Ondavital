@@ -340,6 +340,24 @@ export function HomeSection() {
   injectStyles('home-styles', homeStyles);
   const c = window.siteContent || {};
 
+  const bookingGridContainer = h('div', { id: 'home-booking-grid-container' });
+
+  // Carga asíncrona de la BookingGrid por referencia para evitar condiciones de carrera (race conditions)
+  (async () => {
+    try {
+      const { BookingGrid } = await import('./booking/BookingGrid.js');
+      bookingGridContainer.appendChild(BookingGrid({
+        onReserve: (reservaDetails) => {
+           const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
+           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}* (${rateType}).\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
+           window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
+        }
+      }));
+    } catch (err) {
+      console.error('Error al cargar BookingGrid en HomeSection:', err);
+    }
+  })();
+
   return h('section', { id: 'home', className: 'tab-section active' },
     // Hero con fondo de mar
     h('div', { className: 'hero-sea' },
@@ -398,7 +416,7 @@ export function HomeSection() {
 
         // Vista Rápida de Disponibilidad (Unified Booking Grid)
         h('div', { className: 'quick-avail-home' },
-          h('div', { id: 'home-booking-grid-container' })
+          bookingGridContainer
         )
       )
     ),
@@ -450,18 +468,3 @@ export function HomeSection() {
     )
   );
 }
-
-// Inyección inicial diferida para cargar el Global Grid
-setTimeout(async () => {
-    const container = document.getElementById('home-booking-grid-container');
-    if (container) {
-      const { BookingGrid } = await import('./booking/BookingGrid.js');
-      container.appendChild(BookingGrid({
-        onReserve: (reservaDetails) => {
-           const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
-           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}* (${rateType}).\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
-           window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
-        }
-      }));
-    }
-}, 200);
