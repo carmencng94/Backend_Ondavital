@@ -3,6 +3,11 @@ const pendingChanges = {};
 let currentActivePrefix = '';
 let activeEditLanguage = 'es';
 
+const FRONTEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : 'https://onda-vital.up.railway.app';
+
+
 function buildAuthHeaders(headers = {}) {
   if (!adminToken) {
     return { ...headers };
@@ -169,7 +174,7 @@ function renderContentManager(container) {
         </div>
         <div class="preview-iframe-wrapper" id="preview-frame-wrapper">
           <div id="iframe-scaler" style="position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
-            <iframe id="customizer-preview-iframe" src="/"></iframe>
+            <iframe id="customizer-preview-iframe" src="${FRONTEND_URL}/"></iframe>
           </div>
         </div>
       </div>
@@ -348,7 +353,7 @@ function renderContentManager(container) {
       // Cambiar idioma de la vista previa iframe
       const iframe = document.getElementById('customizer-preview-iframe');
       if (iframe) {
-        iframe.src = `/?lang=${activeEditLanguage}`;
+        iframe.src = `${FRONTEND_URL}/?lang=${activeEditLanguage}`;
       }
 
       loadContentEditor(searchInput?.value.trim() || '');
@@ -1106,7 +1111,7 @@ function renderPreview(container) {
         <strong style="color:var(--text-main);">Vista previa publica</strong>
         <button id="btn-refresh-preview" class="btn-primary-admin" style="width:auto; padding:8px 14px; margin:0;">Recargar vista</button>
       </div>
-      <iframe id="admin-preview-frame" src="/" style="width:100%; min-height:70vh; border:1px solid var(--border-color); border-radius:10px; background:#fff;"></iframe>
+      <iframe id="admin-preview-frame" src="${FRONTEND_URL}/" style="width:100%; min-height:70vh; border:1px solid var(--border-color); border-radius:10px; background:#fff;"></iframe>
     </div>
   `;
 
@@ -1114,7 +1119,7 @@ function renderPreview(container) {
   refreshPreview?.addEventListener('click', () => {
     const frame = document.getElementById('admin-preview-frame');
     if (frame) {
-      frame.src = '/?preview=' + Date.now();
+      frame.src = FRONTEND_URL + '/?preview=' + Date.now();
     }
   });
 }
