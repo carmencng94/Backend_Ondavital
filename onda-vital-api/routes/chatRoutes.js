@@ -6,6 +6,8 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const ChatController = require('../controllers/ChatController');
+const FeedbackModel = require('../models/FeedbackModel');
+const feedbackRateLimit = require('../middleware/feedbackRateLimit');
 
 // 🛡️ Limitador de uso para el Chat (5 peticiones por minuto por IP)
 // Esto evita que bots o usuarios malintencionados consuman saldo de la API sin control
@@ -44,6 +46,29 @@ router.post('/', chatLimiter, validateChat, async (req, res) => {
     res.json({ success: true, ...resultado });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Lo siento, ha ocurrido un error al procesar tu mensaje.' });
+  }
+});
+
+// Endpoint para guardar feedback del chat
+router.post('/feedback', feedbackRateLimit, [
+  body('userMessage').isString().trim(),
+  body('aiResponse').isString().trim(),
+  body('feedbackText').isString().trim().isLength({ max: 150 }).withMessage('El texto de feedback no puede exceder 150 caracteres.')
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+  
+  try {
+    const { userMessage, aiResponse, feedbackText } = req.body;
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    
+    FeedbackModel.create({ userMessage, aiResponse, feedbackText, ipAddress });
+    res.json({ success: true, message: 'Gracias por tu feedback.' });
+  } catch (err) {
+    console.error('Error al guardar feedback:', err);
+    res.status(500).json({ success: false, message: 'Error interno al guardar feedback.' });
   }
 });
 

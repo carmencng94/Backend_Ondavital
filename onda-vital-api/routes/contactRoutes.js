@@ -50,8 +50,30 @@ router.post('/', contactLimiter, validateContact, async (req, res) => {
       from: `"${name}" <${process.env.SMTP_USER}>`,
       replyTo: email,
       to: 'ondavitaloffice@gmail.com',
-      subject: `Contacto Web Onda Vital - ${name}`,
+      subject: `Nuevo mensaje de Contacto Web: ${name}`,
       text: `Nombre: ${name}\nEmail: ${email}\n\nMensaje:\n${message}`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 10px;">
+          <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid #2B6CB0;">
+            <h2 style="color: #2B6CB0; margin-top: 0; font-size: 24px;">Nuevo Mensaje de Contacto</h2>
+            <p style="color: #4A5568; font-size: 16px; margin-bottom: 25px;">Has recibido un nuevo mensaje desde el formulario web de Onda Vital.</p>
+            
+            <div style="background-color: #EDF2F7; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+              <p style="margin: 0 0 10px 0; color: #2D3748;"><strong>Nombre:</strong> ${name}</p>
+              <p style="margin: 0; color: #2D3748;"><strong>Email:</strong> <a href="mailto:${email}" style="color: #3182CE; text-decoration: none;">${email}</a></p>
+            </div>
+            
+            <h3 style="color: #4A5568; font-size: 18px; border-bottom: 2px solid #E2E8F0; padding-bottom: 8px; margin-bottom: 15px;">Mensaje:</h3>
+            <div style="background-color: #ffffff; border: 1px solid #E2E8F0; padding: 20px; border-radius: 6px; color: #2D3748; line-height: 1.6; white-space: pre-wrap; font-size: 15px;">
+              ${message}
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #E2E8F0; text-align: center; color: #A0AEC0; font-size: 13px;">
+              <p>Este correo ha sido enviado automáticamente desde ondavital.com</p>
+            </div>
+          </div>
+        </div>
+      `
     };
 
     await transporter.sendMail(mailOptions);

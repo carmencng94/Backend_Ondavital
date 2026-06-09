@@ -1,23 +1,17 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Onda Vital</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../src/styles/global.css">
-  <link rel="stylesheet" href="./admin.css">
+  <meta charset="utf-8">
+  <title>Redireccionando...</title>
+  <script>
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const backendUrl = isLocal 
+      ? 'http://localhost:3051' 
+      : 'https://onda-vital-api.up.railway.app'; // Reemplazar con tu URL real de la API en Railway
+    window.location.href = backendUrl + '/admin';
+  </script>
 </head>
-
-<body class="admin-body">
-  <div class="admin-app-container" id="admin-app">
-    <!-- El JS inyectará el formulario de Login o el Dashboard aquí -->
-  </div>
-  <script src="./admin.js" type="module"></script>
+<body>
+  <p>Redireccionando al portal seguro de administración...</p>
 </body>
-
 </html>

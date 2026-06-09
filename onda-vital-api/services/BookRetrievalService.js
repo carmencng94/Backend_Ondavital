@@ -6,7 +6,24 @@ const dbPath = path.isAbsolute(rawDbPath)
   ? rawDbPath
   : path.resolve(__dirname, '..', rawDbPath);
 
+let cachedChunks = null;
+
 class BookRetrievalService {
+  static _getChunks() {
+    if (cachedChunks) return cachedChunks;
+    let db;
+    try {
+      db = new Database(dbPath);
+      cachedChunks = db.prepare("SELECT page_num, content FROM book_chunks").all();
+      return cachedChunks;
+    } catch (e) {
+      console.error("Error cacheando book_chunks:", e);
+      return [];
+    } finally {
+      if (db) db.close();
+    }
+  }
+
   /**
    * Busca los fragmentos más relevantes del libro según la consulta del usuario.
    * @param {string} query - Consulta del usuario
@@ -18,11 +35,9 @@ class BookRetrievalService {
       return [];
     }
 
-    let db;
     try {
-      db = new Database(dbPath);
-      // Obtener todos los chunks
-      const chunks = db.prepare("SELECT page_num, content FROM book_chunks").all();
+      // Usar caché en RAM para los fragmentos
+      const chunks = this._getChunks();
       
       if (chunks.length === 0) {
         return [];
@@ -72,10 +87,6 @@ class BookRetrievalService {
     } catch (error) {
       console.error("Error en BookRetrievalService.buscar:", error);
       return [];
-    } finally {
-      if (db) {
-        db.close();
-      }
     }
   }
 }

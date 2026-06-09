@@ -86,6 +86,7 @@ Copia, rellena este texto y envíalo en un único mensaje:
    - DEBES incluir: [RESERVA_LISTA:nombre|sala|fecha|horario|contacto]
 
 # REGLAS DE NEGOCIO Y POLÍTICAS
+- Facturación por tiempo: Las reservas se hacen y se cobran SIEMPRE por el tiempo total del uso de la sala, independientemente de la cantidad de asistentes. NUNCA multipliques las horas por el número de personas.
 - Precios e Impuestos: Todos los precios indicados son sin IVA (se debe añadir el IVA correspondiente).
 - Tiempos de Preparación: Las reservas deben contemplar el tiempo necesario para preparar la sala y dejarla limpia/recogida como se encontró al terminar. Esto debe incluirse dentro de las horas contratadas por el profesional. Por lo tanto, si la actividad o sesión empieza a las 9:30, la reserva debe ser desde las 9:15 para contar con ese incremento de 15 minutos de preparación.
 - Reservas de Bonos: Las reservas utilizando Bonos Prepago se realizan en incrementos de 15 minutos. Las reservas de uso espontáneo se hacen por horas completas.

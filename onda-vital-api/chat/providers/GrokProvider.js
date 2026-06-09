@@ -5,12 +5,21 @@
 
 class GrokProvider {
   constructor() {
-    this.nombre = 'Grok';
     this.apiKey = process.env.GROK_API_KEY || '';
-    this.modelo = process.env.GROK_MODEL || 'grok-beta';
-    this.baseUrl = 'https://api.x.ai/v1';
+    if (this.apiKey.startsWith('gsk_')) {
+      this.nombre = 'Groq';
+      this.modelo = (process.env.GROK_MODEL && !process.env.GROK_MODEL.includes('grok'))
+        ? process.env.GROK_MODEL
+        : 'llama-3.3-70b-versatile';
+      this.baseUrl = 'https://api.groq.com/openai/v1';
+    } else {
+      this.nombre = 'Grok';
+      this.modelo = process.env.GROK_MODEL || 'grok-beta';
+      this.baseUrl = 'https://api.x.ai/v1';
+    }
     this.timeout = 30000;
   }
+
 
   /**
    * Obtiene respuesta usando Grok

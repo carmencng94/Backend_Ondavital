@@ -304,8 +304,59 @@ export function ChatWidget() {
   };
 
   const appendBubble = (role, text) => {
+    const wrapper = h('div', { style: 'display:flex; flex-direction:column; gap:4px; ' + (role === 'user' ? 'align-items:flex-end;' : 'align-items:flex-start;') });
     const bubble = h('div', { className: role === 'user' ? 'bubble-user' : 'bubble-bot' }, text);
-    chatMessages.insertBefore(bubble, typingIndicator);
+    wrapper.appendChild(bubble);
+
+    if (role === 'bot' && !text.includes('Error') && !text.includes('hubo un error')) {
+      const lastUserMsg = chatHistory.slice().reverse().find(m => m.role === 'user')?.content || 'Inicio de chat';
+      
+      const feedbackWrapper = h('div', { style: 'align-self:flex-start; font-size:12px; margin-top:2px; margin-left:8px;' });
+      const btnThumb = h('button', { 
+        style: 'background:none; border:none; cursor:pointer; opacity:0.6; padding:0; filter:grayscale(1); transition:all 0.2s;',
+        title: 'Reportar respuesta incorrecta',
+        onclick: () => {
+          btnThumb.style.display = 'none';
+          const inputWrapper = h('div', { style: 'display:flex; gap:4px; margin-top:2px; animation: chatOpen 0.2s ease;' });
+          const inp = h('input', { type: 'text', placeholder: '¿Por qué? (Máx 150 car.)', maxlength: 150, style: 'font-size:11px; padding:4px 8px; border:1px solid #ddd; border-radius:4px; width:160px; outline:none;' });
+          const btnSend = h('button', { style: 'background:var(--danger-bg); color:var(--danger); border:1px solid rgba(239, 68, 68, 0.3); border-radius:4px; font-size:10px; cursor:pointer; padding:2px 8px;' }, 'Enviar');
+          
+          btnSend.onclick = async () => {
+            const val = inp.value.trim();
+            if (!val) return;
+            btnSend.innerText = '...';
+            btnSend.disabled = true;
+            try {
+              const res = await fetch(window.API_BASE_URL + '/api/chat/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userMessage: lastUserMsg, aiResponse: text, feedbackText: val })
+              });
+              const d = await res.json();
+              if(d.success) {
+                feedbackWrapper.innerHTML = '<span style="color:var(--success); font-size:10px;">¡Gracias! Revisaremos esto.</span>';
+              } else {
+                alert(d.message);
+                btnSend.innerText = 'Enviar';
+                btnSend.disabled = false;
+              }
+            } catch(e) {
+              alert('Error de red al enviar reporte');
+              btnSend.innerText = 'Enviar';
+              btnSend.disabled = false;
+            }
+          };
+          inputWrapper.appendChild(inp);
+          inputWrapper.appendChild(btnSend);
+          feedbackWrapper.appendChild(inputWrapper);
+        }
+      }, '👎');
+      
+      feedbackWrapper.appendChild(btnThumb);
+      wrapper.appendChild(feedbackWrapper);
+    }
+
+    chatMessages.insertBefore(wrapper, typingIndicator);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   };
 

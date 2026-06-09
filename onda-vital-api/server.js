@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminLogsRoutes = require('./routes/adminLogsRoutes');
 const adminReservaRoutes = require('./routes/adminReservaRoutes');
+const adminFeedbackRoutes = require('./routes/adminFeedbackRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
@@ -62,7 +63,14 @@ app.use(express.json({ limit: '10kb' })); // Limitar el tamaño del body para ev
 
 const authMiddleware = require('./middleware/authMiddleware');
 
+// Servir la página de inicio de sesión secreta del admin (configurable en .env, por defecto /acceso)
+const adminLoginPath = process.env.ADMIN_LOGIN_PATH || '/acceso';
+app.get(adminLoginPath, (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin', 'login.html'));
+});
 
+// Servir la carpeta de administración de forma protegida (debe ir antes del static público)
+app.use('/admin', authMiddleware.verifyAdminPage, express.static(path.join(__dirname, 'admin')));
 
 // Rutas de API
 app.use('/api/auth', authRoutes);
@@ -72,6 +80,7 @@ app.use('/api/upload', uploadRoutes);
 // Se dejan rutas legacy en paralelo para compatibilidad temporal.
 app.use('/api/admin/logs', adminLogsRoutes);
 app.use('/api/admin/reservas', adminReservaRoutes);
+app.use('/api/admin/feedbacks', adminFeedbackRoutes);
 
 // Rutas publicas existentes (flujo actual del sitio).
 app.use('/api/chat', chatRoutes);
