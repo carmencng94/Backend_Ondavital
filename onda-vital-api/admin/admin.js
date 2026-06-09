@@ -2216,7 +2216,7 @@ function initAdminChat() {
       const salaId = getSalaId(room);
 
       try {
-        const res = await fetch(`/api/reservas/disponibilidad?salaId=${salaId}&fecha=${fecha}`);
+        const res = await fetch(window.API_BASE_URL + `/api/reservas/disponibilidad?salaId=${salaId}&fecha=${fecha}`);
         const data = await res.json();
         
         loader.style.display = "none";

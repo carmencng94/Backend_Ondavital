@@ -244,14 +244,14 @@ export function BookingGrid({ sala: initSala, onReserve }) {
 
     const dateStr = formatearFecha(date);
     try {
-        const resGlobal = await fetch(`/api/reservas/dia?fecha=${dateStr}`);
+        const resGlobal = await fetch(window.API_BASE_URL + `/api/reservas/dia?fecha=${dateStr}`);
         const dataGlobal = await resGlobal.json();
         state.globalData = dataGlobal.ocupaciones || [];
     } catch(e) { console.error(e); }
 
     if(state.selectedSalaId) {
         try {
-            const res = await fetch(`/api/reservas/disponibilidad?salaId=${state.selectedSalaId}&fecha=${dateStr}`);
+            const res = await fetch(window.API_BASE_URL + `/api/reservas/disponibilidad?salaId=${state.selectedSalaId}&fecha=${dateStr}`);
             const data = await res.json();
             state.slotsData = data.slots || [];
         } catch(e) { console.error(e); }
