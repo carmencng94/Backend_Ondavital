@@ -63,9 +63,10 @@ class ChatController {
       
       const resultado = await chatGateway.obtenerRespuesta(mensaje, mensajesParaIA, idioma, context);
       const procesado = this._procesarRespuestaIA(resultado.respuesta);
+      const respuestaSaneada = this._saneamientoFormato(procesado.respuestaFinal);
       
       return {
-        respuesta: procesado.respuestaFinal,
+        respuesta: respuestaSaneada,
         reservaDetectada: procesado.reservaDetectada,
         idioma: resultado.idioma,
         proveedor: resultado.proveedor,
@@ -96,7 +97,8 @@ class ChatController {
       
       const resultado = await chatGateway.obtenerRespuesta(mensaje, messages, idioma, context);
       const procesado = this._procesarRespuestaIA(resultado.respuesta);
-      return { respuesta: procesado.respuestaFinal, reservaDetectada: procesado.reservaDetectada };
+      const respuestaSaneada = this._saneamientoFormato(procesado.respuestaFinal);
+      return { respuesta: respuestaSaneada, reservaDetectada: procesado.reservaDetectada };
     } catch (error) {
       console.error("Error en ChatController (Legacy):", error);
       throw new Error("Error procesando la consulta.");
@@ -145,9 +147,9 @@ class ChatController {
     // 2. Reemplazar variables en el prompt base
     let promptBase = SYSTEM_PROMPT
       .replace(/{{FECHA_ACTUAL}}/g, fechaActualStr)
-      .replace('{{RESERVAS_OCUPADAS}}', reservasTexto)
-      .replace('{{ID_RESERVA}}', '[PENDIENTE_DE_GENERAR]')
-      .replace('{{IDIOMA}}', idiomaReal);
+      .replace(/{{RESERVAS_OCUPADAS}}/g, reservasTexto)
+      .replace(/{{ID_RESERVA}}/g, '[PENDIENTE_DE_GENERAR]')
+      .replace(/{{IDIOMA}}/g, idiomaReal);
 
     // Inyectar anotación explícita de la ventana de reservas visible para la IA
     promptBase += `\n\n[NOTA DE CONTEXTO - CALENDARIO]: Actualmente estás visualizando únicamente las reservas del periodo/fechas: [${calendarWindowStr}]. Si el cliente solicita reservar o consultar disponibilidad para una fecha que NO se encuentra explícitamente listada en este rango, pídele amablemente que te indique el día deseado para actualizar tu calendario.`;
@@ -287,6 +289,20 @@ class ChatController {
       .trim();
 
     return { respuestaFinal: respuestaLimpia, reservaDetectada };
+  }
+
+  static _saneamientoFormato(texto) {
+    if (!texto) return '';
+    let limpio = texto;
+    // 1. Cambiar guiones o asteriscos de viñetas al inicio de línea por el punto de lista (•)
+    limpio = limpio.replace(/^\s*[-*]\s+/gm, '• ');
+    // 2. Convertir negritas Markdown **texto** a TEXTO en mayúsculas (evitando espacios internos en los bordes)
+    limpio = limpio.replace(/\*\*(?!\s)([^*]+?)(?<!\s)\*\*/g, (match, p1) => p1.toUpperCase());
+    // 3. Convertir cursivas *texto* a texto (quitar los asteriscos, evitando espacios internos en los bordes)
+    limpio = limpio.replace(/\*(?!\s)([^*]+?)(?<!\s)\*/g, '$1');
+    // 4. Eliminar títulos Markdown (líneas que empiezan con #)
+    limpio = limpio.replace(/^#+\s+/gm, '');
+    return limpio;
   }
 }
 
