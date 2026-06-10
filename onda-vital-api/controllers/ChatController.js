@@ -17,10 +17,10 @@ const fallbackType = process.env.CHAT_FALLBACK || 'none';
 
 // Diccionario centralizado de mensajes de error
 const MENSAJES_ERROR = {
-    es: 'Lo siento, ha ocurrido un error al procesar tu solicitud. Por favor, intenta de nuevo más tarde.',
-    en: 'Sorry, an error occurred processing your request. Please try again later.',
-    ca: 'Ho sento, va ocórrer un error processant la teva sol·licitud. Intenta-ho de nou més tard.',
-    de: 'Entschuldigung, es ist ein Fehler bei der Verarbeitung Ihrer Anfrage aufgetreten. Bitte versuchen Sie es später erneut.'
+    es: 'Lo siento, en este momento tengo dificultades para conectar con mis sistemas de Inteligencia Artificial. Si deseas realizar una reserva, puedes hacerlo a través de nuestro sistema de reservas principal en la web o contactar directamente con David.',
+    en: 'Sorry, I am currently experiencing connection difficulties with my Artificial Intelligence systems. If you wish to make a booking, you can do so through our main booking system on the website or contact David directly.',
+    ca: 'Ho sento, en aquest moment tinc dificultats per connectar amb els meus sistemes d\'Intel·ligència Artificial. Si vols fer una reserva, pots fer-ho a través del nostre sistema de reserves principal al web o contactar directament con en David.',
+    de: 'Entschuldigung, ich habe derzeit Verbindungsschwierigkeiten mit meinen Systemen der künstlichen Intelligenz. Wenn Sie eine Buchung vornehmen möchten, können Sie dies über unser Hauptbuchungssystem auf der Website tun oder sich direkt an David wenden.'
 };
 
 // Mapa centralizado de idiomas

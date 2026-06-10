@@ -9,8 +9,9 @@ class OpenRouterProvider {
     this.apiKey = process.env.OPENROUTER_API_KEY || '';
     
     // Soporte para múltiples modelos separados por comas
-    // Forzamos los modelos gratuitos aquí en caso de que la variable de entorno esté atascada en la terminal.
-    const modelEnv = 'google/gemini-2.0-flash-lite-preview-02-05:free,meta-llama/llama-3.3-70b-instruct:free,google/gemini-2.5-flash-lite,deepseek/deepseek-chat,openrouter/auto';
+    // Lee desde las variables de entorno o usa una lista de modelos gratuitos por defecto
+    const defaultModels = 'google/gemma-2-9b-it:free,meta-llama/llama-3.3-70b-instruct:free,qwen/qwen-2.5-72b-instruct:free,openrouter/free,openrouter/auto';
+    const modelEnv = process.env.OPENROUTER_MODEL || defaultModels;
     this.modelos = modelEnv.split(',').map(m => m.trim()).filter(Boolean);
     
     this.baseUrl = 'https://openrouter.ai/api/v1';
