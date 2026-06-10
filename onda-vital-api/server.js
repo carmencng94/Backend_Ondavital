@@ -50,6 +50,7 @@ app.use(helmet({
       connectSrc: ["'self'", "https:", "wss:"],
       fontSrc: ["'self'", "https:", "data:", "fonts.gstatic.com"],
       objectSrc: ["'none'"],
+      frameSrc: ["'self'", "https://onda-vital.up.railway.app", "http://localhost:3000"],
       upgradeInsecureRequests: [],
     },
   }

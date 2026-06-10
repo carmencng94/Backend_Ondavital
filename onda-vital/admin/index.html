@@ -9,7 +9,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../src/styles/global.css">
+  <script>
+    (function() {
+      const frontendUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : 'https://onda-vital.up.railway.app';
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = frontendUrl + '/src/styles/global.css';
+      document.head.appendChild(link);
+    })();
+  </script>
   <link rel="stylesheet" href="./admin.css">
 </head>
 
