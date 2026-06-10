@@ -8,6 +8,63 @@ const FRONTEND_URL = window.location.hostname === 'localhost' || window.location
   : 'https://onda-vital.up.railway.app';
 
 
+function parseReservaContacto(r) {
+  if (!r.contacto) return r;
+  
+  if (r.contacto.includes('|')) {
+    const parts = r.contacto.split('|');
+    let phone = '';
+    let email = '';
+    let actividad = '';
+    let es_ruidosa = false;
+    
+    parts.forEach(part => {
+      const p = part.trim();
+      if (p.startsWith('Tel:')) {
+        phone = p.replace('Tel:', '').trim();
+      } else if (p.startsWith('Email:')) {
+        email = p.replace('Email:', '').trim();
+      } else if (p.startsWith('Actividad:')) {
+        actividad = p.replace('Actividad:', '').trim();
+        const actLower = actividad.toLowerCase();
+        if (actLower.includes('ruido') || actLower.includes('ruidosa') || actLower.includes('música') || actLower.includes('musica')) {
+          es_ruidosa = true;
+        }
+      }
+    });
+    
+    return {
+      ...r,
+      email,
+      telefono: phone,
+      actividad,
+      es_ruidosa: es_ruidosa || r.contacto.includes('🔊')
+    };
+  }
+  
+  const parts = r.contacto.split(',');
+  if (parts.length >= 2) {
+    return {
+      ...r,
+      email: parts[0].trim(),
+      telefono: parts[1].trim()
+    };
+  }
+  
+  const val = r.contacto.trim();
+  if (val.includes('@')) {
+    return {
+      ...r,
+      email: val
+    };
+  } else {
+    return {
+      ...r,
+      telefono: val
+    };
+  }
+}
+
 function buildAuthHeaders(headers = {}) {
   if (!adminToken) {
     return { ...headers };
@@ -462,7 +519,7 @@ async function renderDashboardHome(container) {
       throw new Error(data.error || 'No se pudieron obtener las reservas');
     }
 
-    const reservas = data.reservas;
+    const reservas = data.reservas.map(parseReservaContacto);
     const now = new Date();
 
     // --- 1. Calcular Métricas Reales ---
@@ -564,7 +621,7 @@ async function renderDashboardHome(container) {
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
               <div style="font-weight:600; font-size:0.95rem; color:var(--text-main);">${r.nombre}</div>
-              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">${r.contacto || 'Sin datos de contacto'}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">${(r.email || r.telefono) ? [r.email && `✉️ ${r.email}`, r.telefono && `📞 ${r.telefono}`].filter(Boolean).join('  ') : (r.contacto || 'Sin datos de contacto')}</div>
             </div>
             <span style="font-weight:700; font-size:0.95rem; color:var(--success);">${r.precio}€</span>
           </div>
@@ -906,7 +963,7 @@ async function renderReservations(container) {
       return;
     }
 
-    const { reservas } = data;
+    const reservas = data.reservas.map(parseReservaContacto);
 
     if (reservas.length === 0) {
       container.innerHTML = '<div style="padding: 60px; text-align: center; color: var(--text-muted);">No hay reservas registradas todavía.</div>';
@@ -925,23 +982,9 @@ async function renderReservations(container) {
         ? r.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
         : 'U';
 
-      // Procesar contacto (separar email y telefono si vienen juntos)
-      let email = '';
-      let phone = '';
-      if (r.contacto) {
-        const parts = r.contacto.split(',');
-        if (parts.length >= 2) {
-          email = parts[0].trim();
-          phone = parts[1].trim();
-        } else {
-          const val = r.contacto.trim();
-          if (val.includes('@')) {
-            email = val;
-          } else {
-            phone = val;
-          }
-        }
-      }
+      // Procesar contacto (usar campos extraídos por el helper parseReservaContacto)
+      const email = r.email || '';
+      const phone = r.telefono || '';
 
       card.innerHTML = `
         <div class="res-avatar-wrapper">
@@ -980,6 +1023,15 @@ async function renderReservations(container) {
               <span>${r.horario}h</span>
             </div>
           </div>
+          ${r.actividad ? `
+            <div style="font-size:0.75rem; background:rgba(0,0,0,0.15); padding:6px 10px; border-radius:6px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:8px; width:fit-content;">
+              <span>📋</span> <span>${r.actividad} ${r.es_ruidosa ? '<b style="color:var(--warning)">🔊 Ruidosa</b>' : ''}</span>
+            </div>
+          ` : (r.es_ruidosa ? `
+            <div style="font-size:0.75rem; background:rgba(0,0,0,0.15); padding:6px 10px; border-radius:6px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-top:8px; width:fit-content;">
+              <span>📋</span> <span><b style="color:var(--warning)">🔊 Actividad Ruidosa</b></span>
+            </div>
+          ` : '')}
         </div>
         
         <div class="res-actions-wrapper">

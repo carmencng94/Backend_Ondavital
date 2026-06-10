@@ -29,6 +29,8 @@ export function h(tag, props = {}, ...children) {
       }
     } else if (key === 'dataset' && typeof value === 'object') {
       Object.assign(el.dataset, value);
+    } else if (['checked', 'disabled', 'readOnly', 'required', 'value'].includes(key) && !isSvg) {
+      el[key] = value;
     } else {
       // Atributos como stroke-width o viewbox
       const attrName = key.toLowerCase() === 'viewbox' ? 'viewBox' : key.replace(/[A-Z]/g, m => "-" + m.toLowerCase());

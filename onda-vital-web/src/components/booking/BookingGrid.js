@@ -5,127 +5,401 @@ const bookingStyles = `
 /* Contenedor del Booking System */
 .booking-engine {
   margin-top: var(--space-xl);
-  background: white;
-  border-radius: var(--radius-xl);
-  border: 1px solid hsl(var(--color-border));
-  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-2xl);
+  border: 1px solid hsl(var(--color-primary-light) / 0.3);
+  padding: var(--space-xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  max-width: 500px; /* Limitar ancho en PC */
+  max-width: 520px;
   width: 100%;
   min-width: 0;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 40px -10px rgba(26, 77, 59, 0.12);
+  transition: all 0.3s ease;
 }
 
 .booking-engine h4 {
-  font-size: 1rem;
-  color: hsl(var(--color-primary));
+  font-size: 0.95rem;
+  color: hsl(var(--color-primary-dark));
   margin-bottom: var(--space-xs);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-weight: 700;
 }
 
-.step-num {
-  width: 22px;
-  height: 22px;
-  background: hsl(var(--color-primary));
-  color: white;
+/* Barra de progreso */
+.booking-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding: 0 var(--space-sm);
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: var(--space-md);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.step-dot {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
+  background: #f1f3f5;
+  color: #868e96;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid #e9ecef;
+}
+
+.progress-step.active .step-dot {
+  background: hsl(var(--color-primary));
+  color: white;
+  border-color: hsl(var(--color-primary));
+  box-shadow: 0 0 12px hsl(var(--color-primary) / 0.4);
+}
+
+.progress-step.completed .step-dot {
+  background: hsl(var(--color-accent));
+  color: white;
+  border-color: hsl(var(--color-accent));
+}
+
+.step-label {
+  font-size: 0.72rem;
+  color: #868e96;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-step.active .step-label {
+  color: hsl(var(--color-primary-dark));
+}
+
+.progress-step.completed .step-label {
+  color: hsl(var(--color-accent));
+}
+
+.progress-line {
+  height: 2px;
+  background: #e9ecef;
+  flex: 0.4;
+  margin-top: -18px;
+  transition: all 0.3s ease;
+}
+
+.progress-line.active {
+  background: hsl(var(--color-accent));
 }
 
 /* Selector de fecha */
 .booking-date-picker {
   display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
+  gap: 10px;
+  margin-bottom: var(--space-sm);
   overflow-x: auto;
-  padding-bottom: var(--space-xs);
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.booking-date-picker::-webkit-scrollbar {
+  height: 4px;
+}
+.booking-date-picker::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
 }
 
 .date-card {
-  flex: 0 0 60px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: var(--radius-md);
-  padding: 8px 4px;
+  flex: 0 0 62px;
+  background: #fdfdfd;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-lg);
+  padding: 10px 6px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.date-card:hover {
+  border-color: hsl(var(--color-primary-light));
+  background: hsl(var(--color-primary-light) / 0.05);
+  transform: translateY(-1px);
 }
 
 .date-card.active {
-  background: hsl(var(--color-primary-light) / 0.15);
+  background: hsl(var(--color-primary-light) / 0.12);
   border-color: hsl(var(--color-primary));
   color: hsl(var(--color-primary));
+  box-shadow: 0 4px 10px -2px rgba(26, 77, 59, 0.15);
+  transform: translateY(-1px) scale(1.02);
 }
 
-.date-day { font-size: 0.7rem; text-transform: uppercase; color: #666; }
-.date-num { font-size: 1.2rem; font-weight: 600; }
+.date-day { 
+  font-size: 0.68rem; 
+  text-transform: uppercase; 
+  color: #718096; 
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.date-num { 
+  font-size: 1.25rem; 
+  font-weight: 700; 
+  margin-top: 2px;
+}
 
 /* Timeline Slots */
 .slots-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: var(--space-xs);
 }
 
 .time-slot {
-  padding: 8px 4px;
+  padding: 10px 4px;
   text-align: center;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 0.85rem;
+  font-weight: 600;
   font-family: monospace;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
+  box-shadow: var(--shadow-xs);
 }
 
-.slot-free { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
-.slot-busy { background: #f5f5f5; color: #999; border-color: #eee; cursor: not-allowed; }
-.slot-selected { background: hsl(var(--color-primary)); color: white; transform: scale(1.05); }
+.time-slot:hover:not(.slot-busy) {
+  transform: scale(1.03);
+}
 
-/* Formulario */
-.booking-form {
+.slot-free { 
+  background: #eefdf4; 
+  color: #1b5e20; 
+  border-color: #c8e6c9; 
+}
+.slot-free:hover {
+  background: #e1f7e7;
+  border-color: #81c784;
+}
+.slot-busy { 
+  background: #f8fafc; 
+  color: #cbd5e1; 
+  border-color: #f1f5f9; 
+  cursor: not-allowed; 
+  box-shadow: none;
+}
+.slot-selected { 
+  background: hsl(var(--color-primary)); 
+  color: white; 
+  border-color: hsl(var(--color-primary-dark));
+  box-shadow: 0 4px 12px rgba(26, 77, 59, 0.3);
+  transform: scale(1.05); 
+}
+
+/* Formulario Premium */
+.booking-form-premium {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 12px;
   padding: var(--space-md);
-  background: #fdfdfd;
-  border-radius: var(--radius-lg);
-  border: 1px dashed #ddd;
+  background: rgba(253, 253, 253, 0.8);
+  border-radius: var(--radius-xl);
+  border: 1px solid #e2e8f0;
 }
 
-.booking-form input {
-  padding: 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid #ddd;
+.form-input-premium {
+  padding: 11px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #cbd5e1;
   font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  background: white;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.form-input-premium:focus {
+  border-color: hsl(var(--color-primary));
+  box-shadow: 0 0 0 3px hsl(var(--color-primary-light) / 0.15);
+}
+
+.form-row-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .form-row-two-col {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.checkbox-container-premium {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 2px;
+}
+
+.checkbox-container-premium input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: hsl(var(--color-primary));
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.form-checkbox-label {
+  font-size: 0.82rem;
+  color: #4a5568;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.3;
+}
+
+.booking-note-premium {
+  font-size: 0.78rem;
+  color: #718096;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* Recibo / Ticket Premium */
+.booking-receipt-premium {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-xl);
+  padding: var(--space-md);
+  margin-bottom: var(--space-xs);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.receipt-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: hsl(var(--color-primary-dark));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+}
+
+.receipt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.receipt-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.receipt-val {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.receipt-row.highlight {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 8px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+.receipt-row.highlight .receipt-label {
+  color: hsl(var(--color-primary-dark));
+  font-size: 0.9rem;
+}
+
+.receipt-row.highlight .price {
+  font-size: 1.15rem;
+  color: hsl(var(--color-primary));
+}
+
+.receipt-deposit-box {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: #b45309;
+  line-height: 1.4;
+  margin-top: 4px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Room selector */
+.room-selector {
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #cbd5e1;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+  background-color: white;
+  cursor: pointer;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.room-selector:focus {
+  border-color: hsl(var(--color-primary));
 }
 
 /* Global Busy Info */
 .global-mini-info {
   font-size: 0.8rem;
-  color: #856404;
-  background: #fff3cd;
-  padding: 8px;
-  border-radius: 4px;
-  border-left: 3px solid #ffeeba;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  border-left: 4px solid #f59e0b;
+  box-shadow: var(--shadow-xs);
+  line-height: 1.4;
 }
 
 .booking-summary {
-  margin-top: var(--space-md);
+  margin-top: var(--space-sm);
   padding-top: var(--space-md);
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -135,22 +409,83 @@ const bookingStyles = `
   background: hsl(var(--color-primary));
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: var(--radius-full);
   font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px hsl(var(--color-primary) / 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-reserve:disabled { background: #ccc; cursor: not-allowed; }
+.btn-reserve:hover:not(:disabled) {
+  background: hsl(var(--color-primary-hover), hsl(var(--color-primary)));
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px hsl(var(--color-primary) / 0.35);
+}
+
+.btn-reserve:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-reserve:disabled { 
+  background: #cbd5e1; 
+  color: #94a3b8;
+  cursor: not-allowed; 
+  box-shadow: none;
+}
 
 /* Rates injection */
-.rates-grid { display: flex; gap: var(--space-md); margin-bottom: var(--space-md); }
-.rate-card { background: hsl(var(--color-primary-light) / 0.1); padding: var(--space-md); border-radius: var(--radius-lg); display: flex; flex-direction: column; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; user-select: none; flex: 1; text-align: center; }
-.rate-card:hover { background: hsl(var(--color-primary-light) / 0.2); transform: translateY(-2px); }
-.rate-card.active { border-color: hsl(var(--color-primary)); background: hsl(var(--color-primary-light) / 0.3); box-shadow: var(--shadow-sm); }
-.rate-card span { font-size: var(--text-xs); color: var(--color-text-muted); }
-.rate-card strong { font-size: var(--text-lg); color: hsl(var(--color-primary)); }
+.rates-grid { 
+  display: flex; 
+  gap: var(--space-md); 
+  margin-bottom: var(--space-xs); 
+}
+.rate-card { 
+  background: #f8fafc; 
+  padding: var(--space-md); 
+  border-radius: var(--radius-xl); 
+  display: flex; 
+  flex-direction: column; 
+  cursor: pointer; 
+  border: 2px solid #e2e8f0; 
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+  user-select: none; 
+  flex: 1; 
+  text-align: center; 
+}
+.rate-card:hover { 
+  border-color: hsl(var(--color-primary-light));
+  background: hsl(var(--color-primary-light) / 0.03); 
+  transform: translateY(-1px); 
+}
+.rate-card.active { 
+  border-color: hsl(var(--color-primary)); 
+  background: hsl(var(--color-primary-light) / 0.08); 
+  box-shadow: 0 4px 10px -2px rgba(26, 77, 59, 0.1); 
+}
+.rate-card span { 
+  font-size: var(--text-xs); 
+  color: #64748b; 
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.rate-card strong { 
+  font-size: var(--text-lg); 
+  color: hsl(var(--color-primary-dark)); 
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @media (max-width: 480px) {
   .booking-engine {
@@ -180,7 +515,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     selectedSalaObj: initSala || null,
     loading: false,
     isDayRate: false,
-    form: { nombre: '', contacto: '' }
+    form: { nombre: '', email: '', telefono: '', actividad: '', ruidosa: false }
   };
 
   const container = h('div', { className: 'booking-engine' });
@@ -262,10 +597,13 @@ export function BookingGrid({ sala: initSala, onReserve }) {
   };
 
   const saveAttemptAndGo = async () => {
-    if (!state.form.nombre || !state.form.contacto) {
+    if (!state.form.nombre || !state.form.email || !state.form.telefono) {
         alert(i18n.t('booking_alert_missing'));
         return;
     }
+
+    // Compilamos los campos detallados en el contacto
+    const compiledContacto = `Tel: ${state.form.telefono} | Email: ${state.form.email} | Actividad: ${state.form.actividad || 'No especificada'}${state.form.ruidosa ? ' (Música/Ruido 🔊)' : ''}`;
 
     try {
         // Guardar físicamente en la DB
@@ -274,7 +612,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 nombre: state.form.nombre,
-                contacto: state.form.contacto,
+                contacto: compiledContacto,
                 sala: state.selectedSalaObj?.nombre || state.selectedSalaId,
                 fecha: formatearFecha(state.selectedDate),
                 horario: state.selectedSlots.join(', '),
@@ -283,35 +621,42 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         });
         
         const data = await res.json();
+        const reservaId = data?.reserva?.id || null;
         
         if (onReserve) {
           onReserve({
+            id: reservaId,
             nombre: state.form.nombre,
-            contacto: state.form.contacto,
+            contacto: compiledContacto,
             sala: state.selectedSalaObj?.nombre || state.selectedSalaId,
             fecha: formatearFecha(state.selectedDate),
             slots: state.selectedSlots,
             totalPrice: calculatePrice(),
-            isDayRate: state.isDayRate
+            isDayRate: state.isDayRate,
+            actividad: state.form.actividad,
+            es_ruidosa: state.form.ruidosa
           });
         }
         
         // Reset steps
         state.step = 1;
         state.selectedSlots = [];
-        state.form = { nombre: '', contacto: '' };
+        state.form = { nombre: '', email: '', telefono: '', actividad: '', ruidosa: false };
         render();
 
     } catch(e) {
         console.error('Error guardando intento:', e);
         // Aun si falla la DB, redirigimos a whatsapp para no perder la venta
         if (onReserve) onReserve({ 
+          id: null,
           nombre: state.form.nombre,
-          contacto: state.form.contacto,
+          contacto: compiledContacto,
           sala: state.selectedSalaId, 
           fecha: formatearFecha(state.selectedDate), 
           slots: state.selectedSlots,
-          isDayRate: state.isDayRate
+          isDayRate: state.isDayRate,
+          actividad: state.form.actividad,
+          es_ruidosa: state.form.ruidosa
         });
     }
   };
@@ -336,10 +681,24 @@ export function BookingGrid({ sala: initSala, onReserve }) {
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
+
+    // --- STEP PROGRESS BAR (Aparece en ambos pasos) ---
+    const progressBar = h('div', { className: 'booking-progress-bar' },
+      h('div', { className: `progress-step ${state.step === 1 ? 'active' : 'completed'}` },
+        h('span', { className: 'step-dot' }, state.step === 1 ? '1' : '✓'),
+        h('span', { className: 'step-label' }, i18n.t('booking_step2') || 'Horas')
+      ),
+      h('div', { className: `progress-line ${state.step === 2 ? 'active' : ''}` }),
+      h('div', { className: `progress-step ${state.step === 2 ? 'active' : ''}` },
+        h('span', { className: 'step-dot' }, '2'),
+        h('span', { className: 'step-label' }, i18n.t('booking_step3') || 'Datos')
+      )
+    );
+    container.appendChild(progressBar);
     
     if (state.step === 1) {
         // --- STEP 1: CALENDAR & SELECTION ---
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '1'), i18n.t('booking_step1')));
+        container.appendChild(h('h4', {}, i18n.t('booking_step1')));
         const dateCardsContainer = h('div', { className: 'booking-date-picker' });
         generateDates().forEach(d => {
             const isSelected = d.toDateString() === state.selectedDate.toDateString();
@@ -373,7 +732,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             ));
         }
 
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '2'), i18n.t('booking_step2')));
+        container.appendChild(h('h4', {}, i18n.t('booking_step2')));
         if (!initSala) {
           const selectBox = h('select', { 
               className: 'room-selector',
@@ -505,8 +864,40 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         container.appendChild(summary);
 
     } else {
-        // --- STEP 2: CONTACT FORM ---
-        container.appendChild(h('h4', {}, h('span', {className:'step-num'}, '3'), i18n.t('booking_step3')));
+        // --- STEP 2: DETAILS FORM ---
+        container.appendChild(h('h4', {}, i18n.t('booking_step3')));
+
+        // Visual Receipt Summary
+        const totalPrice = calculatePrice();
+        const depositPrice = Math.round(totalPrice * 0.5);
+        const isDepositRequired = state.isDayRate || state.selectedSlots.length >= 3;
+
+        const receiptContainer = h('div', { className: 'booking-receipt-premium' },
+          h('div', { className: 'receipt-title' }, i18n.t('booking_receipt_title') || 'Resumen de tu Pre-Reserva'),
+          h('div', { className: 'receipt-grid' },
+            h('div', { className: 'receipt-row' }, 
+              h('span', { className: 'receipt-label' }, i18n.t('booking_receipt_room') || 'Sala:'),
+              h('span', { className: 'receipt-val' }, state.selectedSalaObj?.nombre || state.selectedSalaId)
+            ),
+            h('div', { className: 'receipt-row' }, 
+              h('span', { className: 'receipt-label' }, i18n.t('booking_receipt_date') || 'Fecha:'),
+              h('span', { className: 'receipt-val' }, state.selectedDate.toLocaleDateString(i18n.currentLanguage === 'ca' ? 'ca-ES' : i18n.currentLanguage === 'de' ? 'de-DE' : i18n.currentLanguage === 'en' ? 'en-GB' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' }))
+            ),
+            h('div', { className: 'receipt-row' }, 
+              h('span', { className: 'receipt-label' }, i18n.t('booking_receipt_time') || 'Horario:'),
+              h('span', { className: 'receipt-val' }, state.selectedSlots.join(', ') + 'h' + ` (${state.selectedSlots.length} h)`)
+            ),
+            h('div', { className: 'receipt-row highlight' }, 
+              h('span', { className: 'receipt-label' }, i18n.t('booking_receipt_price') || 'Precio Estimado:'),
+              h('span', { className: 'receipt-val price' }, `${totalPrice}€`)
+            )
+          ),
+          isDepositRequired ? h('div', { className: 'receipt-deposit-box' },
+            h('strong', {}, (i18n.t('booking_receipt_deposit') || '⚠️ Depósito del 50% requerido') + ': '),
+            h('span', {}, (i18n.t('booking_receipt_deposit_desc') || 'Se requiere un depósito de {deposit}€ para confirmar la reserva.').replace('{deposit}', depositPrice))
+          ) : null
+        );
+        container.appendChild(receiptContainer);
         
         const confirmBtn = h('button', { 
             className: 'btn-reserve',
@@ -514,7 +905,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
         }, i18n.t('booking_confirm'));
 
         const updateBtnState = () => {
-            if (state.form.nombre && state.form.contacto) {
+            if (state.form.nombre && state.form.email && state.form.telefono) {
                 confirmBtn.disabled = false;
                 confirmBtn.style.opacity = '1';
             } else {
@@ -525,7 +916,7 @@ export function BookingGrid({ sala: initSala, onReserve }) {
 
         const inputNombre = h('input', { 
             type: 'text', placeholder: i18n.t('booking_name_ph'), 
-            className: 'form-input',
+            className: 'form-input-premium',
             value: state.form.nombre,
             oninput: (e) => { 
                 state.form.nombre = e.target.value; 
@@ -533,20 +924,60 @@ export function BookingGrid({ sala: initSala, onReserve }) {
             }
         });
         
-        const inputContacto = h('input', { 
-            type: 'text', placeholder: i18n.t('booking_contact_ph'), 
-            className: 'form-input',
-            value: state.form.contacto,
+        const inputEmail = h('input', { 
+            type: 'email', placeholder: i18n.t('booking_email_ph') || 'Correo electrónico', 
+            className: 'form-input-premium',
+            value: state.form.email,
             oninput: (e) => { 
-                state.form.contacto = e.target.value; 
+                state.form.email = e.target.value; 
                 updateBtnState();
             }
         });
 
-        const form = h('div', { className: 'booking-form' },
+        const inputTelefono = h('input', { 
+            type: 'tel', placeholder: i18n.t('booking_phone_ph') || 'Teléfono / WhatsApp', 
+            className: 'form-input-premium',
+            value: state.form.telefono,
+            oninput: (e) => { 
+                state.form.telefono = e.target.value; 
+                updateBtnState();
+            }
+        });
+
+        const inputActividad = h('input', { 
+            type: 'text', placeholder: i18n.t('booking_activity_ph') || '¿Qué actividad realizarás?', 
+            className: 'form-input-premium',
+            value: state.form.actividad,
+            oninput: (e) => { 
+                state.form.actividad = e.target.value; 
+            }
+        });
+
+        const checkboxRuidosa = h('input', {
+            type: 'checkbox',
+            id: 'ruidosa-chk',
+            checked: state.form.ruidosa,
+            onchange: (e) => {
+                state.form.ruidosa = e.target.checked;
+            }
+        });
+
+        const labelRuidosa = h('label', { 
+            for: 'ruidosa-chk', 
+            className: 'form-checkbox-label' 
+        }, i18n.t('booking_ruidosa_label') || 'Implica música, sonido o ruido considerable');
+
+        const checkboxContainer = h('div', { className: 'checkbox-container-premium' },
+            checkboxRuidosa,
+            labelRuidosa
+        );
+
+        const form = h('div', { className: 'booking-form-premium' },
             inputNombre,
-            inputContacto,
-            h('p', {style:{fontSize:'0.8rem', color:'#666'}}, i18n.t('booking_form_note'))
+            h('div', { className: 'form-row-two-col' }, inputEmail, inputTelefono),
+            inputActividad,
+            checkboxContainer,
+            h('p', { className: 'booking-note-premium' }, i18n.t('booking_form_note'))
         );
         container.appendChild(form);
 

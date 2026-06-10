@@ -774,17 +774,17 @@ function SalaModal(sala) {
                   const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
                   const translatedSalaName = i18n.t(roomKey + '_nombre') || sala.nombre;
 
-                  let textActividad = reservaDetails.actividad ? `\nActividad: ${reservaDetails.actividad}` : '';
-                  if (reservaDetails.es_ruidosa) {
-                    textActividad += ' (Implica música/ruido) 🔊';
-                  }
-
-                  const texto = (i18n.t('wa_message')
+                  const template = reservaDetails.id ? i18n.t('wa_message_chat') : i18n.t('wa_message');
+                  let texto = template
                     .replace('{nombre}', reservaDetails.nombre || '')
                     .replace('{sala}', `${translatedSalaName} (${rateType})`)
                     .replace('{fecha}', reservaDetails.fecha)
                     .replace('{horario}', reservaDetails.slots.join(', ') + 'h')
-                    .replace('{contacto}', reservaDetails.contacto || '')) + textActividad;
+                    .replace('{contacto}', reservaDetails.contacto || '');
+
+                  if (reservaDetails.id) {
+                    texto = texto.replace('{id}', reservaDetails.id);
+                  }
 
                   window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
                 }

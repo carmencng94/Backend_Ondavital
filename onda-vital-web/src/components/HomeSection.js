@@ -349,7 +349,18 @@ export function HomeSection() {
       bookingGridContainer.appendChild(BookingGrid({
         onReserve: (reservaDetails) => {
            const rateType = reservaDetails.isDayRate ? i18n.t('salas_rate_day') : i18n.t('salas_rate_hour');
-           const texto = `Hola, quiero pre-reservar la sala *${reservaDetails.sala}* (${rateType}).\n\n- Fecha: ${reservaDetails.fecha}\n- Horario: ${reservaDetails.slots.join(', ')}h\n\n¿Me confirmas disponibilidad?`;
+           const template = reservaDetails.id ? i18n.t('wa_message_chat') : i18n.t('wa_message');
+           let texto = template
+             .replace('{nombre}', reservaDetails.nombre || '')
+             .replace('{sala}', `${reservaDetails.sala} (${rateType})`)
+             .replace('{fecha}', reservaDetails.fecha)
+             .replace('{horario}', reservaDetails.slots.join(', ') + 'h')
+             .replace('{contacto}', reservaDetails.contacto || '');
+
+           if (reservaDetails.id) {
+             texto = texto.replace('{id}', reservaDetails.id);
+           }
+
            window.location.href = `https://wa.me/34601392161?text=${encodeURIComponent(texto)}`;
         }
       }));
