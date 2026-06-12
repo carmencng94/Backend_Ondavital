@@ -115,24 +115,72 @@ class GoogleCalendarService {
    * Normaliza una fecha a formato YYYY-MM-DD
    * @private
    */
-  parseFecha(fechaStr) {
+  parseFecha(fechaStr, createdAtStr) {
     if (!fechaStr) return '';
-    if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
-      return fechaStr;
+    const cleanStr = fechaStr.trim().toLowerCase();
+    
+    // 1. Check if it's already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(cleanStr)) {
+      return cleanStr;
     }
-    const match = fechaStr.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
-    if (match) {
-      const day = match[1].padStart(2, '0');
-      const month = match[2].padStart(2, '0');
-      const year = match[3];
+    
+    // 2. Check if it's DD/MM/YYYY or DD-MM-YYYY
+    const matchDmy = cleanStr.match(/^(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})$/);
+    if (matchDmy) {
+      const day = matchDmy[1].padStart(2, '0');
+      const month = matchDmy[2].padStart(2, '0');
+      const year = matchDmy[3];
       return `${year}-${month}-${day}`;
     }
-    return fechaStr;
+
+    // 3. Handle relative dates using createdAt as base
+    const baseDate = createdAtStr ? new Date(createdAtStr) : new Date();
+    
+    if (cleanStr === 'hoy') {
+      return baseDate.toISOString().split('T')[0];
+    }
+    if (cleanStr === 'mañana') {
+      const tomorrow = new Date(baseDate);
+      tomorrow.setDate(baseDate.getDate() + 1);
+      return tomorrow.toISOString().split('T')[0];
+    }
+    
+    // Handle "XX de este mes"
+    const matchEsteMes = cleanStr.match(/^(\d{1,2})\s+de\s+este\s+mes$/);
+    if (matchEsteMes) {
+      const day = parseInt(matchEsteMes[1], 10);
+      const targetDate = new Date(baseDate);
+      targetDate.setDate(day);
+      return targetDate.toISOString().split('T')[0];
+    }
+    
+    // Handle "XX de [mes]"
+    const meses = {
+      enero: 0, feb: 1, febrero: 1, mar: 2, marzo: 2, abr: 3, abril: 3,
+      may: 4, mayo: 4, jun: 5, junio: 5, jul: 6, julio: 6, ago: 7, agosto: 7,
+      sep: 8, septiembre: 8, oct: 9, octubre: 9, nov: 10, noviembre: 10,
+      dic: 11, diciembre: 11
+    };
+    
+    const matchDeMes = cleanStr.match(/^(\d{1,2})\s+de\s+([a-zñáéíóú]+)$/);
+    if (matchDeMes) {
+      const day = parseInt(matchDeMes[1], 10);
+      const mesNombre = matchDeMes[2];
+      if (meses[mesNombre] !== undefined) {
+        const targetDate = new Date(baseDate);
+        targetDate.setMonth(meses[mesNombre]);
+        targetDate.setDate(day);
+        return targetDate.toISOString().split('T')[0];
+      }
+    }
+
+    // Fallback: return ISO date of baseDate
+    return baseDate.toISOString().split('T')[0];
   }
 
   /**
    * Crea un evento en Google Calendar basado en una reserva.
-   * @param {Object} reserva - { id, nombre, sala, fecha, horario }
+   * @param {Object} reserva - { id, nombre, sala, fecha, horario, createdAt }
    */
   async crearEvento(reserva) {
     try {
@@ -142,7 +190,7 @@ class GoogleCalendarService {
       }
 
       const { start, end } = this.parseHorario(reserva.horario);
-      const fechaParsed = this.parseFecha(reserva.fecha);
+      const fechaParsed = this.parseFecha(reserva.fecha, reserva.createdAt);
 
       const startTime = `${fechaParsed}T${start}:00`;
       const endTime = `${fechaParsed}T${end}:00`;
@@ -184,7 +232,7 @@ class GoogleCalendarService {
   /**
    * Actualiza un evento existente en Google Calendar.
    * @param {string} eventId - ID del evento a actualizar
-   * @param {Object} reserva - { id, nombre, sala, fecha, horario }
+   * @param {Object} reserva - { id, nombre, sala, fecha, horario, createdAt }
    */
   async actualizarEvento(eventId, reserva) {
     try {
@@ -198,7 +246,7 @@ class GoogleCalendarService {
       }
 
       const { start, end } = this.parseHorario(reserva.horario);
-      const fechaParsed = this.parseFecha(reserva.fecha);
+      const fechaParsed = this.parseFecha(reserva.fecha, reserva.createdAt);
 
       const startTime = `${fechaParsed}T${start}:00`;
       const endTime = `${fechaParsed}T${end}:00`;
