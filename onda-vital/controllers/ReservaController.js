@@ -34,7 +34,7 @@ class ReservaController {
     const timeMax = `${fechaDateStr}T23:59:59Z`;
     let busyPeriods = [];
     try {
-      busyPeriods = await googleCalendarService.checkBusyPeriods(timeMin, timeMax);
+      busyPeriods = await googleCalendarService.getPersonalBusyPeriods(timeMin, timeMax);
     } catch (e) {
       console.error("Error al consultar Google Calendar para el grid:", e.message);
     }
@@ -92,7 +92,7 @@ class ReservaController {
     const timeMax = `${fechaDateStr}T23:59:59Z`;
     let busyPeriods = [];
     try {
-      busyPeriods = await googleCalendarService.checkBusyPeriods(timeMin, timeMax);
+      busyPeriods = await googleCalendarService.getPersonalBusyPeriods(timeMin, timeMax);
     } catch (e) {
       console.error("Error al consultar Google Calendar:", e.message);
     }

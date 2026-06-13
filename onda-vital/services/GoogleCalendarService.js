@@ -217,6 +217,7 @@ class GoogleCalendarService {
 
       const response = await this.calendar.events.insert({
         calendarId: this.calendarId,
+        sendUpdates: 'none',
         resource: event,
       });
 
@@ -274,6 +275,7 @@ class GoogleCalendarService {
       const response = await this.calendar.events.update({
         calendarId: this.calendarId,
         eventId: eventId,
+        sendUpdates: 'none',
         resource: event,
       });
 
@@ -340,6 +342,36 @@ class GoogleCalendarService {
       return busyPeriods;
     } catch (error) {
       console.error('Error al consultar periodos ocupados en Google Calendar:', error.message);
+      return [];
+    }
+  }
+
+  async getPersonalBusyPeriods(timeMin, timeMax) {
+    try {
+      if (!this.calendarId) {
+        console.warn('Google Calendar ID no configurado en .env. No se pueden verificar periodos ocupados.');
+        return [];
+      }
+
+      const response = await this.calendar.events.list({
+        calendarId: this.calendarId,
+        timeMin,
+        timeMax,
+        singleEvents: true,
+        showDeleted: false,
+      });
+
+      const events = response.data.items || [];
+      const busyPeriods = events
+        .filter(event => event.extendedProperties?.private?.origin !== 'ondavital')
+        .map(event => ({
+          start: event.start.dateTime || event.start.date,
+          end: event.end.dateTime || event.end.date
+        }));
+
+      return busyPeriods;
+    } catch (error) {
+      console.error('Error al consultar eventos en Google Calendar:', error.message);
       return [];
     }
   }

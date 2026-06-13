@@ -50,11 +50,11 @@ class AvailabilityService {
     // Consulta Google Calendar (Filtro de Privacidad: Busy only)
     const timeMin = slotStartWithBuffer.toISOString();
     const timeMax = slotEndWithBuffer.toISOString();
-    // const busyPeriods = await googleCalendarService.checkBusyPeriods(timeMin, timeMax);
+    // const busyPeriods = await googleCalendarService.getPersonalBusyPeriods(timeMin, timeMax);
     // Para entornos dev donde Calendar no esté configurado, asumimos array vacío o simulamos
     let busyPeriods = [];
     try {
-        busyPeriods = await googleCalendarService.checkBusyPeriods(timeMin, timeMax);
+        busyPeriods = await googleCalendarService.getPersonalBusyPeriods(timeMin, timeMax);
     } catch(e) { /* Ignorar error de red si no hay credentials */ }
 
     let isRed = false;
@@ -69,10 +69,9 @@ class AvailabilityService {
     // Validar en base de datos local
     const requestedRoomReservas = allReservas.filter(r => r.sala === roomID);
     for (const res of requestedRoomReservas) {
-        // En DB local el horario viene tipo "10:00"
-        const resHorasMin = res.horario.split(':');
-        // Reconstruimos start date asumiendo timezone actual
-        const resStart = new Date(`${fechaYYYYMMDD}T${res.horario}:00`);
+        const [h, m] = res.horario.split(':');
+        const paddedHorario = `${h.padStart(2, '0')}:${m}`;
+        const resStart = new Date(`${fechaYYYYMMDD}T${paddedHorario}:00`);
         const resEnd = new Date(resStart.getTime() + 60 * 60 * 1000);
         
         // Verifica si hay overlapping (incluyendo buffer de 20 min)
@@ -108,7 +107,9 @@ class AvailabilityService {
     let adjacentActivity = '';
     const otherRoomReservas = allReservas.filter(r => r.sala !== roomID);
     for (const res of otherRoomReservas) {
-        const resStart = new Date(`${fechaYYYYMMDD}T${res.horario}:00`);
+        const [h, m] = res.horario.split(':');
+        const paddedHorario = `${h.padStart(2, '0')}:${m}`;
+        const resStart = new Date(`${fechaYYYYMMDD}T${paddedHorario}:00`);
         const resEnd = new Date(resStart.getTime() + 60 * 60 * 1000);
         if ((slotStart < resEnd) && (slotEnd > resStart)) {
             isYellow = true;

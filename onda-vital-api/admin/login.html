@@ -297,7 +297,7 @@
 
   <div class="login-container">
     <div class="login-card">
-      <img src="/assets/images/logo_onda_vital.png" alt="Onda Vital Logo" class="logo" onerror="this.style.display='none'">
+      <img src="/assets/images/logo_onda_vital.png" alt="Onda Vital Logo" class="logo" id="logo-img">
       <h1>Acceso de Personal</h1>
       <p class="subtitle">Onda Vital - Portal de Administración</p>
 
@@ -332,6 +332,11 @@
   </div>
 
   <script>
+    // Safe error handling for the logo image to prevent CSP issues with inline handlers
+    document.getElementById('logo-img').addEventListener('error', function() {
+      this.style.display = 'none';
+    });
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
